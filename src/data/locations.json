@@ -1,0 +1,248 @@
+[
+  {
+    "slug": "riyadh",
+    "nameAr": "الرياض",
+    "regionAr": "منطقة الرياض",
+    "category": "restaurants",
+    "categoryName": "دليل المطاعم والكافيهات",
+    "description": "دليل شامل لأرقى وأفضل المطاعم والكافيهات وأماكن العائلات في مدينة الرياض مع تقييمات العملاء.",
+    "h1": "دليل أفضل المطاعم والكافيهات في الرياض",
+    "adjacent": [
+      { "name": "الدرعية", "slug": "diriyah" },
+      { "name": "الخرج", "slug": "alkharj" },
+      { "name": "المجمعة", "slug": "almajmaah" }
+    ]
+  },
+  {
+    "slug": "jeddah",
+    "nameAr": "جدة",
+    "regionAr": "منطقة مكة المكرمة",
+    "category": "restaurants",
+    "categoryName": "دليل المطاعم والكافيهات",
+    "description": "استكشف أفضل مطاعم ومقاهي عروس البحر الاحمر مدينة جدة على الكورنيش وفي جميع الأحياء.",
+    "h1": "دليل أفضل المطاعم والكافيهات في جدة",
+    "adjacent": [
+      { "name": "مكة المكرمة", "slug": "makkah" },
+      { "name": "الطائف", "slug": "taif" },
+      { "name": "رابغ", "slug": "rabigh" }
+    ]
+  },
+  {
+    "slug": "makkah",
+    "nameAr": "مكة المكرمة",
+    "regionAr": "منطقة مكة المكرمة",
+    "category": "services",
+    "categoryName": "دليل الخدمات والمرافق",
+    "description": "أهم الخدمات العامة، المرافق، وأسواق مكة المكرمة لقاصدي البيت الحرام والمقيمين.",
+    "h1": "دليل الخدمات والمرافق العامة في مكة المكرمة",
+    "adjacent": [
+      { "name": "جدة", "slug": "jeddah" },
+      { "name": "الطائف", "slug": "taif" }
+    ]
+  },
+  {
+    "slug": "dammam",
+    "nameAr": "الدمام",
+    "regionAr": "المنطقة الشرقية",
+    "category": "restaurants",
+    "categoryName": "دليل المطاعم والكافيهات",
+    "description": "تعرف على أفضل مطاعم الأسماك والمشويات والجلسات العائلية في مدينة الدمام.",
+    "h1": "دليل أفضل المطاعم والكافيهات في الدمام",
+    "adjacent": [
+      { "name": "الخبر", "slug": "khobar" },
+      { "name": "الجبيل", "slug": "jubail" },
+      { "name": "الأحساء", "slug": "alhasa" }
+    ]
+  },
+  {
+    "slug": "khobar",
+    "nameAr": "الخبر",
+    "regionAr": "المنطقة الشرقية",
+    "category": "restaurants",
+    "categoryName": "دليل المطاعم والكافيهات",
+    "description": "أشهر المطاعم العالمية والمحلية والكافيهات المميزة على كورنيش الخبر.",
+    "h1": "دليل أفضل المطاعم والكافيهات في الخبر",
+    "adjacent": [
+      { "name": "الدمام", "slug": "dammam" },
+      { "name": "القطيف", "slug": "qatif" }
+    ]
+  },
+  {
+    "slug": "abha",
+    "nameAr": "أبها",
+    "regionAr": "منطقة عسير",
+    "category": "weather",
+    "categoryName": "حالة الطقس ودرجات الحرارة",
+    "description": "تابع حالة الطقس، درجات الحرارة، وضباب عروس السحاب مدينة أبها لحظة بلحظة.",
+    "h1": "حالة الطقس ودرجات الحرارة اليوم في أبها",
+    "adjacent": [
+      { "name": "خميس مشيط", "slug": "khamis-mushait" },
+      { "name": "بيشة", "slug": "bisha" }
+    ]
+  },
+  {
+    "slug": "khamis-mushait",
+    "nameAr": "خميس مشيط",
+    "regionAr": "منطقة عسير",
+    "category": "restaurants",
+    "categoryName": "دليل المطاعم والكافيهات",
+    "description": "أبرز المطاعم الشعبية والعصرية وأماكن التسوق في محافظة خميس مشيط.",
+    "h1": "دليل أفضل المطاعم والكافيهات في خميس مشيط",
+    "adjacent": [
+      { "name": "أبها", "slug": "abha" }
+    ]
+  },
+  {
+    "slug": "jazan",
+    "nameAr": "جازان",
+    "regionAr": "منطقة جازان",
+    "category": "restaurants",
+    "categoryName": "دليل المطاعم والكافيهات",
+    "description": "أفضل المطاعم البحرية والأكلات الشعبية الجازانية في مدينة جازان ومحافظاتها.",
+    "h1": "دليل أفضل المطاعم والكافيهات في جازان",
+    "adjacent": [
+      { "name": "صامطة", "slug": "samtah" },
+      { "name": "أبو عريش", "slug": "abu-arish" },
+      { "name": "صبيا", "slug": "sabya" }
+    ]
+  },
+  {
+    "slug": "samtah",
+    "nameAr": "صامطة",
+    "regionAr": "منطقة جازان",
+    "category": "restaurants",
+    "categoryName": "دليل المطاعم والكافيهات",
+    "description": "استكشف أفضل المطاعم، الكافيهات، وأماكن العائلات في محافظة صامطة مع التقييمات وأرقام التواصل.",
+    "h1": "دليل أفضل المطاعم والكافيهات في صامطة",
+    "adjacent": [
+      { "name": "أبو عريش", "slug": "abu-arish" },
+      { "name": "أحد المسارحة", "slug": "ahad-al-masarhah" }
+    ]
+  },
+  {
+    "slug": "samtah",
+    "nameAr": "صامطة",
+    "regionAr": "منطقة جازان",
+    "category": "weather",
+    "categoryName": "حالة الطقس ودرجات الحرارة",
+    "description": "توقعات حالة الطقس، درجات الحرارة اليوم، وحالة الرطوبة والرياح في محافظة صامطة لحظة بلحظة.",
+    "h1": "حالة الطقس ودرجات الحرارة اليوم في صامطة",
+    "adjacent": [
+      { "name": "أبو عريش", "slug": "abu-arish" }
+    ]
+  },
+  {
+    "slug": "abu-arish",
+    "nameAr": "أبو عريش",
+    "regionAr": "منطقة جازان",
+    "category": "restaurants",
+    "categoryName": "دليل المطاعم والكافيهات",
+    "description": "دليل شامل لأرقى المطاعم والمطابخ الشعبية في محافظة أبو عريش.",
+    "h1": "دليل أفضل المطاعم والكافيهات في أبو عريش",
+    "adjacent": [
+      { "name": "صامطة", "slug": "samtah" },
+      { "name": "جازان", "slug": "jazan" }
+    ]
+  },
+  {
+    "slug": "medina",
+    "nameAr": "المدينة المنورة",
+    "regionAr": "منطقة المدينة المنورة",
+    "category": "services",
+    "categoryName": "دليل الخدمات والمرافق",
+    "description": "دليل زوار طيبة الطيبة والخدمات العامة والمرافق المحيطة بالمسجد النبوي الشريف.",
+    "h1": "دليل الخدمات والمرافق العامة في المدينة المنورة",
+    "adjacent": [
+      { "name": "ينبع", "slug": "yanbu" },
+      { "name": "العلا", "slug": "alula" }
+    ]
+  },
+  {
+    "slug": "buraidah",
+    "nameAr": "بريدة",
+    "regionAr": "منطقة القصيم",
+    "category": "restaurants",
+    "categoryName": "دليل المطاعم والكافيهات",
+    "description": "أشهر مطاعم ومقاهي مدينة بريدة عاصمة القصيم ومركزا الأسواق الشعبية.",
+    "h1": "دليل أفضل المطاعم والكافيهات في بريدة",
+    "adjacent": [
+      { "name": "عنيزة", "slug": "unaizah" },
+      { "name": "الرس", "slug": "alrass" }
+    ]
+  },
+  {
+    "slug": "tabuk",
+    "nameAr": "تبوك",
+    "regionAr": "منطقة تبوك",
+    "category": "weather",
+    "categoryName": "حالة الطقس ودرجات الحرارة",
+    "description": "حالة الطقس وتوقعات درجات الحرارة وأجواء الشتاء والصيف في منطقة تبوك.",
+    "h1": "حالة الطقس ودرجات الحرارة اليوم في تبوك",
+    "adjacent": [
+      { "name": "ضباء", "slug": "duba" },
+      { "name": "حقل", "slug": "haql" }
+    ]
+  },
+  {
+    "slug": "hail",
+    "nameAr": "حائل",
+    "regionAr": "منطقة حائل",
+    "category": "restaurants",
+    "categoryName": "دليل المطاعم والكافيهات",
+    "description": "دليل مطاعم الجبلين مدينة حائل وأشهر الأكلات الشعبية النجدية والشمالية.",
+    "h1": "دليل أفضل المطاعم والكافيهات في حائل",
+    "adjacent": [
+      { "name": "بقعاء", "slug": "baqaa" }
+    ]
+  },
+  {
+    "slug": "najran",
+    "nameAr": "نجران",
+    "regionAr": "منطقة نجران",
+    "category": "services",
+    "categoryName": "دليل الخدمات والمرافق",
+    "description": "دليل الخدمات العامة والمعالم التاريخية في منطقة نجران.",
+    "h1": "دليل الخدمات والمرافق العامة في نجران",
+    "adjacent": [
+      { "name": "شرورة", "slug": "sharurah" }
+    ]
+  },
+  {
+    "slug": "albaha",
+    "nameAr": "الباحة",
+    "regionAr": "منطقة الباحة",
+    "category": "weather",
+    "categoryName": "حالة الطقس ودرجات الحرارة",
+    "description": "حالة الطقس وأجواء الغابات والأمطار في منتزهات منطقة الباحة.",
+    "h1": "حالة الطقس ودرجات الحرارة اليوم في الباحة",
+    "adjacent": [
+      { "name": "بلجرشي", "slug": "baljurashi" }
+    ]
+  },
+  {
+    "slug": "sakakah",
+    "nameAr": "سكاكا",
+    "regionAr": "منطقة الجوف",
+    "category": "restaurants",
+    "categoryName": "دليل المطاعم والكافيهات",
+    "description": "أفضل المطاعم والاستراحات والأسواق في مدينة سكاكا ومحافظات الجوف.",
+    "h1": "دليل أفضل المطاعم والكافيهات في سكاكا",
+    "adjacent": [
+      { "name": "القريات", "slug": "qurayyat" },
+      { "name": "دومة الجندل", "slug": "dumat-aljandal" }
+    ]
+  },
+  {
+    "slug": "arar",
+    "nameAr": "عرعر",
+    "regionAr": "منطقة الحدود الشمالية",
+    "category": "weather",
+    "categoryName": "حالة الطقس ودرجات الحرارة",
+    "description": "توقعات حالة الطقس وحرارة الجو في مدينة عرعر ومنطقة الحدود الشمالية.",
+    "h1": "حالة الطقس ودرجات الحرارة اليوم في عرعر",
+    "adjacent": [
+      { "name": "رفحاء", "slug": "rafha" },
+      { "name": "طريف", "slug": "turaif" }
+    ]
+  }
+]
