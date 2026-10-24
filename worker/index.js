@@ -1,4 +1,5 @@
 import cities from "../src/data/cities.json";
+import legacyLocations from "../src/data/locations.json";
 
 const CATEGORY_QUERIES = {
   restaurants: [
@@ -279,6 +280,14 @@ async function getWeather(request, ctx) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    // Preserve old URLs as permanent redirects to the new canonical pSEO pages.
+    const legacyMatch = url.pathname.match(/^\/(restaurants|services|weather)\/([^/]+)\/?$/);
+    if (legacyMatch) {
+      const oldPage = legacyLocations.find((item) => item.category === legacyMatch[1] && item.slug === legacyMatch[2]);
+      if (oldPage) {
+        return Response.redirect(new URL(`/directory/${oldPage.slug}/${oldPage.category}/`, url).toString(), 301);
+      }
+    }
     if (url.pathname === "/api/places") {
       if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405, { Allow: "GET" });
       return getPlaces(request, ctx);
