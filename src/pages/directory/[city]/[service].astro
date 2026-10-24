@@ -12,7 +12,7 @@ export function getStaticPaths() {
 const { city, service } = Astro.props;
 const fill = (template) => template.replaceAll('{city}', city.nameAr).replaceAll('{region}', city.regionAr);
 const pageTitle = fill(service.titleTemplate);
-const description = fill(service.descriptionTemplate);
+const description = fill(service.descriptionTemplate) + ' ' + city.overview;
 const canonicalURL = new URL(`/directory/${city.slug}/${service.slug}/`, Astro.site).toString();
 const homeURL = new URL('/', Astro.site).toString();
 const cityURL = new URL(`/city/${city.slug}/`, Astro.site).toString();
@@ -205,6 +205,21 @@ const breadcrumbSchema = {
       </div></section>
     </aside>
   </div>
+
+  <section class="related"><h2>نبذة عن {city.nameAr}</h2><div class="panel"><p class="muted">{city.overview} تختلف تفاصيل الأماكن وتوافرها حسب البيانات التي أضافها المساهمون. يعرض دليل السعودية ما يستطيع جلبه من المصدر ويبيّن الحالات التي لا تتوفر فيها نتائج.</p></div></section>
+
+  <section class="related"><h2>كيف تُستخدم بيانات هذا الدليل؟</h2><div class="panel">
+    {service.slug === 'weather' ? <p class="muted">تُجلب توقعات الطقس وقت فتح الصفحة من خدمة MET Norway Locationforecast، مع تخزين مؤقت لتقليل الطلبات. التوقعات ليست تحذيرًا رسميًا وقد تختلف عن الرصد المحلي.</p> : <p class="muted">تُجلب أسماء الأماكن والعناوين وساعات العمل عند توفرها من OpenStreetMap. قد تكون بعض الحقول غير مكتملة أو قديمة، لذلك لا نفترض أن المكان مفتوح الآن ولا نخترع تقييمات أو بيانات اتصال.</p>}
+  </div></section>
+
+  <section class="related"><h2>أسئلة شائعة عن {service.nameAr} في {city.nameAr}</h2><div class="panel">
+    <h3 style="font-size:15px;margin:0 0 5px">هل تشمل النتائج جميع الأماكن في {city.nameAr}؟</h3>
+    <p class="muted">ليس بالضرورة؛ تعتمد النتائج على ما هو مسجل في المصدر لهذه المنطقة والفئة، وقد لا تشمل كل المنشآت أو أحدث التغييرات.</p>
+    <h3 style="font-size:15px;margin:18px 0 5px">هل معلومات ساعات العمل والتواصل مؤكدة؟</h3>
+    <p class="muted">تظهر هذه الحقول فقط عندما تكون موجودة في بيانات المصدر. يُنصح بالتحقق من الجهة نفسها قبل الزيارة أو الاعتماد على رقم اتصال.</p>
+    <h3 style="font-size:15px;margin:18px 0 5px">من أين تأتي البيانات؟</h3>
+    <p class="muted">تُنسب بيانات الأماكن إلى OpenStreetMap وبيانات الطقس إلى MET Norway، وتظهر روابط المصدر والترخيص بجوار النتائج.</p>
+  </div></section>
 
   <section class="related"><h2>أقسام أخرى في {city.nameAr}</h2><div class="linkgrid">
     {relatedServices.map((related) => <a class="linkcard" href={`/directory/${city.slug}/${related.slug}/`}><strong>{related.icon} {related.nameAr}</strong><small>استكشف البيانات المتاحة ←</small></a>)}
