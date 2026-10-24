@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://saudi-guide.ibms2000.workers.dev/sitemap.xml

@@ -1,0 +1,34 @@
+---
+import cities from '../../data/cities.json';
+import services from '../../data/service-types.json';
+
+export function getStaticPaths() {
+  return cities.map((city) => ({ params: { slug: city.slug }, props: { city } }));
+}
+const { city } = Astro.props;
+const canonicalURL = new URL(`/city/${city.slug}/`, Astro.site).toString();
+const description = `دليل ${city.nameAr} في ${city.regionAr}: تصفح المطاعم والفنادق والصحة والتعليم والخدمات والتسوق والسياحة والطقس، مع نتائج من مصادر بيانات مفتوحة عند توفرها.`;
+const homeURL = new URL('/', Astro.site).toString();
+const schema = {
+ '@context':'https://schema.org','@type':'CollectionPage',
+ name:`دليل ${city.nameAr} | دليل السعودية`,description,url:canonicalURL,inLanguage:'ar-SA',
+ about:{'@type':'City',name:city.nameAr,containedInPlace:{'@type':'AdministrativeArea',name:city.regionAr}}
+};
+---
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="theme-color" content="#123b32"/>
+<title>دليل {city.nameAr} والخدمات المحلية | دليل السعودية</title><meta name="description" content={description}/><link rel="canonical" href={canonicalURL}/><link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<meta property="og:type" content="website"/><meta property="og:locale" content="ar_SA"/><meta property="og:title" content={`دليل ${city.nameAr} | دليل السعودية`}/><meta property="og:description" content={description}/><meta property="og:url" content={canonicalURL}/>
+<script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
+<style>
+:root{--g:#123b32;--g2:#1d5a49;--paper:#f6f8f4;--ink:#182c26;--muted:#63736b;--line:#e0e7df;--mint:#eaf2eb}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;line-height:1.8}a{color:inherit;text-decoration:none}.container{width:min(1100px,calc(100% - 32px));margin:auto}.header{background:#fff;border-bottom:1px solid var(--line)}.nav{height:70px;display:flex;justify-content:space-between;align-items:center}.brand{font-size:18px;font-weight:800;display:flex;gap:10px;align-items:center}.mark{background:var(--g);color:#efdba8;border-radius:12px;width:39px;height:39px;display:grid;place-items:center;font-size:23px}.brand b{color:var(--g2)}.nav a:last-child{font-size:13px;color:var(--g2)}.hero{background:var(--g);color:#fff;padding:43px 0 48px}.eyebrow{color:#e8d7a5;font-size:13px;font-weight:800}.hero h1{font-size:clamp(30px,4vw,44px);line-height:1.4;margin:11px 0}.hero p{color:#d7e4dc;max-width:780px;margin:0;font-size:15px}.main{padding:30px 0 65px}.title{font-size:23px;margin:0 0 7px}.sub{color:var(--muted);font-size:13px;margin:0 0 20px}.servicegrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}.service{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px;transition:transform .18s,border-color .18s}.service:hover{transform:translateY(-3px);border-color:#adc5b2}.service .icon{width:45px;height:45px;border-radius:13px;background:var(--mint);display:grid;place-items:center;font-size:24px}.service h2{font-size:15px;margin:12px 0 4px}.service p{font-size:12px;color:var(--muted);margin:0;line-height:1.8}.arrow{display:block;color:var(--g2);font-weight:800;font-size:12px;margin-top:12px}.more{margin-top:30px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.more h2{font-size:19px;margin:0 0 6px}.more p{font-size:13px;color:var(--muted);margin:0}.other{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.other a{border:1px solid var(--line);background:#fafbf8;border-radius:99px;padding:7px 12px;font-size:12px}.other a:hover{border-color:#adc5b2;color:var(--g2)}footer{background:#102f29;color:#d7e4dc;padding:22px 0;font-size:12px}@media(max-width:820px){.servicegrid{grid-template-columns:repeat(2,minmax(0,1fr)}}@media(max-width:480px){.servicegrid{grid-template-columns:1fr 1fr;gap:8px}.service{padding:13px}.service h2{font-size:13px}.container{width:calc(100% - 24px)}}
+</style>
+</head>
+<body><header class="header"><div class="container nav"><a class="brand" href="/"><span class="mark">س</span><span>دليل <b>السعودية</b></span></a><a href="/">الصفحة الرئيسية ←</a></div></header>
+<section class="hero"><div class="container"><div class="eyebrow">{city.regionAr}</div><h1>دليل {city.nameAr} والخدمات المحلية</h1><p>استكشف أقسام الدليل في {city.nameAr}. تعرض صفحات الأقسام بيانات فعلية من مصادر مفتوحة عند توفرها، مع توضيح مصدر البيانات وتاريخ جلبها. قد تكون التغطية غير مكتملة، لذا راجع الجهات مباشرة عند الحاجة.</p></div></section>
+<main class="container main"><h2 class="title">تصفح حسب الخدمة</h2><p class="sub">اختر فئة للوصول إلى صفحتها المخصصة في {city.nameAr}.</p>
+<div class="servicegrid">{services.map((service) => <a class="service" href={`/directory/${city.slug}/${service.slug}/`}><span class="icon" aria-hidden="true">{service.icon}</span><h2>{service.nameAr}</h2><p>{service.descriptionTemplate.replaceAll('{city}',city.nameAr).replaceAll('{region}',city.regionAr)}</p><span class="arrow">استكشف النتائج ←</span></a>)}</div>
+<section class="more"><h2>عن دليل {city.nameAr}</h2><p>{city.overview} يستخدم الدليل بيانات مفتوحة ومصادر طقس مستقلة؛ لا نعتبر غياب نتيجة من المصدر دليلًا على عدم وجود الخدمة، ولا نعرض تقييمات أو ساعات عمل غير متوفرة.</p><div class="other"><a href="/#cities">جميع مدن السعودية</a><a href="/services/restaurants">المطاعم والمقاهي في المملكة</a><a href="/services/weather">الطقس في المدن السعودية</a><a href="/sitemap.xml">خريطة الموقع</a></div></section></main>
+<footer><div class="container">دليل السعودية · صفحات معلوماتية لا تغني عن التحقق من المصدر الرسمي.</div></footer></body></html>
