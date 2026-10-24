@@ -1,31 +1,360 @@
 ---
-// الصفحة الرئيسية لدليل السعودية
+import locationsData from '../data/locations.json';
+
+const categoryMeta = {
+  restaurants: { title: 'المطاعم والمقاهي', short: 'مطاعم ومقاهٍ', icon: '☕', description: 'اكتشف خيارات الطعام والوجهات القريبة في مدن المملكة.' },
+  weather: { title: 'الطقس والمناخ', short: 'الطقس', icon: '☀️', description: 'تابع حالة الطقس الحالية للمدن المتاحة في الدليل.' },
+  services: { title: 'الخدمات والمرافق', short: 'الخدمات', icon: '⌖', description: 'روابط إرشادية تساعدك في الوصول إلى الخدمات والمرافق.' }
+};
+
+const categories = Object.entries(categoryMeta)
+  .map(([key, value]) => ({ key, ...value, count: locationsData.filter((item) => item.category === key).length }))
+  .filter((item) => item.count > 0);
+
+const totalPages = locationsData.length;
+const totalCities = new Set(locationsData.map((item) => item.slug)).size;
+const canonicalURL = Astro.site ? new URL('/', Astro.site).toString() : Astro.url.href;
 ---
+
+<!doctype html>
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="utf-8" />
-    <title>دليل السعودية الشامل - pSEO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#123b32" />
+    <meta name="description" content="دليل السعودية بوابتك لاكتشاف المدن والأقسام الإرشادية وحالة الطقس والبحث عن الأماكن والخدمات في المملكة." />
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ar_SA" />
+    <meta property="og:title" content="دليل السعودية | اكتشف المدن والخدمات" />
+    <meta property="og:description" content="دليل عربي منظم لاستكشاف مدن المملكة وأقسامها الإرشادية." />
+    <meta property="og:url" content={canonicalURL} />
+    <title>دليل السعودية | اكتشف المدن والخدمات</title>
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'دليل السعودية',
+      url: canonicalURL,
+      inLanguage: 'ar-SA',
+      description: 'دليل عربي لاستكشاف المدن والأقسام الإرشادية في المملكة العربية السعودية.'
+    })}></script>
     <style>
-      body { font-family: system-ui, sans-serif; background: #f8fafc; color: #1e293b; padding: 40px; text-align: center; }
-      .card { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-      ul { list-style: none; padding: 0; margin-top: 20px; }
-      li { margin: 10px 0; }
-      a { color: #2563eb; text-decoration: none; font-weight: bold; }
-      a:hover { text-decoration: underline; }
+      :root{color-scheme:light;--ink:#172b27;--muted:#64736e;--green:#123b32;--green2:#1d5a49;--mint:#e9f3ed;--gold:#d5b779;--paper:#f7f8f4;--line:#e2e8e1;--white:#fff;--shadow:0 18px 55px rgba(24,49,39,.08)}
+      *{box-sizing:border-box}
+      html{scroll-behavior:smooth;scroll-padding-top:90px}
+      body{margin:0;background:var(--paper);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;line-height:1.7}
+      a{color:inherit;text-decoration:none}
+      button,input{font:inherit}
+      button,a,input{-webkit-tap-highlight-color:transparent}
+      a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #b98935;outline-offset:3px}
+      .container{width:min(1160px,calc(100% - 40px));margin-inline:auto}
+      .skip-link{position:absolute;top:-60px;right:16px;background:#fff;padding:10px 14px;border-radius:8px;z-index:10}
+      .skip-link:focus{top:12px}
+      .site-header{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid rgba(226,232,225,.85)}
+      .nav-wrap{min-height:78px;display:flex;align-items:center;gap:28px}
+      .brand{display:inline-flex;align-items:center;gap:11px;font-size:19px;font-weight:800;white-space:nowrap}
+      .brand-mark{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--green);color:#f1dca9;font-size:25px;box-shadow:0 5px 14px #123b3222}
+      .brand b{color:var(--green2)}
+      .main-nav{display:flex;align-items:center;gap:26px;margin-inline-start:auto;color:#52635d;font-size:14px}
+      .main-nav a:hover{color:var(--green2)}
+      .nav-cta,.button-primary{display:inline-flex;justify-content:center;align-items:center;gap:9px;background:var(--green);color:white;border:0;border-radius:12px;padding:11px 17px;font-weight:700;cursor:pointer;transition:transform .2s,background .2s}
+      .nav-cta:hover,.button-primary:hover{background:var(--green2);transform:translateY(-1px)}
+      .hero{position:relative;overflow:hidden;background:var(--green);color:#fff;padding:76px 0 82px}
+      .hero:before,.hero:after{content:"";position:absolute;border:1px solid #ffffff17;border-radius:50%;pointer-events:none}
+      .hero:before{width:560px;height:560px;left:-180px;top:-290px}
+      .hero:after{width:370px;height:370px;left:-70px;top:-190px}
+      .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;align-items:center;gap:48px;position:relative}
+      .eyebrow{display:inline-flex;align-items:center;gap:9px;color:#efddb2;font-size:13px;font-weight:700;letter-spacing:.2px}
+      .eyebrow-dot{width:7px;height:7px;background:var(--gold);border-radius:50%}
+      h1{font-size:clamp(34px,4.4vw,56px);line-height:1.25;letter-spacing:-1.5px;margin:18px 0 18px;max-width:680px}
+      .hero-copy{max-width:600px;color:#d8e6de;font-size:17px;margin:0 0 29px}
+      .search-panel{background:#fff;border:1px solid #ffffff55;border-radius:17px;padding:7px;display:flex;align-items:center;gap:8px;max-width:620px;box-shadow:0 15px 40px #061b1733}
+      .search-icon{color:#6d7e76;padding-inline:12px;font-size:23px}
+      .search-panel input{border:0;outline:0;min-width:0;flex:1;color:var(--ink);padding:10px 0;background:transparent}
+      .search-panel input:focus-visible{outline:none}
+      .search-panel button{white-space:nowrap}
+      .search-hint{font-size:12px;color:#d0e0d7;margin:10px 8px 0}
+      .hero-art{min-height:300px;display:grid;place-items:center;position:relative}
+      .art-orbit{position:absolute;width:280px;height:280px;border:1px solid #d5b7795c;border-radius:50%}
+      .art-orbit:before,.art-orbit:after{content:"";position:absolute;inset:24px;border:1px dashed #d5b77942;border-radius:50%}
+      .art-orbit:after{inset:52px}
+      .map-card{width:min(100%,355px);position:relative;background:linear-gradient(145deg,#fff,#edf3ec);border:1px solid #ffffff99;border-radius:25px;color:var(--ink);padding:25px;box-shadow:0 30px 75px #041c1747;transform:rotate(-2deg)}
+      .map-card-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:17px}
+      .map-label{color:var(--muted);font-size:12px}
+      .map-card h2{font-size:20px;margin:3px 0}
+      .map-pin{display:grid;place-items:center;border-radius:15px;background:var(--mint);color:var(--green);width:47px;height:47px;font-size:25px}
+      .map-lines{position:relative;height:104px;margin:18px 0 12px;overflow:hidden;border-radius:14px;background:#e6eee5}
+      .map-lines svg{width:100%;height:100%}
+      .map-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+      .map-stat{background:#fff;border:1px solid var(--line);padding:11px 7px;border-radius:11px;text-align:center}
+      .map-stat strong{display:block;font-size:18px;color:var(--green)}
+      .map-stat span{font-size:11px;color:var(--muted)}
+      .floating-note{position:absolute;bottom:15px;right:-4px;background:white;color:var(--ink);border:1px solid #e8ece5;box-shadow:0 10px 30px #071d1627;border-radius:13px;padding:12px 16px;font-size:13px;transform:rotate(2deg)}
+      .floating-note b{color:var(--green2)}
+      .stats-strip{position:relative;margin-top:-26px;z-index:2}
+      .stats-inner{display:grid;grid-template-columns:repeat(3,1fr);background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:18px;padding:20px 25px}
+      .stat{display:flex;align-items:center;justify-content:center;gap:12px;padding:5px 12px;border-left:1px solid var(--line)}
+      .stat:last-child{border-left:0}
+      .stat-icon{height:42px;width:42px;border-radius:13px;background:var(--mint);display:grid;place-items:center;font-size:20px}
+      .stat strong{display:block;font-size:22px;line-height:1.3;color:var(--green)}
+      .stat span{font-size:12px;color:var(--muted)}
+      .section{padding:76px 0 0}
+      .section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:25px}
+      .section-kicker{color:var(--green2);font-weight:800;font-size:12px;letter-spacing:.5px}
+      h2.section-title{margin:6px 0 0;font-size:clamp(25px,3vw,34px);line-height:1.35;letter-spacing:-.5px}
+      .section-subtitle{color:var(--muted);margin:9px 0 0;font-size:14px;max-width:660px}
+      .text-link{display:inline-flex;align-items:center;gap:7px;color:var(--green2);font-weight:800;font-size:13px;white-space:nowrap}
+      .category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+      .category-card{position:relative;display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--line);padding:23px;border-radius:18px;min-height:155px;transition:transform .2s,border-color .2s,box-shadow .2s}
+      .category-card:hover{transform:translateY(-4px);border-color:#b9cdbf;box-shadow:var(--shadow)}
+      .category-icon{flex:0 0 52px;height:52px;border-radius:16px;background:var(--mint);display:grid;place-items:center;font-size:25px}
+      .category-card h3{margin:1px 0 6px;font-size:17px}
+      .category-card p{font-size:13px;color:var(--muted);margin:0 0 13px;line-height:1.7}
+      .category-bottom{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--green2);font-weight:800}
+      .count-dot{width:5px;height:5px;background:var(--gold);border-radius:50%}
+      .directory-tools{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:0 0 22px}
+      .filter-btn{background:#fff;color:#52635d;border:1px solid var(--line);padding:9px 15px;border-radius:999px;cursor:pointer;font-size:13px;transition:all .2s}
+      .filter-btn:hover,.filter-btn[aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green)}
+      .result-count{margin-inline-start:auto;font-size:12px;color:var(--muted)}
+      .directory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+      .directory-card{display:flex;flex-direction:column;min-height:205px;padding:20px;background:#fff;border:1px solid var(--line);border-radius:17px;transition:transform .2s,border-color .2s,box-shadow .2s}
+      .directory-card:hover{transform:translateY(-3px);border-color:#b7cbbc;box-shadow:0 12px 28px #173c2c0c}
+      .card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+      .tag{display:inline-flex;align-items:center;background:var(--mint);color:var(--green2);padding:5px 9px;border-radius:7px;font-size:11px;font-weight:800}
+      .card-arrow{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;border:1px solid var(--line);color:var(--green2);font-size:17px}
+      .directory-card h3{font-size:17px;margin:17px 0 7px;line-height:1.5}
+      .directory-card p{font-size:12px;color:var(--muted);line-height:1.8;margin:0 0 18px}
+      .card-footer{margin-top:auto;padding-top:12px;border-top:1px solid #edf0eb;display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:11px}
+      .card-footer span:first-child{display:inline-flex;align-items:center;gap:6px}
+      .city-marker{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+      .empty-state{border:1px dashed #cbd6cb;background:#fff;border-radius:16px;padding:32px;text-align:center;color:var(--muted)}
+      .empty-state strong{display:block;color:var(--ink);margin-bottom:5px}
+      [hidden]{display:none!important}
+      .about-section{padding-bottom:76px}
+      .about-panel{display:grid;grid-template-columns:1fr 1fr;gap:35px;align-items:center;background:#edf3ed;border:1px solid #dce7dc;border-radius:23px;padding:34px}
+      .about-panel h2{font-size:27px;line-height:1.4;margin:7px 0 12px}
+      .about-panel p{font-size:14px;color:#52645b;margin:0}
+      .about-points{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+      .about-point{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid #e1e9e0;padding:15px;border-radius:13px;font-size:12px;color:#4f6158}
+      .check{flex:0 0 25px;width:25px;height:25px;display:grid;place-items:center;border-radius:8px;background:var(--mint);color:var(--green2);font-weight:900}
+      .site-footer{background:#102f29;color:#d5e3da;padding:29px 0}
+      .footer-inner{display:flex;justify-content:space-between;align-items:center;gap:20px}
+      .footer-brand{font-weight:800;color:#fff}
+      .footer-inner p{font-size:12px;color:#b5c8bd;margin:4px 0 0}
+      .footer-links{display:flex;gap:18px;font-size:12px;color:#d5e3da}
+      @media(max-width:900px){.hero-grid{grid-template-columns:1fr 0.75fr;gap:22px}.hero-art{min-height:260px}.map-card{padding:19px}.category-grid{gap:12px}.category-card{padding:18px;gap:12px}.category-icon{flex-basis:44px;height:44px}.directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.about-panel{gap:22px;padding:25px}}
+      @media(max-width:680px){.container{width:min(100% - 28px,560px)}.nav-wrap{min-height:68px;gap:12px}.brand{font-size:17px}.brand-mark{width:38px;height:38px}.main-nav{display:none}.nav-cta{margin-inline-start:auto;padding:9px 11px;font-size:12px}.hero{padding:52px 0 58px}.hero-grid{grid-template-columns:1fr;gap:18px}.hero h1{font-size:38px;letter-spacing:-.8px}.hero-copy{font-size:15px}.hero-art{min-height:250px;margin-top:0}.map-card{max-width:320px}.art-orbit{width:250px;height:250px}.stats-inner{padding:13px 5px}.stat{gap:7px;padding:3px 4px}.stat-icon{width:32px;height:32px;border-radius:10px;font-size:16px}.stat strong{font-size:18px}.stat span{font-size:10px}.section{padding-top:55px}.section-head{align-items:flex-start;flex-direction:column;gap:8px}.category-grid{grid-template-columns:1fr}.category-card{min-height:0}.directory-grid{grid-template-columns:1fr}.directory-card{min-height:175px}.result-count{width:100%;margin:0}.about-section{padding-bottom:50px}.about-panel{grid-template-columns:1fr;padding:22px;gap:22px}.about-panel h2{font-size:24px}.about-points{grid-template-columns:1fr}.footer-inner{align-items:flex-start;flex-direction:column}.search-panel{gap:3px}.search-panel .button-primary{padding:10px 12px;font-size:12px}}
+      @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
     </style>
   </head>
   <body>
-    <div class="card">
-      <h1>🇸🇦 دليل السعودية (Saudi-Guide)</h1>
-      <p>المنصة الذكية للبيانات والخدمات في جميع مناطق ومحافظات المملكة.</p>
-      <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-      <h3>استعرض بعض الأقسام المتاحة:</h3>
-      <ul>
-        <li><a href="/restaurants/riyadh">مطاعم الرياض</a></li>
-        <li><a href="/restaurants/jeddah">مطاعم جدة</a></li>
-        <li><a href="/weather/samtah">حالة الطقس في صامطة</a></li>
-        <li><a href="/services/makkah">الخدمات في مكة المكرمة</a></li>
-      </ul>
-    </div>
+    <a class="skip-link" href="#main">تخطي إلى المحتوى</a>
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="/" aria-label="دليل السعودية - الصفحة الرئيسية">
+          <span class="brand-mark" aria-hidden="true">س</span>
+          <span>دليل <b>السعودية</b></span>
+        </a>
+        <nav class="main-nav" aria-label="التنقل الرئيسي">
+          <a href="#categories">الأقسام</a>
+          <a href="#cities">المدن</a>
+          <a href="#about">عن الدليل</a>
+        </nav>
+        <a class="nav-cta" href="#search">ابحث في الدليل <span aria-hidden="true">←</span></a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-dot"></span> دليلك لاكتشاف مدن المملكة</div>
+            <h1>اكتشف السعودية،<br />مدينةً بعد مدينة.</h1>
+            <p class="hero-copy">مكان واحد يساعدك على استكشاف المدن والأقسام الإرشادية والطقس، مع روابط عملية للوصول إلى الأماكن والخدمات القريبة.</p>
+            <div id="search" class="search-panel" role="search">
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <input id="directorySearch" type="search" placeholder="ابحث باسم مدينة أو قسم..." aria-label="ابحث باسم مدينة أو قسم" autocomplete="off" />
+              <button class="button-primary" type="button" id="searchButton">ابحث الآن</button>
+            </div>
+            <p class="search-hint">مثال: الرياض، جدة، الطقس، المطاعم أو الخدمات</p>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="art-orbit"></div>
+            <div class="map-card">
+              <div class="map-card-top">
+                <div><div class="map-label">اكتشف وجهتك التالية</div><h2>من شمال المملكة إلى جنوبها</h2></div>
+                <div class="map-pin">⌖</div>
+              </div>
+              <div class="map-lines">
+                <svg viewBox="0 0 320 104" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M-8 25C30 45 44 6 88 21S130 79 168 51 220 19 242 43 286 80 330 54" stroke="#bdcfbd" stroke-width="8" stroke-linecap="round"/>
+                  <path d="M39 -8C47 20 64 36 57 57S28 84 49 112M133 -10C118 22 152 42 142 62S119 91 134 116M250 -8C229 17 250 35 270 51S275 86 293 112" stroke="#d1dfd0" stroke-width="5" stroke-linecap="round"/>
+                  <path d="M79 57L130 36L184 63L224 36" stroke="#4f8770" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round"/>
+                  <circle cx="79" cy="57" r="6" fill="#c39f58" stroke="white" stroke-width="3"/>
+                  <circle cx="130" cy="36" r="6" fill="#1d5a49" stroke="white" stroke-width="3"/>
+                  <circle cx="184" cy="63" r="6" fill="#1d5a49" stroke="white" stroke-width="3"/>
+                  <circle cx="224" cy="36" r="6" fill="#c39f58" stroke="white" stroke-width="3"/>
+                </svg>
+              </div>
+              <div class="map-stats">
+                <div class="map-stat"><strong>{totalCities}</strong><span>مدينة مدرجة</span></div>
+                <div class="map-stat"><strong>{categories.length}</strong><span>أقسام رئيسية</span></div>
+                <div class="map-stat"><strong>٢٤/٧</strong><span>تصفح الدليل</span></div>
+              </div>
+            </div>
+            <div class="floating-note"><b>وجهتك أقرب</b><br />تصفح منظم وسهل الاستخدام</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="container stats-strip" aria-label="إحصاءات الدليل">
+        <div class="stats-inner">
+          <div class="stat"><span class="stat-icon" aria-hidden="true">⌖</span><div><strong>{totalCities}</strong><span>مدينة ومحافظة مدرجة</span></div></div>
+          <div class="stat"><span class="stat-icon" aria-hidden="true">▦</span><div><strong>{totalPages}</strong><span>صفحة إرشادية</span></div></div>
+          <div class="stat"><span class="stat-icon" aria-hidden="true">↗</span><div><strong>{categories.length}</strong><span>أقسام للاستكشاف</span></div></div>
+        </div>
+      </div>
+
+      <section class="section" id="categories">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <div class="section-kicker">تصفح حسب اهتمامك</div>
+              <h2 class="section-title">ماذا تبحث عنه اليوم؟</h2>
+              <p class="section-subtitle">اختر القسم الذي يناسبك للوصول إلى صفحات المدن المرتبطة به.</p>
+            </div>
+          </div>
+          <div class="category-grid">
+            {categories.map((category) => (
+              <a class="category-card" href="#cities" data-category-link={category.key}>
+                <span class="category-icon" aria-hidden="true">{category.icon}</span>
+                <span>
+                  <h3>{category.title}</h3>
+                  <p>{category.description}</p>
+                  <span class="category-bottom"><span>{category.count} صفحة متاحة</span><span class="count-dot"></span><span>استكشف القسم ←</span></span>
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="cities">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <div class="section-kicker">دليل المدن</div>
+              <h2 class="section-title">ابدأ من مدينتك</h2>
+              <p class="section-subtitle">ابحث أو استخدم التصفية لعرض الصفحات المتاحة. يجري توسيع الدليل وإضافة بيانات موثقة للأقسام تباعًا.</p>
+            </div>
+            <a class="text-link" href="#search" id="resetSearch">عرض جميع الصفحات <span aria-hidden="true">←</span></a>
+          </div>
+          <div class="directory-tools" role="group" aria-label="تصفية صفحات الدليل">
+            <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">جميع الصفحات</button>
+            {categories.map((category) => <button class="filter-btn" type="button" data-filter={category.key} aria-pressed="false">{category.title}</button>)}
+            <span class="result-count" id="resultCount" aria-live="polite">عرض {totalPages} صفحة</span>
+          </div>
+          <div class="directory-grid" id="directoryGrid">
+            {locationsData.map((item) => (
+              <a class="directory-card" href={'/' + item.category + '/' + item.slug} data-directory-card data-category={item.category} data-search={(item.nameAr || '') + ' ' + item.regionAr + ' ' + item.h1 + ' ' + item.categoryName}>
+                <div class="card-top">
+                  <span class="tag">{categoryMeta[item.category]?.short || item.categoryName}</span>
+                  <span class="card-arrow" aria-hidden="true">↖</span>
+                </div>
+                <h3>{item.nameAr}</h3>
+                <p>{item.category === 'weather' ? 'حالة الطقس الحالية وتوقعات الأيام القادمة عند توفر مصدر البيانات.' : item.category === 'restaurants' ? 'صفحة المدينة وروابط تساعدك في البحث عن المطاعم والأماكن القريبة.' : 'صفحة إرشادية وروابط للوصول إلى الخدمات والمرافق في المدينة.'}</p>
+                <div class="card-footer"><span><span class="city-marker"></span>{item.regionAr}</span><span>{item.categoryName} ←</span></div>
+              </a>
+            ))}
+          </div>
+          <div class="empty-state" id="emptyState" hidden><strong>لم نعثر على نتائج مطابقة</strong><span>جرّب اسم مدينة آخر أو غيّر القسم المحدد.</span></div>
+        </div>
+      </section>
+
+      <section class="section about-section" id="about">
+        <div class="container">
+          <div class="about-panel">
+            <div>
+              <div class="section-kicker">عن دليل السعودية</div>
+              <h2>معلومات واضحة،<br />وتجربة أسهل.</h2>
+              <p>نبني الدليل خطوة بخطوة ليكون نقطة بداية عملية لاكتشاف المدن السعودية. نميّز بين الصفحات الإرشادية والبيانات اللحظية، ولا نعرض تقييمات أو قوائم منشآت على أنها موثقة ما لم تتوفر بيانات حقيقية لها.</p>
+            </div>
+            <div class="about-points">
+              <div class="about-point"><span class="check">✓</span><span><b>تنقل واضح</b><br />أقسام وصفحات مدن منظمة.</span></div>
+              <div class="about-point"><span class="check">✓</span><span><b>بحث سريع</b><br />اعثر على المدينة أو القسم بسهولة.</span></div>
+              <div class="about-point"><span class="check">✓</span><span><b>ملائم للجوال</b><br />واجهة تتكيف مع مختلف الشاشات.</span></div>
+              <div class="about-point"><span class="check">✓</span><span><b>شفافية المحتوى</b><br />توضيح ما هو مباشر وما يحتاج إلى استكمال.</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div><div class="footer-brand">دليل السعودية</div><p>دليلك لاكتشاف مدن المملكة وأقسامها الإرشادية.</p></div>
+        <div class="footer-links"><a href="#categories">الأقسام</a><a href="#cities">المدن</a><a href="#about">عن الدليل</a><a href="/sitemap.xml">خريطة الموقع</a></div>
+      </div>
+    </footer>
+
+    <script>
+      const searchInput = document.getElementById('directorySearch');
+      const searchButton = document.getElementById('searchButton');
+      const cards = Array.from(document.querySelectorAll('[data-directory-card]'));
+      const filterButtons = Array.from(document.querySelectorAll('[data-filter]'));
+      const resultCount = document.getElementById('resultCount');
+      const emptyState = document.getElementById('emptyState');
+      let activeFilter = 'all';
+
+      function updateDirectory() {
+        const term = (searchInput.value || '').trim().toLocaleLowerCase('ar');
+        let visible = 0;
+        cards.forEach((card) => {
+          const categoryMatches = activeFilter === 'all' || card.dataset.category === activeFilter;
+          const textMatches = !term || (card.dataset.search || '').toLocaleLowerCase('ar').includes(term);
+          const show = categoryMatches && textMatches;
+          card.hidden = !show;
+          if (show) visible += 1;
+        });
+        resultCount.textContent = 'عرض ' + visible + ' من ' + cards.length + ' صفحة';
+        emptyState.hidden = visible !== 0;
+      }
+
+      searchInput.addEventListener('input', updateDirectory);
+      searchButton.addEventListener('click', () => {
+        updateDirectory();
+        document.getElementById('cities').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      searchInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          updateDirectory();
+          document.getElementById('cities').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+      filterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          activeFilter = button.dataset.filter || 'all';
+          filterButtons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+          updateDirectory();
+        });
+      });
+      document.querySelectorAll('[data-category-link]').forEach((link) => {
+        link.addEventListener('click', () => {
+          activeFilter = link.dataset.categoryLink || 'all';
+          filterButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.filter === activeFilter)));
+          updateDirectory();
+        });
+      });
+      document.getElementById('resetSearch').addEventListener('click', (event) => {
+        event.preventDefault();
+        searchInput.value = '';
+        activeFilter = 'all';
+        filterButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.filter === 'all')));
+        updateDirectory();
+        document.getElementById('cities').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    </script>
   </body>
 </html>
