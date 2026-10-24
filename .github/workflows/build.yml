@@ -27,6 +27,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Build static site
         run: npm run build
+      - name: Validate Cloudflare Worker bundle
+        run: npx --yes wrangler deploy --dry-run
       - name: Deploy to Cloudflare Workers
         if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
         run: npx --yes wrangler deploy
