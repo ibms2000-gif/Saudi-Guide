@@ -24,10 +24,18 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(__dirname, "..");
 
-export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir } = {}) {
+export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, allowEmptyData = process.env.ALLOW_EMPTY_DATA === "true" } = {}) {
   const ROOT = root;
   const DIST = distDir || path.join(ROOT, "dist");
   const model = await loadModel(dataRoot);
+  const citiesWithData = model.cities.filter((city) => city.totalPlaces > 0).length;
+  const totalPlaces = model.cities.reduce((sum, city) => sum + city.totalPlaces, 0);
+  if (!allowEmptyData && (citiesWithData < 5 || totalPlaces < 50)) {
+    throw new Error(
+      `رفض بناء نسخة الإنتاج: بيانات الأماكن غير كافية (${totalPlaces} مكانًا في ${citiesWithData} مدن). ` +
+      "شغّل npm run data ثم npm run validate:data. للمعاينة المحلية فقط، استخدم ALLOW_EMPTY_DATA=true.",
+    );
+  }
   await fs.rm(DIST, { recursive: true, force: true });
   await fs.mkdir(DIST, { recursive: true });
 

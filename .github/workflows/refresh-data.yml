@@ -1,6 +1,15 @@
 name: Refresh OpenStreetMap data
 
 on:
+  # Bootstrap/refresh the snapshot when the refresh pipeline or source schema changes.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/refresh-data.yml"
+      - "scripts/fetch-places.mjs"
+      - "scripts/validate-data.mjs"
+      - "data/cities.json"
+      - "data/categories.json"
   schedule:
     - cron: "17 2 * * 0"
   workflow_dispatch:

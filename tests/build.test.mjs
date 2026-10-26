@@ -83,7 +83,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   const root = await makeFixtureRoot();
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
-  const report = await build({ root });
+  const report = await build({ root, allowEmptyData: true });
   const dist = path.join(root, "dist");
 
   assert.ok(report.totalPages > 0);
