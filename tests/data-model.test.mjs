@@ -54,9 +54,12 @@ test("الفئة الفرعية تظهر فقط عند وجود 3 أماكن أ�
   assert.equal(model2.citiesBySlug["test-city"].byCategory.restaurants.subcategories.coffee.length, 3);
 });
 
-test("nationalByCategory يستبعد المدن بلا أماكن في تلك الفئة", () => {
+test("nationalByCategory يضم فقط المدن التي لديها صفحة قسم قابلة للفهرسة", () => {
   const placesByCity = { "test-city": [place(1)], "empty-city": [] };
-  const model = buildModel({ regions, cities, categories, placesByCity, meta: null });
-  const national = model.nationalByCategory.restaurants.map((c) => c.slug);
-  assert.deepEqual(national, ["test-city"]);
+  const sparseModel = buildModel({ regions, cities, categories, placesByCity, meta: null });
+  assert.deepEqual(sparseModel.nationalByCategory.restaurants.map((c) => c.slug), []);
+
+  placesByCity["test-city"].push(place(2), place(3), place(4));
+  const richModel = buildModel({ regions, cities, categories, placesByCity, meta: null });
+  assert.deepEqual(richModel.nationalByCategory.restaurants.map((c) => c.slug), ["test-city"]);
 });

@@ -61,7 +61,7 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir } = 
   }
 
   for (const city of model.cities) {
-    add(`/city/${city.slug}/`, cityPage(model, city), city.totalPlaces > 0);
+    add(`/city/${city.slug}/`, cityPage(model, city), city.totalPlaces >= 5);
 
     for (const category of model.categories) {
       const data = city.byCategory[category.slug];
