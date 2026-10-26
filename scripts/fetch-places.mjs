@@ -16,6 +16,9 @@ const categories = JSON.parse(await fs.readFile(path.join(ROOT, "data/categories
 
 const onlyCity = process.argv.find((a) => a.startsWith("--city="))?.split("=")[1];
 const targets = onlyCity ? cities.filter((c) => c.slug === onlyCity) : cities;
+if (onlyCity && targets.length === 0) {
+  throw new Error(`مدينة غير معروفة في --city: ${onlyCity}`);
+}
 
 await fs.mkdir(path.join(ROOT, "data/places"), { recursive: true });
 
@@ -28,7 +31,12 @@ try {
 }
 meta = { ...meta, source: "overpass", cities: { ...(meta.cities || {}) } };
 const runStartedAt = new Date().toISOString();
+const configuredDelay = Number(process.env.OVERPASS_DELAY_MS);
+const interCityDelayMs = Number.isFinite(configuredDelay) && configuredDelay >= 10_000
+  ? configuredDelay
+  : 10_000;
 let successfulCities = 0;
+let rateLimited = false;
 
 for (const city of targets) {
   process.stdout.write(`جلب بيانات: ${city.nameAr} (${city.slug}) ... `);
@@ -37,14 +45,24 @@ for (const city of targets) {
   try {
     elements = await fetchOverpass(query);
   } catch (err) {
-    console.log(`فشل: ${err.message}`);
+    const message = String(err?.message || err);
+    console.log(`فشل: ${message}`);
     const previous = meta.cities[city.slug] || {};
     meta.cities[city.slug] = {
       ...previous,
       lastAttemptAt: new Date().toISOString(),
-      lastError: String(err.message),
+      lastError: message,
       stale: true,
     };
+
+    if (/HTTP 429|rate.?limit/i.test(message)) {
+      rateLimited = true;
+      console.log("أُوقف جلب بقية المدن بعد تقييد المعدل لتجنّب إرسال طلبات إضافية إلى الخدمة.");
+      break;
+    }
+
+    // Keep failed requests from turning into a rapid burst of retries.
+    await sleep(interCityDelayMs);
     continue;
   }
 
@@ -94,7 +112,9 @@ for (const city of targets) {
   meta.fetchedAt = fetchedAt;
   successfulCities += 1;
   console.log(`${places.length} عنصر`);
-  await sleep(2000); // أدب الاستخدام مع Overpass API
+
+  // Be deliberately gentle to the public Overpass service.
+  if (city !== targets[targets.length - 1]) await sleep(interCityDelayMs);
 }
 
 meta.lastAttemptAt = runStartedAt;
@@ -104,5 +124,5 @@ if (successfulCities === 0) {
   console.error("لم ينجح جلب البيانات لأي مدينة؛ احتُفظ بالبيانات السابقة إن وُجدت.");
   process.exitCode = 1;
 } else {
-  console.log(`نجح تحديث ${successfulCities} مدينة من ${targets.length}. راجع data/places/_meta.json لآخر تحديث ناجح لكل مدينة.`);
+  console.log(`نجح تحديث ${successfulCities} مدينة من ${targets.length}${rateLimited ? " قبل إيقاف الدفعة بسبب تقييد المعدل" : ""}. راجع data/places/_meta.json لآخر تحديث ناجح لكل مدينة.`);
 }
