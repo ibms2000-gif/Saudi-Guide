@@ -3,12 +3,15 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "data": "node scripts/fetch-places.mjs",
     "build": "node scripts/build.mjs",
     "dev": "node scripts/dev-server.mjs",
-    "test": "node --test tests/**/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "validate:data": "node scripts/validate-data.mjs"
   },
   "dependencies": {}
 }

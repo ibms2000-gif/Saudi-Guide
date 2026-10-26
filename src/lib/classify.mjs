@@ -9,13 +9,22 @@ function tagMatchesQuery(tags, query) {
 
 export function classifyElement(tags, categories) {
   if (!tags) return null;
+
+  // Match specific tags first; broad rules such as shop=* are fallback-only.
+  // This prevents car repair, laundry and similar services being swallowed by shopping.
+  const matched = [];
   for (const category of categories) {
-    const hit = category.osmQueries.some((q) => tagMatchesQuery(tags, q));
-    if (!hit) continue;
-    const sub = classifySubcategory(tags, category);
-    return { categorySlug: category.slug, subcategorySlug: sub };
+    const queries = category.osmQueries || [];
+    const exactHit = queries.some((q) => !q.endsWith("=*") && tagMatchesQuery(tags, q));
+    const wildcardHit = queries.some((q) => q.endsWith("=*") && tagMatchesQuery(tags, q));
+    if (exactHit) matched.push({ category, priority: 0 });
+    else if (wildcardHit) matched.push({ category, priority: 1 });
   }
-  return null;
+  matched.sort((a, b) => a.priority - b.priority);
+  const selected = matched[0]?.category;
+  if (!selected) return null;
+  const sub = classifySubcategory(tags, selected);
+  return { categorySlug: selected.slug, subcategorySlug: sub };
 }
 
 function classifySubcategory(tags, category) {

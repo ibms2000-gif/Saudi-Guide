@@ -19,7 +19,16 @@ const targets = onlyCity ? cities.filter((c) => c.slug === onlyCity) : cities;
 
 await fs.mkdir(path.join(ROOT, "data/places"), { recursive: true });
 
-const meta = { fetchedAt: new Date().toISOString(), source: "overpass", cities: {} };
+const metaPath = path.join(ROOT, "data/places/_meta.json");
+let meta = { source: "overpass", cities: {} };
+try {
+  meta = JSON.parse(await fs.readFile(metaPath, "utf8"));
+} catch {
+  // First data refresh: start a new metadata file.
+}
+meta = { ...meta, source: "overpass", cities: { ...(meta.cities || {}) } };
+const runStartedAt = new Date().toISOString();
+let successfulCities = 0;
 
 for (const city of targets) {
   process.stdout.write(`جلب بيانات: ${city.nameAr} (${city.slug}) ... `);
@@ -29,7 +38,13 @@ for (const city of targets) {
     elements = await fetchOverpass(query);
   } catch (err) {
     console.log(`فشل: ${err.message}`);
-    meta.cities[city.slug] = { error: String(err.message), total: 0 };
+    const previous = meta.cities[city.slug] || {};
+    meta.cities[city.slug] = {
+      ...previous,
+      lastAttemptAt: new Date().toISOString(),
+      lastError: String(err.message),
+      stale: true,
+    };
     continue;
   }
 
@@ -65,14 +80,20 @@ for (const city of targets) {
     path.join(ROOT, "data/places", `${city.slug}.json`),
     JSON.stringify(places, null, 2) + "\n",
   );
-  meta.cities[city.slug] = { total: places.length };
+  const fetchedAt = new Date().toISOString();
+  meta.cities[city.slug] = { fetchedAt, total: places.length, stale: false };
+  meta.fetchedAt = fetchedAt;
+  successfulCities += 1;
   console.log(`${places.length} عنصر`);
   await sleep(2000); // أدب الاستخدام مع Overpass API
 }
 
-await fs.writeFile(
-  path.join(ROOT, "data/places/_meta.json"),
-  JSON.stringify(meta, null, 2) + "\n",
-);
+meta.lastAttemptAt = runStartedAt;
+await fs.writeFile(metaPath, JSON.stringify(meta, null, 2) + "\n");
 
-console.log("تم. راجع data/places/_meta.json لملخص التغطية.");
+if (successfulCities === 0) {
+  console.error("لم ينجح جلب البيانات لأي مدينة؛ احتُفظ بالبيانات السابقة إن وُجدت.");
+  process.exitCode = 1;
+} else {
+  console.log(`نجح تحديث ${successfulCities} مدينة من ${targets.length}. راجع data/places/_meta.json لآخر تحديث ناجح لكل مدينة.`);
+}

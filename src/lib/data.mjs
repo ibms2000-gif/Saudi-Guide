@@ -37,13 +37,15 @@ export function buildModel({ regions, cities, categories, placesByCity, meta }) 
     for (const cat of categories) {
       const catPlaces = places.filter((p) => p.categorySlug === cat.slug);
       const bySub = {};
+      const indexable = catPlaces.length >= (cat.minForPage || 4);
       for (const sub of cat.subcategories || []) {
         const subPlaces = catPlaces.filter((p) => p.subcategorySlug === sub.slug);
-        if (subPlaces.length >= 3) bySub[sub.slug] = subPlaces;
+        // A subcategory page is only generated when its parent category page exists.
+        if (indexable && subPlaces.length >= 3) bySub[sub.slug] = subPlaces;
       }
       byCategory[cat.slug] = {
         all: catPlaces,
-        indexable: catPlaces.length >= (cat.minForPage || 4),
+        indexable,
         subcategories: bySub,
       };
     }
@@ -61,7 +63,8 @@ export function buildModel({ regions, cities, categories, placesByCity, meta }) 
   const nationalByCategory = {};
   for (const cat of categories) {
     const list = citiesEnriched
-      .filter((c) => c.byCategory[cat.slug].all.length > 0)
+      // National hubs may only link to city/category pages that the builder creates.
+      .filter((c) => c.byCategory[cat.slug].indexable)
       .sort((a, b) => b.byCategory[cat.slug].all.length - a.byCategory[cat.slug].all.length);
     nationalByCategory[cat.slug] = list;
   }

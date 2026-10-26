@@ -21,7 +21,7 @@ const MIME = {
   ".txt": "text/plain; charset=utf-8",
 };
 
-await build();
+await build({ allowEmptyData: process.env.ALLOW_EMPTY_DATA === "true" || process.env.NODE_ENV !== "production" });
 console.log("تم البناء. الخادم يعمل الآن...");
 
 http
