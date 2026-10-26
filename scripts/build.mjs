@@ -51,7 +51,8 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir } = 
 
     for (const sub of category.subcategories || []) {
       const subCities = cities.filter((c) => c.byCategory[category.slug].subcategories[sub.slug]);
-      if (subCities.length === 0) continue;
+      // National subcategory hubs need coverage in multiple cities to provide real value.
+      if (subCities.length < 2) continue;
       add(
         `/category/${category.slug}/${sub.slug}/`,
         categoryNationalSubPage(model, category, sub, subCities),
@@ -77,10 +78,14 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir } = 
     }
   }
 
-  for (const { urlPath, html } of pages) {
+  for (const { urlPath, html, indexable } of pages) {
     const filePath = path.join(DIST, urlPath.replace(/^\//, ""), "index.html");
     await fs.mkdir(path.dirname(filePath), { recursive: true });
-    await fs.writeFile(filePath, html);
+    // Pages retained for navigation but lacking enough data must not index.
+    const outputHtml = indexable
+      ? html
+      : html.replace('<meta name="robots" content="index, follow">', '<meta name="robots" content="noindex, follow">');
+    await fs.writeFile(filePath, outputHtml);
   }
 
   // صفحة 404

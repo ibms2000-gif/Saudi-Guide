@@ -45,3 +45,28 @@ export function distanceMeters(lat1, lon1, lat2, lon2) {
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+// Allow only ordinary HTTP(S) links from community-maintained place data.
+export function safeHttpUrl(input) {
+  if (input === null || input === undefined) return null;
+  try {
+    const url = new URL(String(input).trim());
+    if (!["http:", "https:"].includes(url.protocol)) return null;
+    if (url.username || url.password) return null;
+    return url.href;
+  } catch {
+    return null;
+  }
+}
+
+// Return a normalized telephone URI only when the entire value looks like a phone number.
+export function safeTelephone(input) {
+  if (input === null || input === undefined) return null;
+  const raw = String(input).trim();
+  if (!/^\+?[\d\s().-]{3,29}$/.test(raw)) return null;
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length < 3 || digits.length > 20) return null;
+  const normalized = raw.replace(/[^\d+]/g, "");
+  if ((normalized.match(/\+/g) || []).length > 1 || (normalized.includes("+") && !normalized.startsWith("+"))) return null;
+  return normalized;
+}

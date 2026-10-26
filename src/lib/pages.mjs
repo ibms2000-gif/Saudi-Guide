@@ -1,4 +1,4 @@
-import { escapeHtml } from "./util.mjs";
+import { escapeHtml, safeHttpUrl, safeTelephone } from "./util.mjs";
 import { renderPage, dataAttributionNote } from "./layout.mjs";
 import { SITE } from "./config.mjs";
 
@@ -6,14 +6,22 @@ function placeCard(p) {
   const bits = [];
   if (p.address) bits.push(escapeHtml(p.address));
   if (p.openingHours) bits.push(`ساعات العمل: ${escapeHtml(p.openingHours)}`);
-  const mapHref = `https://www.openstreetmap.org/${p.osmType}/${p.osmId}`;
+
+  // OSM tags are community-edited input: escape HTML and validate URL schemes separately.
+  const website = safeHttpUrl(p.website);
+  const phoneHref = safeTelephone(p.phone);
+  const validOsmTarget = ["node", "way", "relation"].includes(p.osmType) && /^\d+$/.test(String(p.osmId ?? ""));
+  const mapLink = validOsmTarget
+    ? `<a href="https://www.openstreetmap.org/${p.osmType}/${p.osmId}" rel="noopener nofollow">عرض على الخريطة</a>`
+    : "";
+
   return `<li class="place-card">
     <h3>${escapeHtml(p.name)}</h3>
     ${bits.length ? `<p class="meta">${bits.join(" · ")}</p>` : ""}
     <p class="place-links">
-      ${p.website ? `<a href="${escapeHtml(p.website)}" rel="noopener nofollow">الموقع الإلكتروني</a>` : ""}
-      ${p.phone ? `<a href="tel:${escapeHtml(p.phone)}">${escapeHtml(p.phone)}</a>` : ""}
-      <a href="${mapHref}" rel="noopener nofollow">عرض على الخريطة</a>
+      ${website ? `<a href="${escapeHtml(website)}" rel="noopener noreferrer nofollow" target="_blank">الموقع الإلكتروني</a>` : ""}
+      ${phoneHref ? `<a href="tel:${escapeHtml(phoneHref)}">${escapeHtml(p.phone)}</a>` : ""}
+      ${mapLink}
     </p>
   </li>`;
 }
@@ -147,7 +155,7 @@ export function cityPage(model, city) {
     <h2>الأقسام المتاحة في ${escapeHtml(city.nameAr)}</h2>
     <ul class="grid-list">${catItems}</ul>
   </section>
-  ${dataAttributionNote({ cityNameAr: city.nameAr, fetchedAt: model.meta?.fetchedAt })}`;
+  ${dataAttributionNote({ cityNameAr: city.nameAr, fetchedAt: model.meta?.cities?.[city.slug]?.fetchedAt || model.meta?.fetchedAt })}`;
 
   return renderPage({
     title: `دليل ${city.nameAr} — مطاعم، تسوق، خدمات وسياحة | ${SITE.name}`,
@@ -180,7 +188,7 @@ export function cityCategoryPage(model, city, category) {
   <p>قائمة ${escapeHtml(category.singularAr)} في ${escapeHtml(city.nameAr)} (${data.all.length} عنصر).</p>
   ${subLinks}
   <ul class="place-list">${list}</ul>
-  ${dataAttributionNote({ cityNameAr: city.nameAr, fetchedAt: model.meta?.fetchedAt })}`;
+  ${dataAttributionNote({ cityNameAr: city.nameAr, fetchedAt: model.meta?.cities?.[city.slug]?.fetchedAt || model.meta?.fetchedAt })}`;
 
   return renderPage({
     title: `${category.nameAr} في ${city.nameAr} — ${SITE.name}`,
@@ -202,7 +210,7 @@ export function cityCategorySubPage(model, city, category, sub, places) {
   <h1>${escapeHtml(sub.nameAr)} في ${escapeHtml(city.nameAr)}</h1>
   <p>قائمة ${escapeHtml(sub.nameAr)} ضمن قسم ${escapeHtml(category.nameAr)} في ${escapeHtml(city.nameAr)} (${places.length} عنصر).</p>
   <ul class="place-list">${list}</ul>
-  ${dataAttributionNote({ cityNameAr: city.nameAr, fetchedAt: model.meta?.fetchedAt })}`;
+  ${dataAttributionNote({ cityNameAr: city.nameAr, fetchedAt: model.meta?.cities?.[city.slug]?.fetchedAt || model.meta?.fetchedAt })}`;
 
   return renderPage({
     title: `${sub.nameAr} في ${city.nameAr} — ${SITE.name}`,
@@ -274,8 +282,11 @@ export function categoryNationalSubPage(model, category, sub, cities) {
 export function dataSourcesPage(model) {
   const rows = model.cities
     .map((c) => {
-      const status = c.totalPlaces > 0 ? `${c.totalPlaces} عنصر` : "لم يتم الجلب بعد";
-      return `<tr><td>${escapeHtml(c.nameAr)}</td><td>${status}</td></tr>`;
+      const cityMeta = model.meta?.cities?.[c.slug];
+      const status = c.totalPlaces > 0 ? `${c.totalPlaces} عنصر` : "لا توجد بيانات محفوظة";
+      const cityFetchedAt = cityMeta?.fetchedAt ? new Date(cityMeta.fetchedAt).toLocaleDateString("ar-SA") : "غير معروف";
+      const stale = cityMeta?.stale ? " — تعذّر آخر تحديث" : "";
+      return `<tr><td>${escapeHtml(c.nameAr)}</td><td>${status} (آخر جلب ناجح: ${escapeHtml(cityFetchedAt)})${escapeHtml(stale)}</td></tr>`;
     })
     .join("");
   const fetchedAt = model.meta?.fetchedAt
@@ -297,14 +308,14 @@ export function dataSourcesPage(model) {
     <a href="https://github.com/ibms2000-gif/Saudi-Guide/blob/main/data/DATA_LICENSE.md" rel="noopener">DATA_LICENSE.md</a>
     في مستودع المشروع لتفاصيل الترخيص الكاملة.
   </p>
-  <p>آخر عملية تحديث للبيانات: ${escapeHtml(fetchedAt)} (بتوقيت السيرفر).</p>
+  <p>آخر عملية جلب ناجحة لأي مدينة: ${escapeHtml(fetchedAt)} (بتوقيت السيرفر). قد يختلف تاريخ تحديث البيانات بين المدن.</p>
   <p>
     لا تضمن ${escapeHtml(SITE.name)} اكتمال أو دقة هذه البيانات في كل وقت؛ الأسماء وساعات العمل والعناوين
     قد تتغيّر دون أن تنعكس فورًا هنا. لتصحيح معلومة أو إضافة مكان مفقود، يمكن المساهمة مباشرة عبر
     <a href="https://www.openstreetmap.org/" rel="noopener">OpenStreetMap</a> وستظهر التحديثات في الجلب التالي.
   </p>
   <h2>تغطية البيانات حسب المدينة</h2>
-  <table class="data-table"><thead><tr><th>المدينة</th><th>عدد العناصر المصنّفة</th></tr></thead><tbody>${rows}</tbody></table>`;
+  <table class="data-table"><thead><tr><th>المدينة</th><th>عدد العناصر وآخر تحديث ناجح</th></tr></thead><tbody>${rows}</tbody></table>`;
 
   return renderPage({
     title: `مصدر البيانات — ${SITE.name}`,

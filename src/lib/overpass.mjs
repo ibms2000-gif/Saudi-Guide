@@ -24,9 +24,10 @@ export async function fetchOverpass(query, { retries = 3, endpointIndex = 0 } = 
       method: "POST",
       headers: { "Content-Type": "text/plain" },
       body: query,
+      signal: AbortSignal.timeout(75000),
     });
     if (!res.ok) {
-      if (res.status === 429 || res.status === 504) {
+      if ([429, 500, 502, 503, 504].includes(res.status)) {
         if (retries > 0) {
           await new Promise((r) => setTimeout(r, 5000));
           return fetchOverpass(query, { retries: retries - 1, endpointIndex: endpointIndex + 1 });

@@ -9,6 +9,14 @@ const categories = [
     subcategories: [{ slug: "coffee", nameAr: "قهوة", match: { amenity: ["cafe"] } }],
   },
   {
+    slug: "services",
+    osmQueries: ["shop=car_repair", "shop=laundry", "shop=hairdresser"],
+    subcategories: [
+      { slug: "workshops", nameAr: "ورش سيارات", match: { shop: ["car_repair"] } },
+      { slug: "laundry", nameAr: "مغاسل", match: { shop: ["laundry"] } },
+    ],
+  },
+  {
     slug: "shopping",
     osmQueries: ["shop=*"],
     subcategories: [
@@ -41,4 +49,12 @@ test("placeName يفضّل name:ar ثم name ثم القيمة الاحتياط�
   assert.equal(placeName({ "name:ar": "اسم عربي", name: "English" }, "fallback"), "اسم عربي");
   assert.equal(placeName({ name: "English" }, "fallback"), "English");
   assert.equal(placeName({}, "fallback"), "fallback");
+});
+
+
+test("يقدّم نوع الخدمة المحدد على قاعدة shop=* العامة", () => {
+  const repair = classifyElement({ shop: "car_repair" }, categories);
+  assert.deepEqual(repair, { categorySlug: "services", subcategorySlug: "workshops" });
+  const laundry = classifyElement({ shop: "laundry" }, categories);
+  assert.deepEqual(laundry, { categorySlug: "services", subcategorySlug: "laundry" });
 });
