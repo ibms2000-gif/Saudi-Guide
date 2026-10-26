@@ -8,6 +8,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const cities = JSON.parse(await fs.readFile(path.join(ROOT, "data/cities.json"), "utf8"));
 const categories = JSON.parse(await fs.readFile(path.join(ROOT, "data/categories.json"), "utf8"));
 const knownCategories = new Set(categories.map((category) => category.slug));
+const allowPartialData = process.env.ALLOW_PARTIAL_DATA === "true";
 let totalPlaces = 0;
 let citiesWithData = 0;
 let filesPresent = 0;
@@ -55,7 +56,11 @@ if (errors.length) {
 }
 console.log("ملخص البيانات: " + totalPlaces + " مكانًا، " + citiesWithData + " مدينة بها بيانات، " + filesPresent + " ملف مدينة.");
 if (filesPresent === 0 || citiesWithData < 5 || totalPlaces < 50) {
-  console.error("رفض النشر: البيانات غير كافية. المطلوب على الأقل 5 مدن بها بيانات و50 مكانًا، بعد تشغيل npm run data.");
-  process.exit(1);
+  if (!allowPartialData || filesPresent === 0 || totalPlaces === 0) {
+    console.error("رفض النشر: البيانات غير كافية. المطلوب على الأقل 5 مدن بها بيانات و50 مكانًا، بعد تشغيل npm run data.");
+    process.exit(1);
+  }
+  console.warn("تحذير: تم قبول لقطة بيانات جزئية لغرض إنشاء طلب تهيئة فقط؛ لا تُعد هذه البيانات مؤهلة للنشر الإنتاجي.");
+} else {
+  console.log("اجتازت البيانات الحد الأدنى للنشر.");
 }
-console.log("اجتازت البيانات الحد الأدنى للنشر.");
