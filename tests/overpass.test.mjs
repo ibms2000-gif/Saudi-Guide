@@ -6,9 +6,11 @@ test("Overpass query includes node, way and relation features", () => {
   const query = buildQuery(24, 46, 5000, [
     { osmQueries: ["amenity=restaurant"] },
   ]);
-  assert.match(query, /node\(around:5000,24,46\)\["amenity"="restaurant"\];/);
-  assert.match(query, /way\(around:5000,24,46\)\["amenity"="restaurant"\];/);
-  assert.match(query, /relation\(around:5000,24,46\)\["amenity"="restaurant"\];/);
+  assert.match(query, /nwr\(around:5000,24,46\)\["amenity"="restaurant"\];/);
+  assert.match(query, /out center tags;/);
+  assert.doesNotMatch(query, /\nnode\(/);
+  assert.doesNotMatch(query, /\nway\(/);
+  assert.doesNotMatch(query, /\nrelation\(/);
 });
 
 test("elementToRecord reads relation center coordinates", () => {
