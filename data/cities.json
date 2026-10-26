@@ -1,0 +1,402 @@
+[
+  {
+    "slug": "riyadh",
+    "nameAr": "الرياض",
+    "regionSlug": "riyadh",
+    "regionAr": "منطقة الرياض",
+    "latitude": 24.7136,
+    "longitude": 46.6753,
+    "radius": 20000,
+    "overview": "عاصمة المملكة وأكبر مراكزها الحضرية، وتضم أحياءً تجارية وسكنية ومراكز أعمال وثقافة."
+  },
+  {
+    "slug": "jeddah",
+    "nameAr": "جدة",
+    "regionSlug": "makkah",
+    "regionAr": "منطقة مكة المكرمة",
+    "latitude": 21.4858,
+    "longitude": 39.1925,
+    "radius": 20000,
+    "overview": "مدينة ساحلية على البحر الأحمر وبوابة رئيسية للحرمين، وتجمع بين الواجهة البحرية والمراكز التجارية والأحياء التاريخية."
+  },
+  {
+    "slug": "makkah",
+    "nameAr": "مكة المكرمة",
+    "regionSlug": "makkah",
+    "regionAr": "منطقة مكة المكرمة",
+    "latitude": 21.3891,
+    "longitude": 39.8579,
+    "radius": 13000,
+    "overview": "مدينة مقدسة في منطقة مكة المكرمة، وتتركز فيها مرافق وخدمات الزوار والمقيمين حول أحياء متعددة."
+  },
+  {
+    "slug": "dammam",
+    "nameAr": "الدمام",
+    "regionSlug": "eastern",
+    "regionAr": "المنطقة الشرقية",
+    "latitude": 26.4207,
+    "longitude": 50.0888,
+    "radius": 13000,
+    "overview": "مدينة ساحلية في المنطقة الشرقية ومركز إداري وتجاري مهم على الخليج العربي."
+  },
+  {
+    "slug": "khobar",
+    "nameAr": "الخبر",
+    "regionSlug": "eastern",
+    "regionAr": "المنطقة الشرقية",
+    "latitude": 26.2172,
+    "longitude": 50.1971,
+    "radius": 7000,
+    "overview": "مدينة في المنطقة الشرقية معروفة بواجهتها البحرية وارتباطها الحضري بالدمام والظهران."
+  },
+  {
+    "slug": "abha",
+    "nameAr": "أبها",
+    "regionSlug": "asir",
+    "regionAr": "منطقة عسير",
+    "latitude": 18.2164,
+    "longitude": 42.5053,
+    "radius": 13000,
+    "overview": "مدينة مرتفعة في منطقة عسير، وتُعد قاعدة لاستكشاف المرتفعات والوجهات الطبيعية في جنوب غرب المملكة."
+  },
+  {
+    "slug": "khamis-mushait",
+    "nameAr": "خميس مشيط",
+    "regionSlug": "asir",
+    "regionAr": "منطقة عسير",
+    "latitude": 18.3064,
+    "longitude": 42.729,
+    "radius": 13000,
+    "overview": "مركز حضري رئيسي في منطقة عسير قريب من أبها، ويخدم الأحياء والأسواق والأنشطة اليومية."
+  },
+  {
+    "slug": "jazan",
+    "nameAr": "جازان",
+    "regionSlug": "jazan",
+    "regionAr": "منطقة جازان",
+    "latitude": 16.8892,
+    "longitude": 42.5511,
+    "radius": 13000,
+    "overview": "مدينة ساحلية في جنوب غرب المملكة ومركز لمنطقة جازان وجزرها وسهولها الزراعية."
+  },
+  {
+    "slug": "samtah",
+    "nameAr": "صامطة",
+    "regionSlug": "jazan",
+    "regionAr": "منطقة جازان",
+    "latitude": 16.596,
+    "longitude": 42.9444,
+    "radius": 7000,
+    "overview": "محافظة في منطقة جازان جنوب المملكة، ضمن النطاق الحضري والزراعي القريب من الحدود الجنوبية."
+  },
+  {
+    "slug": "abu-arish",
+    "nameAr": "أبو عريش",
+    "regionSlug": "jazan",
+    "regionAr": "منطقة جازان",
+    "latitude": 16.9689,
+    "longitude": 42.8325,
+    "radius": 7000,
+    "overview": "مدينة في منطقة جازان تخدم نطاقًا من القرى والمراكز والأنشطة التجارية المحلية."
+  },
+  {
+    "slug": "medina",
+    "nameAr": "المدينة المنورة",
+    "regionSlug": "madinah",
+    "regionAr": "منطقة المدينة المنورة",
+    "latitude": 24.5247,
+    "longitude": 39.5692,
+    "radius": 13000,
+    "overview": "مدينة في منطقة المدينة المنورة وتستقبل زوار المسجد النبوي، وتضم مرافق وخدمات للزوار والمقيمين."
+  },
+  {
+    "slug": "buraidah",
+    "nameAr": "بريدة",
+    "regionSlug": "qassim",
+    "regionAr": "منطقة القصيم",
+    "latitude": 26.326,
+    "longitude": 43.975,
+    "radius": 13000,
+    "overview": "مدينة رئيسية في منطقة القصيم، لها أسواق حضرية وروابط بالمدن والبلدات الزراعية المحيطة."
+  },
+  {
+    "slug": "tabuk",
+    "nameAr": "تبوك",
+    "regionSlug": "tabuk",
+    "regionAr": "منطقة تبوك",
+    "latitude": 28.3838,
+    "longitude": 36.555,
+    "radius": 13000,
+    "overview": "مدينة شمال غرب المملكة ومركز لمنطقة تبوك، وقاعدة للوصول إلى وجهات صحراوية وساحلية قريبة."
+  },
+  {
+    "slug": "hail",
+    "nameAr": "حائل",
+    "regionSlug": "hail",
+    "regionAr": "منطقة حائل",
+    "latitude": 27.5114,
+    "longitude": 41.7208,
+    "radius": 13000,
+    "overview": "مدينة في شمال وسط المملكة، ترتبط بالطرق البرية وبالمعالم الطبيعية والتاريخية في منطقة حائل."
+  },
+  {
+    "slug": "najran",
+    "nameAr": "نجران",
+    "regionSlug": "najran",
+    "regionAr": "منطقة نجران",
+    "latitude": 17.4924,
+    "longitude": 44.1277,
+    "radius": 13000,
+    "overview": "مدينة جنوبية قرب الحدود، وتتميز بتراث معماري ومواقع تاريخية وأحياء سكنية حديثة."
+  },
+  {
+    "slug": "albaha",
+    "nameAr": "الباحة",
+    "regionSlug": "albaha",
+    "regionAr": "منطقة الباحة",
+    "latitude": 20.0129,
+    "longitude": 41.4677,
+    "radius": 7000,
+    "overview": "مدينة مرتفعة في جنوب غرب المملكة، وتحيط بها قرى جبلية وغابات ووجهات طبيعية."
+  },
+  {
+    "slug": "sakakah",
+    "nameAr": "سكاكا",
+    "regionSlug": "aljouf",
+    "regionAr": "منطقة الجوف",
+    "latitude": 29.9697,
+    "longitude": 40.2064,
+    "radius": 7000,
+    "overview": "مدينة في شمال المملكة ومركز منطقة الجوف، مع امتداد عمراني وزراعي حولها."
+  },
+  {
+    "slug": "arar",
+    "nameAr": "عرعر",
+    "regionSlug": "northern-borders",
+    "regionAr": "منطقة الحدود الشمالية",
+    "latitude": 30.9753,
+    "longitude": 41.0381,
+    "radius": 7000,
+    "overview": "مدينة شمالية ومركز منطقة الحدود الشمالية، وتخدم التجمعات والطرق الإقليمية المحيطة."
+  },
+  {
+    "slug": "diriyah",
+    "nameAr": "الدرعية",
+    "regionSlug": "riyadh",
+    "regionAr": "منطقة الرياض",
+    "latitude": 24.7357,
+    "longitude": 46.5769,
+    "radius": 7000,
+    "overview": "مدينة تاريخية ملاصقة لشمال غرب الرياض، وتضم مواقع تراثية ومناطق ثقافية وزيارات حضرية."
+  },
+  {
+    "slug": "alkharj",
+    "nameAr": "الخرج",
+    "regionSlug": "riyadh",
+    "regionAr": "منطقة الرياض",
+    "latitude": 24.1554,
+    "longitude": 47.3126,
+    "radius": 13000,
+    "overview": "مدينة جنوب شرق الرياض ترتبط بالمنطقة الزراعية والصناعية وبشبكة طرق العاصمة."
+  },
+  {
+    "slug": "almajmaah",
+    "nameAr": "المجمعة",
+    "regionSlug": "riyadh",
+    "regionAr": "منطقة الرياض",
+    "latitude": 25.9105,
+    "longitude": 45.3567,
+    "radius": 7000,
+    "overview": "مدينة في منطقة الرياض شمال العاصمة، وتخدم المراكز والبلدات المحيطة بها."
+  },
+  {
+    "slug": "taif",
+    "nameAr": "الطائف",
+    "regionSlug": "makkah",
+    "regionAr": "منطقة مكة المكرمة",
+    "latitude": 21.2703,
+    "longitude": 40.4158,
+    "radius": 13000,
+    "overview": "مدينة مرتفعة في منطقة مكة المكرمة، تشتهر بمناخها الجبلي ومزارعها ووجهاتها الموسمية."
+  },
+  {
+    "slug": "rabigh",
+    "nameAr": "رابغ",
+    "regionSlug": "makkah",
+    "regionAr": "منطقة مكة المكرمة",
+    "latitude": 22.7986,
+    "longitude": 39.0349,
+    "radius": 7000,
+    "overview": "مدينة ساحلية شمال جدة على البحر الأحمر، تضم مناطق سكنية وصناعية ومرافق على الطريق الساحلي."
+  },
+  {
+    "slug": "yanbu",
+    "nameAr": "ينبع",
+    "regionSlug": "madinah",
+    "regionAr": "منطقة المدينة المنورة",
+    "latitude": 24.0895,
+    "longitude": 38.0618,
+    "radius": 13000,
+    "overview": "مدينة ساحلية في منطقة المدينة المنورة، وتجمع بين الميناء والمنطقة الصناعية والواجهة البحرية."
+  },
+  {
+    "slug": "alula",
+    "nameAr": "العلا",
+    "regionSlug": "madinah",
+    "regionAr": "منطقة المدينة المنورة",
+    "latitude": 26.6085,
+    "longitude": 37.9232,
+    "radius": 7000,
+    "overview": "وجهة تاريخية وطبيعية في شمال غرب المملكة، تضم مواقع أثرية وتكوينات صخرية ومناطق جذب."
+  },
+  {
+    "slug": "jubail",
+    "nameAr": "الجبيل",
+    "regionSlug": "eastern",
+    "regionAr": "المنطقة الشرقية",
+    "latitude": 27.0046,
+    "longitude": 49.646,
+    "radius": 13000,
+    "overview": "مدينة ساحلية في المنطقة الشرقية تضم منطقة صناعية كبرى ومناطق سكنية وخدمات."
+  },
+  {
+    "slug": "alhasa",
+    "nameAr": "الأحساء",
+    "regionSlug": "eastern",
+    "regionAr": "المنطقة الشرقية",
+    "latitude": 25.3647,
+    "longitude": 49.5876,
+    "radius": 13000,
+    "overview": "واحة واسعة في المنطقة الشرقية تضم مدنًا وبلدات ومزارع ومواقع تراثية."
+  },
+  {
+    "slug": "qatif",
+    "nameAr": "القطيف",
+    "regionSlug": "eastern",
+    "regionAr": "المنطقة الشرقية",
+    "latitude": 26.5196,
+    "longitude": 50.0115,
+    "radius": 7000,
+    "overview": "مدينة ومحافظة ساحلية في المنطقة الشرقية على الخليج العربي، ذات أحياء وأسواق ومناطق سكنية."
+  },
+  {
+    "slug": "dhahran",
+    "nameAr": "الظهران",
+    "regionSlug": "eastern",
+    "regionAr": "المنطقة الشرقية",
+    "latitude": 26.2361,
+    "longitude": 50.0393,
+    "radius": 7000,
+    "overview": "مدينة في المنطقة الشرقية تضم مراكز تعليم وأعمال ومرافق حضرية مرتبطة بالمدن المجاورة."
+  },
+  {
+    "slug": "unaizah",
+    "nameAr": "عنيزة",
+    "regionSlug": "qassim",
+    "regionAr": "منطقة القصيم",
+    "latitude": 26.0843,
+    "longitude": 43.9934,
+    "radius": 7000,
+    "overview": "مدينة في منطقة القصيم لها أسواق ومزارع ومراكز سكنية ضمن النطاق الحضري للمنطقة."
+  },
+  {
+    "slug": "alrass",
+    "nameAr": "الرس",
+    "regionSlug": "qassim",
+    "regionAr": "منطقة القصيم",
+    "latitude": 25.8694,
+    "longitude": 43.4973,
+    "radius": 7000,
+    "overview": "مدينة في منطقة القصيم تخدم البلدات والمراكز القريبة على شبكة الطرق الإقليمية."
+  },
+  {
+    "slug": "sabya",
+    "nameAr": "صبيا",
+    "regionSlug": "jazan",
+    "regionAr": "منطقة جازان",
+    "latitude": 17.1495,
+    "longitude": 42.6254,
+    "radius": 7000,
+    "overview": "مدينة في منطقة جازان ضمن السهل الساحلي، وتخدم الأسواق والأحياء والقرى المجاورة."
+  },
+  {
+    "slug": "bisha",
+    "nameAr": "بيشة",
+    "regionSlug": "asir",
+    "regionAr": "منطقة عسير",
+    "latitude": 20.0005,
+    "longitude": 42.6052,
+    "radius": 7000,
+    "overview": "مدينة في منطقة عسير داخل وادٍ واسع، وتخدم المراكز والقرى في النطاق المحيط."
+  },
+  {
+    "slug": "muhayil-asir",
+    "nameAr": "محايل عسير",
+    "regionSlug": "asir",
+    "regionAr": "منطقة عسير",
+    "latitude": 18.5483,
+    "longitude": 42.0495,
+    "radius": 7000,
+    "overview": "مدينة في منطقة عسير غرب المرتفعات، وتربط بين التجمعات الداخلية والسهل الساحلي."
+  },
+  {
+    "slug": "al-qunfudhah",
+    "nameAr": "القنفذة",
+    "regionSlug": "makkah",
+    "regionAr": "منطقة مكة المكرمة",
+    "latitude": 19.1266,
+    "longitude": 41.0786,
+    "radius": 7000,
+    "overview": "مدينة ساحلية في منطقة مكة المكرمة على البحر الأحمر، وتخدم القرى والمراكز الساحلية المجاورة."
+  },
+  {
+    "slug": "duba",
+    "nameAr": "ضباء",
+    "regionSlug": "tabuk",
+    "regionAr": "منطقة تبوك",
+    "latitude": 27.351,
+    "longitude": 35.6901,
+    "radius": 7000,
+    "overview": "مدينة ساحلية في منطقة تبوك على البحر الأحمر، وتربط بين التجمعات الساحلية والطرق الشمالية الغربية."
+  },
+  {
+    "slug": "haql",
+    "nameAr": "حقل",
+    "regionSlug": "tabuk",
+    "regionAr": "منطقة تبوك",
+    "latitude": 29.2935,
+    "longitude": 34.9504,
+    "radius": 7000,
+    "overview": "مدينة ساحلية في أقصى شمال غرب المملكة على خليج العقبة، بالقرب من الحدود الأردنية."
+  },
+  {
+    "slug": "rafha",
+    "nameAr": "رفحاء",
+    "regionSlug": "northern-borders",
+    "regionAr": "منطقة الحدود الشمالية",
+    "latitude": 29.6268,
+    "longitude": 43.4908,
+    "radius": 7000,
+    "overview": "مدينة في منطقة الحدود الشمالية على طريق بري إقليمي بين التجمعات الشمالية."
+  },
+  {
+    "slug": "turaif",
+    "nameAr": "طريف",
+    "regionSlug": "northern-borders",
+    "regionAr": "منطقة الحدود الشمالية",
+    "latitude": 31.6725,
+    "longitude": 38.6637,
+    "radius": 7000,
+    "overview": "مدينة في شمال غرب منطقة الحدود الشمالية، ضمن نطاق صحراوي وممرات طرق إقليمية."
+  },
+  {
+    "slug": "qurayyat",
+    "nameAr": "القريات",
+    "regionSlug": "aljouf",
+    "regionAr": "منطقة الجوف",
+    "latitude": 31.3318,
+    "longitude": 37.3426,
+    "radius": 7000,
+    "overview": "مدينة في منطقة الجوف شمال المملكة، قريبة من الحدود الأردنية وتخدم الطرق والمراكز المحيطة."
+  }
+]
