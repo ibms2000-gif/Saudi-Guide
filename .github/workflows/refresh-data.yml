@@ -8,6 +8,7 @@ on:
       - ".github/workflows/refresh-data.yml"
       - "scripts/fetch-places.mjs"
       - "scripts/validate-data.mjs"
+      - "src/lib/overpass.mjs"
       - "data/cities.json"
       - "data/categories.json"
   schedule:
