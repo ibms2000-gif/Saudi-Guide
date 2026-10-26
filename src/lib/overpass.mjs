@@ -12,6 +12,7 @@ export function buildQuery(lat, lon, radius, categories) {
       const sel = value === "*" ? `["${key}"]` : `["${key}"="${value}"]`;
       filters.push(`node(around:${radius},${lat},${lon})${sel};`);
       filters.push(`way(around:${radius},${lat},${lon})${sel};`);
+      filters.push(`relation(around:${radius},${lat},${lon})${sel};`);
     }
   }
   return `[out:json][timeout:60];(\n${filters.join("\n")}\n);out center tags;`;

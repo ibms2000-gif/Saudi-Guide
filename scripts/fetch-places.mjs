@@ -49,6 +49,7 @@ for (const city of targets) {
   }
 
   const seen = new Set();
+  const seenLocations = new Set();
   const places = [];
   for (const el of elements) {
     const rec = elementToRecord(el);
@@ -59,7 +60,15 @@ for (const city of targets) {
     if (!name) continue; // نتجاهل العناصر بلا اسم لضمان جودة المحتوى
     const cls = classifyElement(rec.tags, categories);
     if (!cls) continue;
+
+    // Relations, ways and nodes can all describe the same named place.
+    // Collapse same-category records whose names and rounded coordinates match.
+    const normalizedName = name.normalize("NFKC").trim().toLocaleLowerCase("ar");
+    const locationKey = `${cls.categorySlug}/${normalizedName}/${Number(rec.lat).toFixed(4)}/${Number(rec.lon).toFixed(4)}`;
+    if (seenLocations.has(locationKey)) continue;
+
     seen.add(key);
+    seenLocations.add(locationKey);
     places.push({
       id: slugify(`${key}-${name}`).slice(0, 80),
       name,

@@ -1,8 +1,10 @@
 // عامل Cloudflare Workers: لا يقوم بأي جلب حيّ للبيانات (لا طقس ولا OSM).
 // وظيفته فقط إعادة توجيه الروابط القديمة وتقديم الملفات الثابتة من dist/.
 import citiesData from "../data/cities.json";
+import categoriesData from "../data/categories.json";
 
 const CITY_SLUGS = new Set(citiesData.map((c) => c.slug));
+const CATEGORY_SLUGS = new Set(categoriesData.map((category) => category.slug));
 
 export default {
   async fetch(request, env) {
@@ -22,9 +24,13 @@ export default {
       return redirect(url, "/legal/weather-notice/");
     }
 
-    // روابط فئات قديمة بدون بادئة /city/
-    const legacyCategoryMatch = p.match(/^\/(restaurants|services)\/([^/]+)\/?$/);
-    if (legacyCategoryMatch && CITY_SLUGS.has(legacyCategoryMatch[2])) {
+    // Legacy category/city URLs are redirected for every configured category.
+    const legacyCategoryMatch = p.match(/^\/([^/]+)\/([^/]+)\/?$/);
+    if (
+      legacyCategoryMatch &&
+      CATEGORY_SLUGS.has(legacyCategoryMatch[1]) &&
+      CITY_SLUGS.has(legacyCategoryMatch[2])
+    ) {
       return redirect(url, `/city/${legacyCategoryMatch[2]}/${legacyCategoryMatch[1]}/`);
     }
 
