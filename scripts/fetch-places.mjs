@@ -19,6 +19,7 @@ const targets = onlyCity ? cities.filter((c) => c.slug === onlyCity) : cities;
 if (onlyCity && targets.length === 0) {
   throw new Error(`مدينة غير معروفة في --city: ${onlyCity}`);
 }
+const bootstrapOnly = process.env.BOOTSTRAP_ONLY === "true";
 
 await fs.mkdir(path.join(ROOT, "data/places"), { recursive: true });
 
@@ -36,9 +37,29 @@ const interCityDelayMs = Number.isFinite(configuredDelay) && configuredDelay >= 
   ? configuredDelay
   : 10_000;
 let successfulCities = 0;
+let attemptedCities = 0;
+let skippedExistingCities = 0;
 let rateLimited = false;
 
 for (const city of targets) {
+  const cityPath = path.join(ROOT, "data/places", `${city.slug}.json`);
+  if (bootstrapOnly) {
+    let existingPlaces;
+    try {
+      existingPlaces = JSON.parse(await fs.readFile(cityPath, "utf8"));
+    } catch {
+      existingPlaces = null;
+    }
+    const knownEmptySnapshot =
+      meta.cities[city.slug]?.stale === false &&
+      Number(meta.cities[city.slug]?.total) === 0;
+    if (Array.isArray(existingPlaces) && (existingPlaces.length > 0 || knownEmptySnapshot)) {
+      skippedExistingCities += 1;
+      console.log(`تخطي ${city.nameAr}: توجد بيانات محفوظة مسبقًا.`);
+      continue;
+    }
+  }
+  attemptedCities += 1;
   process.stdout.write(`جلب بيانات: ${city.nameAr} (${city.slug}) ... `);
   const query = buildQuery(city.latitude, city.longitude, city.radius, categories);
   let elements = [];
@@ -117,12 +138,16 @@ for (const city of targets) {
   if (city !== targets[targets.length - 1]) await sleep(interCityDelayMs);
 }
 
-meta.lastAttemptAt = runStartedAt;
-await fs.writeFile(metaPath, JSON.stringify(meta, null, 2) + "\n");
+if (attemptedCities > 0) {
+  meta.lastAttemptAt = runStartedAt;
+  await fs.writeFile(metaPath, JSON.stringify(meta, null, 2) + "\n");
+}
 
-if (successfulCities === 0) {
+if (attemptedCities === 0 && bootstrapOnly) {
+  console.log(`اكتملت مرحلة التهيئة: لا توجد مدن ناقصة البيانات ضمن ${targets.length} مدينة. تم تخطي ${skippedExistingCities} مدينة.`);
+} else if (successfulCities === 0) {
   console.error("لم ينجح جلب البيانات لأي مدينة؛ احتُفظ بالبيانات السابقة إن وُجدت.");
   process.exitCode = 1;
 } else {
-  console.log(`نجح تحديث ${successfulCities} مدينة من ${targets.length}${rateLimited ? " قبل إيقاف الدفعة بسبب تقييد المعدل" : ""}. راجع data/places/_meta.json لآخر تحديث ناجح لكل مدينة.`);
+  console.log(`نجح جلب بيانات ${successfulCities} مدينة من أصل ${attemptedCities} مدينة تمت محاولة جلبها. ${rateLimited ? "أُوقفت الدفعة بسبب تقييد المعدل." : ""} راجع data/places/_meta.json لآخر تحديث ناجح لكل مدينة.`);
 }

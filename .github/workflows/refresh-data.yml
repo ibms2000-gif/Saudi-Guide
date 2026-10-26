@@ -11,9 +11,19 @@ on:
       - "src/lib/overpass.mjs"
       - "data/cities.json"
       - "data/categories.json"
+      - "data/places/**"
   schedule:
     - cron: "17 2 * * 0"
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "Bootstrap missing city data, or refresh every city"
+        required: true
+        type: choice
+        default: bootstrap
+        options:
+          - bootstrap
+          - refresh
 
 permissions:
   contents: write
@@ -35,12 +45,18 @@ jobs:
         with:
           node-version: 20
       - name: Fetch current place data
+        env:
+          BOOTSTRAP_ONLY: ${{ !(github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh')) }}
         run: npm run data
       - name: Validate fetched data
+        env:
+          ALLOW_PARTIAL_DATA: ${{ !(github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh')) }}
         run: npm run validate:data
       - name: Run tests
         run: npm test
       - name: Verify static build
+        env:
+          ALLOW_EMPTY_DATA: ${{ !(github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh')) }}
         run: npm run build
       - name: Open data refresh pull request
         uses: peter-evans/create-pull-request@v7
