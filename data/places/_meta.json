@@ -17,16 +17,31 @@
       "stale": false
     },
     "dammam": {
-      "lastAttemptAt": "2026-10-30T16:03:48.639Z",
-      "lastError": "Overpass HTTP 502",
+      "lastAttemptAt": "2026-10-30T17:35:43.295Z",
+      "lastError": "fetch failed",
       "stale": true
     },
     "khobar": {
-      "lastAttemptAt": "2026-10-30T16:05:29.557Z",
-      "lastError": "Overpass HTTP 502",
+      "lastAttemptAt": "2026-10-30T17:37:24.322Z",
+      "lastError": "fetch failed",
+      "stale": true
+    },
+    "abha": {
+      "lastAttemptAt": "2026-10-30T17:39:05.347Z",
+      "lastError": "fetch failed",
+      "stale": true
+    },
+    "khamis-mushait": {
+      "fetchedAt": "2026-10-30T17:40:35.643Z",
+      "total": 153,
+      "stale": false
+    },
+    "jazan": {
+      "lastAttemptAt": "2026-10-30T17:42:16.667Z",
+      "lastError": "fetch failed",
       "stale": true
     }
   },
-  "fetchedAt": "2026-10-30T16:02:07.634Z",
-  "lastAttemptAt": "2026-10-30T15:58:08.297Z"
+  "fetchedAt": "2026-10-30T17:40:35.643Z",
+  "lastAttemptAt": "2026-10-30T17:34:11.973Z"
 }
