@@ -46,6 +46,7 @@ jobs:
           node-version: 20
       - name: Fetch current place data
         env:
+          BOOTSTRAP_BATCH_SIZE: "5"
           BOOTSTRAP_ONLY: ${{ !(github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh')) }}
         run: npm run data
       - name: Validate fetched data
