@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { buildQuery, fetchOverpass, elementToRecord } from "../src/lib/overpass.mjs";
 import { classifyElement, placeName } from "../src/lib/classify.mjs";
 import { slugify, sleep } from "../src/lib/util.mjs";
+import { selectBootstrapBatch } from "../src/lib/data-refresh.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -20,6 +21,11 @@ if (onlyCity && targets.length === 0) {
   throw new Error(`مدينة غير معروفة في --city: ${onlyCity}`);
 }
 const bootstrapOnly = process.env.BOOTSTRAP_ONLY === "true";
+const configuredBatchSize = Number(process.env.BOOTSTRAP_BATCH_SIZE ?? 5);
+const bootstrapBatchSize = Number.isInteger(configuredBatchSize) &&
+  configuredBatchSize >= 1 && configuredBatchSize <= 10
+  ? configuredBatchSize
+  : 5;
 
 await fs.mkdir(path.join(ROOT, "data/places"), { recursive: true });
 
@@ -39,11 +45,14 @@ const interCityDelayMs = Number.isFinite(configuredDelay) && configuredDelay >= 
 let successfulCities = 0;
 let attemptedCities = 0;
 let skippedExistingCities = 0;
+let remainingBootstrapCities = 0;
 let rateLimited = false;
 
-for (const city of targets) {
-  const cityPath = path.join(ROOT, "data/places", `${city.slug}.json`);
-  if (bootstrapOnly) {
+let citiesToProcess = targets;
+if (bootstrapOnly) {
+  const completedSlugs = new Set();
+  for (const city of targets) {
+    const cityPath = path.join(ROOT, "data/places", `${city.slug}.json`);
     let existingPlaces;
     try {
       existingPlaces = JSON.parse(await fs.readFile(cityPath, "utf8"));
@@ -54,11 +63,20 @@ for (const city of targets) {
       meta.cities[city.slug]?.stale === false &&
       Number(meta.cities[city.slug]?.total) === 0;
     if (Array.isArray(existingPlaces) && (existingPlaces.length > 0 || knownEmptySnapshot)) {
-      skippedExistingCities += 1;
-      console.log(`تخطي ${city.nameAr}: توجد بيانات محفوظة مسبقًا.`);
-      continue;
+      completedSlugs.add(city.slug);
     }
   }
+
+  const batch = selectBootstrapBatch(targets, completedSlugs, bootstrapBatchSize);
+  citiesToProcess = batch.cities;
+  skippedExistingCities = batch.skipped;
+  remainingBootstrapCities = batch.remaining;
+  console.log(
+    `دفعة التهيئة: ${citiesToProcess.length} مدن، تخطي ${skippedExistingCities} مكتملة، والمتبقي بعد هذه الدفعة ${remainingBootstrapCities} مدينة.`,
+  );
+}
+
+for (const city of citiesToProcess) {
   attemptedCities += 1;
   process.stdout.write(`جلب بيانات: ${city.nameAr} (${city.slug}) ... `);
   const query = buildQuery(city.latitude, city.longitude, city.radius, categories);
@@ -135,7 +153,7 @@ for (const city of targets) {
   console.log(`${places.length} عنصر`);
 
   // Be deliberately gentle to the public Overpass service.
-  if (city !== targets[targets.length - 1]) await sleep(interCityDelayMs);
+  if (city !== citiesToProcess[citiesToProcess.length - 1]) await sleep(interCityDelayMs);
 }
 
 if (attemptedCities > 0) {
@@ -149,5 +167,9 @@ if (attemptedCities === 0 && bootstrapOnly) {
   console.error("لم ينجح جلب البيانات لأي مدينة؛ احتُفظ بالبيانات السابقة إن وُجدت.");
   process.exitCode = 1;
 } else {
-  console.log(`نجح جلب بيانات ${successfulCities} مدينة من أصل ${attemptedCities} مدينة تمت محاولة جلبها. ${rateLimited ? "أُوقفت الدفعة بسبب تقييد المعدل." : ""} راجع data/places/_meta.json لآخر تحديث ناجح لكل مدينة.`);
+  console.log(
+    `نجح جلب بيانات ${successfulCities} مدينة من أصل ${attemptedCities} مدينة تمت محاولة جلبها. ` +
+    `${bootstrapOnly ? `بقي ${remainingBootstrapCities} مدينة لدفعات لاحقة. ` : ""}` +
+    `${rateLimited ? "أُوقفت الدفعة بسبب تقييد المعدل. " : ""}راجع data/places/_meta.json لآخر تحديث ناجح لكل مدينة.`,
+  );
 }
