@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { loadModel } from "../src/lib/data.mjs";
 import { buildSitemap } from "../src/lib/sitemap.mjs";
 import { SITE } from "../src/lib/config.mjs";
+import { isPlacePageIndexable, placePath } from "../src/lib/place-page.mjs";
 import {
   homePage,
   regionsIndexPage,
@@ -99,8 +100,20 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   // صفحة 404
   await fs.writeFile(path.join(DIST, "404.html"), notFoundPage());
 
-  // خريطة الموقع: الصفحات القابلة للفهرسة فقط
-  const indexablePaths = pages.filter((p) => p.indexable).map((p) => p.urlPath);
+  // صفحات الأماكن تُعرض ديناميكيًا عبر Worker؛ لا ننشئ ملف HTML مستقل لكل سجل.
+  // لا نضيف إلى sitemap إلا السجلات التي اجتازت بوابة جودة صفحة المكان.
+  const placePaths = model.cities.flatMap((city) =>
+    city.places
+      .filter(isPlacePageIndexable)
+      .map((place) => placePath(city.slug, place))
+      .filter(Boolean),
+  );
+
+  // خريطة الموقع: الصفحات الثابتة وصفحات الأماكن المؤهلة فقط.
+  const indexablePaths = [
+    ...pages.filter((p) => p.indexable).map((p) => p.urlPath),
+    ...placePaths,
+  ];
   await fs.writeFile(path.join(DIST, "sitemap.xml"), buildSitemap(indexablePaths));
 
   // robots.txt
@@ -109,8 +122,9 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     `User-agent: *\nAllow: /\nSitemap: ${SITE.url}/sitemap.xml\n`,
   );
 
-  // نسخ الملفات الثابتة
+  // نسخ الملفات الثابتة ولقطات بيانات الأماكن التي يقرأها Worker عند طلب صفحة مكان.
   await copyDir(path.join(ROOT, "public"), DIST);
+  await copyDir(path.join(dataRoot, "data", "places"), path.join(DIST, "data", "places"));
   await fs.mkdir(path.join(DIST, "styles"), { recursive: true });
   await fs.copyFile(path.join(ROOT, "src/styles/site.css"), path.join(DIST, "styles/site.css"));
   await fs.copyFile(path.join(ROOT, "src/client/app.js"), path.join(DIST, "app.js"));
@@ -121,6 +135,10 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     indexablePages: indexablePaths.length,
     cities: model.cities.length,
     citiesWithData: model.cities.filter((c) => c.totalPlaces > 0).length,
+    totalPlaceRecords: model.cities.reduce((sum, city) => sum + city.totalPlaces, 0),
+    dynamicPlacePages: model.cities.reduce((sum, city) => sum + city.places.filter((place) => placePath(city.slug, place)).length, 0),
+    indexablePlacePages: placePaths.length,
+    totalIndexableUrls: indexablePaths.length,
     byCategory: Object.fromEntries(
       model.categories.map((cat) => [
         cat.slug,
