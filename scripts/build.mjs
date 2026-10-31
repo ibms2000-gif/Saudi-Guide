@@ -24,6 +24,8 @@ import {
 import { calendarHomePage, annualEventPage, salarySchedulePage } from "../src/lib/calendar.mjs";
 import { prayerTimesIndexPage } from "../src/lib/prayer-times.mjs";
 import { benefitsIndexPage, benefitDetailPage } from "../src/lib/benefits.mjs";
+import { statisticsIndexPage, statisticDetailPage } from "../src/lib/statistics.mjs";
+import { newsIndexPage, newsRegionPage, newsDetailPage } from "../src/lib/news.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(__dirname, "..");
@@ -70,6 +72,35 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   add("/benefits/", benefitsIndexPage(model.benefits));
   for (const benefit of model.benefits) {
     add(`/benefits/${benefit.slug}/`, benefitDetailPage(benefit));
+  }
+
+  // مؤشرات إحصائية موثقة للفترة والنطاق والمصدر.
+  const qualifiedStatistics = model.statistics.filter((item) =>
+    item && /^[a-z0-9-]+$/.test(String(item.slug || "")) &&
+    item.titleAr && item.value !== undefined && item.periodAr &&
+    item.summaryAr && item.sourceUrl && item.sourceName && item.verifiedAt
+  );
+  add("/statistics/", statisticsIndexPage(qualifiedStatistics), qualifiedStatistics.length > 0);
+  for (const item of qualifiedStatistics) {
+    add(`/statistics/${item.slug}/`, statisticDetailPage(item));
+  }
+
+  // الأخبار تعرض ملخصًا تحريريًا أصليًا ورابطًا للمصدر؛ لا ننسخ محتوى المصدر أو صوره.
+  const qualifiedNews = model.news.filter((item) =>
+    item && /^[a-z0-9-]+$/.test(String(item.slug || "")) &&
+    item.titleAr && item.summaryAr && item.localContextAr &&
+    item.publishedAt && item.sourceName && item.sourceUrl && item.verifiedAt
+  );
+  add("/news/", newsIndexPage(qualifiedNews), qualifiedNews.length > 0);
+  for (const item of qualifiedNews) {
+    add(`/news/${item.slug}/`, newsDetailPage(item));
+  }
+  for (const region of model.regions) {
+    const regionNews = qualifiedNews.filter((item) => item.regionSlug === region.slug);
+    // لا ننشئ صفحة منطقة إلا عند وجود خبرين أو أكثر لتجنب الصفحات الرقيقة.
+    if (regionNews.length >= 2) {
+      add(`/news/region/${region.slug}/`, newsRegionPage(region, regionNews));
+    }
   }
 
   for (const region of model.regions) {
@@ -170,6 +201,8 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     dynamicPlacePages: model.cities.reduce((sum, city) => sum + city.places.filter((place) => placePath(city.slug, place)).length, 0),
     indexablePlacePages: placePaths.length,
     dynamicPrayerPages: prayerPaths.length,
+    statisticsPages: 1 + qualifiedStatistics.length,
+    newsPages: 1 + qualifiedNews.length + model.regions.filter((region) => qualifiedNews.filter((item) => item.regionSlug === region.slug).length >= 2).length,
     totalIndexableUrls: indexablePaths.length,
     byCategory: Object.fromEntries(
       model.categories.map((cat) => [

@@ -118,6 +118,58 @@ async function makeFixtureRoot() {
       sources: [{ name: "مصدر رسمي", url: "https://example.com/source", role: "الأساس النظامي" }]
     }]),
   );
+  await fs.writeFile(
+    path.join(root, "data/statistics.json"),
+    JSON.stringify([{
+      slug: "population-test",
+      titleAr: "عدد السكان التجريبي",
+      categoryAr: "السكان",
+      value: "1000",
+      unitAr: "نسمة",
+      periodAr: "عام 2026",
+      scopeAr: "مدينة تجريبية",
+      summaryAr: "مؤشر سكاني للاختبار.",
+      explanationAr: "شرح المؤشر.",
+      howToReadAr: "طريقة القراءة.",
+      sourceName: "هيئة تجريبية",
+      sourceUrl: "https://example.com/stats",
+      datasetUrl: "https://example.com/dataset",
+      verifiedAt: "2026-10-31"
+    }]),
+  );
+  await fs.writeFile(
+    path.join(root, "data/news.json"),
+    JSON.stringify([
+      {
+        slug: "test-region-first",
+        titleAr: "خبر تجريبي أول",
+        regionSlug: "test-region",
+        regionNameAr: "منطقة تجريبية",
+        categoryAr: "خدمات محلية",
+        publishedAt: "2026-10-20",
+        summaryAr: "ملخص أصلي للخبر الأول.",
+        localContextAr: "سياق محلي للخبر الأول.",
+        sourceName: "مصدر اختباري",
+        sourceUrl: "https://example.com/news-1",
+        verifiedAt: "2026-10-31",
+        editorialNote: "ملخص تحريري مستقل."
+      },
+      {
+        slug: "test-region-second",
+        titleAr: "خبر تجريبي ثانٍ",
+        regionSlug: "test-region",
+        regionNameAr: "منطقة تجريبية",
+        categoryAr: "خدمات محلية",
+        publishedAt: "2026-10-19",
+        summaryAr: "ملخص أصلي للخبر الثاني.",
+        localContextAr: "سياق محلي للخبر الثاني.",
+        sourceName: "مصدر اختباري",
+        sourceUrl: "https://example.com/news-2",
+        verifiedAt: "2026-10-31",
+        editorialNote: "ملخص تحريري مستقل."
+      }
+    ]),
+  );
 
   await fs.cp(path.join(REPO_ROOT, "public"), path.join(root, "public"), { recursive: true });
   await fs.cp(path.join(REPO_ROOT, "src/styles/site.css"), path.join(root, "src/styles/site.css"));
@@ -173,7 +225,23 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(benefitPage, /مصدر رسمي/);
   assert.match(benefitPage, /example.com\/service/);
 
+  const statisticsIndex = await fs.readFile(path.join(dist, "statistics/index.html"), "utf8");
+  assert.match(statisticsIndex, /إحصاءات ومؤشرات السعودية/);
+  assert.match(statisticsIndex, /عدد السكان التجريبي/);
+  const statisticPage = await fs.readFile(path.join(dist, "statistics/population-test/index.html"), "utf8");
+  assert.match(statisticPage, /1000/);
+  assert.match(statisticPage, /عام 2026/);
+  assert.match(statisticPage, /example.com\/dataset/);
 
+  const newsIndex = await fs.readFile(path.join(dist, "news/index.html"), "utf8");
+  assert.match(newsIndex, /أخبار المناطق السعودية/);
+  assert.match(newsIndex, /خبر تجريبي أول/);
+  const newsPage = await fs.readFile(path.join(dist, "news/test-region-first/index.html"), "utf8");
+  assert.match(newsPage, /ملخص أصلي للخبر الأول/);
+  assert.match(newsPage, /سياق محلي للخبر الأول/);
+  assert.match(newsPage, /example.com\/news-1/);
+  const regionalNews = await fs.readFile(path.join(dist, "news/region/test-region/index.html"), "utf8");
+  assert.match(regionalNews, /أخبار منطقة تجريبية/);
 
   // صفحة مدينة بها بيانات كافية تحتوي قسم المطاعم وإسناد المصدر
   const cityCategory = await fs.readFile(
@@ -217,6 +285,9 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(sitemap, /calendar\/salaries\/2026\//);
   assert.match(sitemap, /prayer-times\/city-with-data\//);
   assert.match(sitemap, /benefits\/social-security\//);
+  assert.match(sitemap, /statistics\/population-test\//);
+  assert.match(sitemap, /news\/test-region-first\//);
+  assert.match(sitemap, /news\/region\/test-region\//);
   assert.ok(report.indexablePlacePages >= 1);
 
   // Thin city pages remain available for navigation but are explicitly noindex.

@@ -27,7 +27,9 @@ export async function loadModel(root) {
   const events = await readOptionalJSON(path.join(root, "data/events.json"), []);
   const salarySchedules = await loadSalarySchedules(path.join(root, "data/paydays"));
   const benefits = await readOptionalJSON(path.join(root, "data/benefits.json"), []);
-  return buildModel({ regions, cities, categories, placesByCity, meta, events, salarySchedules, benefits });
+  const statistics = await readOptionalJSON(path.join(root, "data/statistics.json"), []);
+  const news = await readOptionalJSON(path.join(root, "data/news.json"), []);
+  return buildModel({ regions, cities, categories, placesByCity, meta, events, salarySchedules, benefits, statistics, news });
 }
 
 async function readOptionalJSON(filePath, fallback) {
@@ -55,7 +57,7 @@ async function loadSalarySchedules(directory) {
   return schedules.sort((a, b) => a.year - b.year);
 }
 
-export function buildModel({ regions, cities, categories, placesByCity, meta, events = [], salarySchedules = [], benefits = [] }) {
+export function buildModel({ regions, cities, categories, placesByCity, meta, events = [], salarySchedules = [], benefits = [], statistics = [], news = [] }) {
   const categoryBySlug = Object.fromEntries(categories.map((c) => [c.slug, c]));
   const regionBySlug = Object.fromEntries(regions.map((r) => [r.slug, r]));
 
@@ -110,5 +112,7 @@ export function buildModel({ regions, cities, categories, placesByCity, meta, ev
     events,
     salarySchedules,
     benefits,
+    statistics,
+    news,
   };
 }
