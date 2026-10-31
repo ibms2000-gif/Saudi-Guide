@@ -21,6 +21,7 @@ import {
   weatherNoticePage,
   notFoundPage,
 } from "../src/lib/pages.mjs";
+import { calendarHomePage, annualEventPage, salarySchedulePage } from "../src/lib/calendar.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(__dirname, "..");
@@ -49,6 +50,20 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   add("/categories/", categoriesIndexPage(model));
   add("/about/data-sources/", dataSourcesPage(model));
   add("/legal/weather-notice/", weatherNoticePage());
+
+  // تقويم المناسبات والمواعيد الرسمية الموثقة.
+  add("/calendar/", calendarHomePage({
+    events: model.events,
+    salarySchedules: model.salarySchedules,
+  }));
+  for (const event of model.events) {
+    if (event.kind === "fixed-annual" && event.status === "official") {
+      add(`/calendar/events/${event.slug}/`, annualEventPage(event));
+    }
+  }
+  for (const schedule of model.salarySchedules) {
+    add(`/calendar/salaries/${schedule.year}/`, salarySchedulePage(schedule));
+  }
 
   for (const region of model.regions) {
     add(`/region/${region.slug}/`, regionPage(model, region));
