@@ -25,6 +25,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Install project dependencies
+        run: npm install --no-audit --no-fund
       - name: Run unit tests
         run: npm test
       - name: Build static HTML for regression tests (empty data allowed in test job only)
@@ -59,6 +61,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Install project dependencies
+        if: steps.credentials.outputs.enabled == 'true'
+        run: npm install --no-audit --no-fund
       - name: Validate real place-data snapshot
         if: steps.credentials.outputs.enabled == 'true'
         run: npm run validate:data
