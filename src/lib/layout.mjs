@@ -63,6 +63,7 @@ function renderHeader() {
       <a href="/categories/">الأقسام</a>
       <a href="/calendar/">التقويم والمواعيد</a>
       <a href="/prayer-times/">مواقيت الصلاة</a>
+      <a href="/benefits/">الدعم والمنافع</a>
       <a href="/about/data-sources/">مصدر البيانات</a>
     </nav>
   </div>
