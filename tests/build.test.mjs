@@ -71,6 +71,34 @@ async function makeFixtureRoot() {
     path.join(root, "data/places/_meta.json"),
     JSON.stringify({ fetchedAt: new Date().toISOString(), source: "overpass", cities: {} }),
   );
+  await fs.mkdir(path.join(root, "data/paydays"), { recursive: true });
+  await fs.writeFile(
+    path.join(root, "data/events.json"),
+    JSON.stringify([{
+      slug: "founding-day",
+      nameAr: "يوم التأسيس",
+      descriptionAr: "مناسبة وطنية للاختبار.",
+      month: 2,
+      day: 22,
+      kind: "fixed-annual",
+      status: "official",
+      sourceName: "مصدر تجريبي",
+      sourceUrl: "https://example.com/source",
+      scopeAr: "السعودية"
+    }]),
+  );
+  await fs.writeFile(
+    path.join(root, "data/paydays/2026.json"),
+    JSON.stringify({
+      year: 2026,
+      nameAr: "رواتب 2026",
+      statusAr: "جدول اختبار",
+      descriptionAr: "جدول تجريبي.",
+      sourceName: "مصدر تجريبي",
+      sourceUrl: "https://example.com/payday",
+      dates: [{ month: 11, date: "2026-11-26", weekdayAr: "الخميس", hijri: "1448/06/16" }]
+    }),
+  );
 
   await fs.cp(path.join(REPO_ROOT, "public"), path.join(root, "public"), { recursive: true });
   await fs.cp(path.join(REPO_ROOT, "src/styles/site.css"), path.join(root, "src/styles/site.css"));
@@ -91,6 +119,24 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   // الصفحة الرئيسية موجودة
   const home = await fs.readFile(path.join(dist, "index.html"), "utf8");
   assert.match(home, /دليل/);
+
+  const calendar = await fs.readFile(path.join(dist, "calendar/index.html"), "utf8");
+  assert.match(calendar, /التقويم السعودي/);
+  assert.match(calendar, /يوم التأسيس/);
+  assert.match(calendar, /رواتب/);
+
+  const eventPage = await fs.readFile(
+    path.join(dist, "calendar/events/founding-day/index.html"),
+    "utf8",
+  );
+  assert.match(eventPage, /data-countdown-target/);
+  assert.match(eventPage, /example.com\\/source/);
+
+  const salaryPage = await fs.readFile(
+    path.join(dist, "calendar/salaries/2026/index.html"),
+    "utf8",
+  );
+  assert.match(salaryPage, /2026-11-26/);
 
   // صفحة مدينة بها بيانات كافية تحتوي قسم المطاعم وإسناد المصدر
   const cityCategory = await fs.readFile(
@@ -129,6 +175,9 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.doesNotMatch(sitemap, /city-without-data\/restaurants/);
   assert.match(sitemap, /city-with-data\/restaurants/);
   assert.match(sitemap, /place\/city-with-data\/node\/100\//);
+  assert.match(sitemap, /calendar\//);
+  assert.match(sitemap, /calendar\/events\/founding-day\//);
+  assert.match(sitemap, /calendar\/salaries\/2026\//);
   assert.ok(report.indexablePlacePages >= 1);
 
   // Thin city pages remain available for navigation but are explicitly noindex.
