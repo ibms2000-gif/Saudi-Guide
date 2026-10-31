@@ -326,3 +326,85 @@ main { display: block; max-width: var(--max); margin: 0 auto; padding: 2.4rem 1.
 }
 .benefit-cautions li::marker { color: #b45309; }
 .benefit-sources a { font-weight: 700; }
+
+
+/* صفحات المؤشرات الإحصائية */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.stat-card {
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 1rem 1.15rem;
+}
+.stat-card a {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  color: inherit;
+  text-decoration: none;
+}
+.stat-category, .stat-period, .stat-scope {
+  color: var(--muted);
+  font-size: .82rem;
+}
+.stat-value {
+  display: block;
+  color: var(--brand);
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  font-weight: 900;
+  line-height: 1.25;
+}
+.stat-value small { font-size: .9rem; font-weight: 600; }
+.stat-title { font-weight: 700; }
+.stat-card a:hover .stat-title { color: var(--link); text-decoration: underline; }
+.stat-highlight {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: .7rem;
+  margin-top: 1rem;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.stat-highlight strong { color: var(--brand); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; }
+.stat-highlight span { color: var(--muted); font-weight: 700; }
+
+/* أخبار المناطق والملخصات التحريرية */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.news-card {
+  min-width: 0;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.news-card h3 { margin: .35rem 0 .6rem; font-size: 1.05rem; }
+.news-card h3 a { color: var(--ink); text-decoration: none; }
+.news-card h3 a:hover { color: var(--link); text-decoration: underline; }
+.news-card p { margin: .4rem 0 .8rem; }
+.news-meta { margin: 0; color: var(--muted); font-size: .82rem; }
+.news-read-more { display: inline-block; margin-top: .35rem; font-weight: 700; }
+.news-article { max-width: 62rem; margin-inline: auto; }
+.news-sources { padding-inline-start: 1.5rem; }
+.news-sources li { margin-block: .65rem; }
