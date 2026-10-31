@@ -130,7 +130,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
     "utf8",
   );
   assert.match(eventPage, /data-countdown-target/);
-  assert.match(eventPage, /example.com\\/source/);
+  assert.ok(eventPage.includes("https://example.com/source"));
 
   const salaryPage = await fs.readFile(
     path.join(dist, "calendar/salaries/2026/index.html"),
