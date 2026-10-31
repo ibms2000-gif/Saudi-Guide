@@ -15,14 +15,14 @@ export default {
     const p = url.pathname;
 
     // مواقيت الصلاة والشروق والغروب تُحسب عند الطلب وفق إحداثيات المدينة.
-    const prayerMatch = p.match(/^\\/prayer-times\\/([a-z0-9-]+)\\/?$/);
+    const prayerMatch = p.match(/^\/prayer-times\/([a-z0-9-]+)\/?$/);
     if (prayerMatch && CITY_SLUGS.has(prayerMatch[1])) {
       const city = CITIES_BY_SLUG.get(prayerMatch[1]);
       return servePrayerTimes(request, city);
     }
 
     // صفحة المكان داخل دليل السعودية؛ لا نرسل الزائر إلى OpenStreetMap تلقائيًا.
-    const placeMatch = p.match(/^\/place\/([a-z0-9-]+)\/(node|way|relation)\/(\\d+)\/?$/);
+    const placeMatch = p.match(/^\/place\/([a-z0-9-]+)\/(node|way|relation)\/(\d+)\/?$/);
     if (placeMatch && CITY_SLUGS.has(placeMatch[1])) {
       return servePlacePage(request, env, url, placeMatch);
     }
