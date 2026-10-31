@@ -2,25 +2,28 @@ import { escapeHtml, safeHttpUrl, safeTelephone } from "./util.mjs";
 import { renderPage, dataAttributionNote } from "./layout.mjs";
 import { SITE } from "./config.mjs";
 
-function placeCard(p) {
+function placeCard(p, city) {
   const bits = [];
   if (p.address) bits.push(escapeHtml(p.address));
-  if (p.openingHours) bits.push(`ساعات العمل: ${escapeHtml(p.openingHours)}`);
+  if (p.openingHours) bits.push(`ساعات العمل المسجلة: ${escapeHtml(p.openingHours)}`);
 
-  // OSM tags are community-edited input: escape HTML and validate URL schemes separately.
+  // The place name stays on our site; external contact and map links are optional actions.
   const website = safeHttpUrl(p.website);
   const phoneHref = safeTelephone(p.phone);
   const validOsmTarget = ["node", "way", "relation"].includes(p.osmType) && /^\d+$/.test(String(p.osmId ?? ""));
+  const detailLink = validOsmTarget
+    ? `<a class="place-name-link" href="/place/${escapeHtml(city.slug)}/${p.osmType}/${p.osmId}/">${escapeHtml(p.name)}</a>`
+    : escapeHtml(p.name);
   const mapLink = validOsmTarget
-    ? `<a href="https://www.openstreetmap.org/${p.osmType}/${p.osmId}" rel="noopener nofollow">عرض على الخريطة</a>`
+    ? `<a href="https://www.openstreetmap.org/${p.osmType}/${p.osmId}" rel="noopener nofollow" target="_blank">الخريطة</a>`
     : "";
 
   return `<li class="place-card">
-    <h3>${escapeHtml(p.name)}</h3>
+    <h3>${detailLink}</h3>
     ${bits.length ? `<p class="meta">${bits.join(" · ")}</p>` : ""}
     <p class="place-links">
-      ${website ? `<a href="${escapeHtml(website)}" rel="noopener noreferrer nofollow" target="_blank">الموقع الإلكتروني</a>` : ""}
       ${phoneHref ? `<a href="tel:${escapeHtml(phoneHref)}">${escapeHtml(p.phone)}</a>` : ""}
+      ${website ? `<a href="${escapeHtml(website)}" rel="noopener noreferrer nofollow" target="_blank">الموقع الإلكتروني</a>` : ""}
       ${mapLink}
     </p>
   </li>`;
@@ -181,7 +184,7 @@ export function cityCategoryPage(model, city, category) {
         .join("")}</ul>`
     : "";
 
-  const list = data.all.map(placeCard).join("");
+  const list = data.all.map((place) => placeCard(place, city)).join("");
 
   const body = `
   <h1>${escapeHtml(category.nameAr)} في ${escapeHtml(city.nameAr)}</h1>
@@ -205,7 +208,7 @@ export function cityCategoryPage(model, city, category) {
 }
 
 export function cityCategorySubPage(model, city, category, sub, places) {
-  const list = places.map(placeCard).join("");
+  const list = places.map((place) => placeCard(place, city)).join("");
   const body = `
   <h1>${escapeHtml(sub.nameAr)} في ${escapeHtml(city.nameAr)}</h1>
   <p>قائمة ${escapeHtml(sub.nameAr)} ضمن قسم ${escapeHtml(category.nameAr)} في ${escapeHtml(city.nameAr)} (${places.length} عنصر).</p>

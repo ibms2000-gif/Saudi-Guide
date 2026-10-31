@@ -191,3 +191,69 @@ main { display: block; max-width: var(--max); margin: 0 auto; padding: 2.4rem 1.
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+
+/* صفحات تفاصيل الأماكن — بقاء الزائر داخل دليل السعودية */
+.place-name-link { color: var(--ink); text-decoration: none; }
+.place-name-link:hover { color: var(--link); text-decoration: underline; }
+
+.place-detail {
+  padding: 1.4rem 1.5rem;
+  border: 1px solid var(--line);
+  border-top: 5px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.place-detail .eyebrow {
+  margin: 0 0 .4rem;
+  color: var(--muted);
+  font-size: .88rem;
+  font-weight: 700;
+}
+.place-detail h1 { margin-bottom: .35em; }
+.place-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: .7rem;
+  margin: 1.2rem 0;
+}
+.place-fact {
+  min-width: 0;
+  padding: .8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.place-fact dt { color: var(--muted); font-size: .82rem; font-weight: 700; }
+.place-fact dd { margin: .15rem 0 0; overflow-wrap: anywhere; }
+.place-actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1rem; }
+.action-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .6rem 1rem;
+  border-radius: 9px;
+  color: #fff;
+  background: var(--brand);
+  text-decoration: none;
+  font-weight: 700;
+}
+.action-link.secondary {
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+.place-map iframe {
+  display: block;
+  width: 100%;
+  min-height: 22rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.map-credit { font-size: .8rem; margin-top: .4rem; }
+@media (max-width: 40rem) {
+  .place-detail { padding: 1rem; }
+  .place-map iframe { min-height: 17rem; }
+}
