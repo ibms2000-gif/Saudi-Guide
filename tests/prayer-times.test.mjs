@@ -26,15 +26,16 @@ test("calculates ordered Umm al-Qura times for a Saudi city", () => {
   assert.ok(times.sunrise < times.dhuhr);
   assert.ok(times.dhuhr < times.asr);
   assert.ok(times.asr < times.maghrib);
-  assert.ok(times.maghrib <= times.sunset || times.sunset <= times.maghrib);
+  assert.ok(Math.abs(times.maghrib.getTime() - times.sunset.getTime()) < 60_000);
   assert.ok(times.isha > times.maghrib);
 });
 
-test("finds a future prayer time and uses tomorrow's Fajr after Isha", () => {
-  const evening = new Date("2026-10-31T21:30:00.000Z");
-  const next = nextPrayerForCity(riyadh, evening);
+test("finds tomorrow's Fajr after today's Isha", () => {
+  const baseline = calculateCityPrayerTimes(riyadh, new Date("2026-10-31T12:00:00.000Z"));
+  const afterIsha = new Date(baseline.prayers.isha.getTime() + 60_000);
+  const next = nextPrayerForCity(riyadh, afterIsha);
   assert.equal(next.key, "fajr");
-  assert.ok(next.time.getTime() > evening.getTime());
+  assert.ok(next.time.getTime() > afterIsha.getTime());
   assert.equal(next.dateIso, "2026-11-01");
 });
 
