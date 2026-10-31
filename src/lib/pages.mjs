@@ -153,7 +153,7 @@ export function cityPage(model, city) {
   const body = `
   <h1>دليل ${escapeHtml(city.nameAr)}</h1>
   <p>${escapeHtml(city.overview || "")}</p>
-  <p><a href="/region/${city.regionSlug}/">${escapeHtml(city.regionAr)}</a></p>
+  <p><a href="/region/${city.regionSlug}/">${escapeHtml(city.regionAr)}</a> · <a href="/prayer-times/${city.slug}/">مواقيت الصلاة في ${escapeHtml(city.nameAr)}</a></p>
   <section class="section">
     <h2>الأقسام المتاحة في ${escapeHtml(city.nameAr)}</h2>
     <ul class="grid-list">${catItems}</ul>

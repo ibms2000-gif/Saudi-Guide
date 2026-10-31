@@ -257,3 +257,47 @@ main { display: block; max-width: var(--max); margin: 0 auto; padding: 2.4rem 1.
   .place-detail { padding: 1rem; }
   .place-map iframe { min-height: 17rem; }
 }
+
+
+/* التقويم والمناسبات والعدادات */
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.event-card, .calendar-feature {
+  min-width: 0;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.event-card h3, .calendar-feature h3 { margin: 0 0 .5rem; font-size: 1.08rem; }
+.event-card h3 a { color: var(--ink); text-decoration: none; }
+.event-card h3 a:hover { color: var(--link); text-decoration: underline; }
+.event-date { margin: .5rem 0; }
+.event-source, .status-note { font-size: .88rem; color: var(--muted); }
+.countdown {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  margin: .8rem 0;
+  padding: .8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.countdown-label { color: var(--muted); font-size: .82rem; }
+.countdown-value { color: var(--brand); font-size: 1.08rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.eyebrow { color: var(--muted); font-size: .9rem; font-weight: 700; }
+.table-scroll { width: 100%; overflow-x: auto; }
+.table-scroll .data-table { min-width: 46rem; }
+@media (max-width: 40rem) {
+  .event-card, .calendar-feature { padding: .9rem; }
+  .countdown-value { font-size: .95rem; }
+}

@@ -24,10 +24,37 @@ export async function loadModel(root) {
     }
   }
 
-  return buildModel({ regions, cities, categories, placesByCity, meta });
+  const events = await readOptionalJSON(path.join(root, "data/events.json"), []);
+  const salarySchedules = await loadSalarySchedules(path.join(root, "data/paydays"));
+  return buildModel({ regions, cities, categories, placesByCity, meta, events, salarySchedules });
 }
 
-export function buildModel({ regions, cities, categories, placesByCity, meta }) {
+async function readOptionalJSON(filePath, fallback) {
+  try {
+    return JSON.parse(await fs.readFile(filePath, "utf8"));
+  } catch (error) {
+    if (error?.code === "ENOENT") return fallback;
+    throw error;
+  }
+}
+
+async function loadSalarySchedules(directory) {
+  let files = [];
+  try {
+    files = await fs.readdir(directory);
+  } catch (error) {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  }
+  const schedules = [];
+  for (const file of files.filter((name) => /^\d{4}\.json$/.test(name)).sort()) {
+    const data = await readOptionalJSON(path.join(directory, file), null);
+    if (data && Number.isInteger(data.year)) schedules.push(data);
+  }
+  return schedules.sort((a, b) => a.year - b.year);
+}
+
+export function buildModel({ regions, cities, categories, placesByCity, meta, events = [], salarySchedules = [] }) {
   const categoryBySlug = Object.fromEntries(categories.map((c) => [c.slug, c]));
   const regionBySlug = Object.fromEntries(regions.map((r) => [r.slug, r]));
 
@@ -79,5 +106,7 @@ export function buildModel({ regions, cities, categories, placesByCity, meta }) 
     citiesByRegion,
     nationalByCategory,
     meta,
+    events,
+    salarySchedules,
   };
 }

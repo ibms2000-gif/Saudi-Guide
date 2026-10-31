@@ -2,6 +2,7 @@
 import citiesData from "../data/cities.json";
 import categoriesData from "../data/categories.json";
 import { isPlacePageIndexable, renderPlacePage } from "../src/lib/place-page.mjs";
+import { prayerTimesPage } from "../src/lib/prayer-times.mjs";
 
 const CITIES_BY_SLUG = new Map(citiesData.map((city) => [city.slug, city]));
 const CITY_SLUGS = new Set(CITIES_BY_SLUG.keys());
@@ -13,8 +14,15 @@ export default {
     const url = new URL(request.url);
     const p = url.pathname;
 
+    // مواقيت الصلاة والشروق والغروب تُحسب عند الطلب وفق إحداثيات المدينة.
+    const prayerMatch = p.match(/^\/prayer-times\/([a-z0-9-]+)\/?$/);
+    if (prayerMatch && CITY_SLUGS.has(prayerMatch[1])) {
+      const city = CITIES_BY_SLUG.get(prayerMatch[1]);
+      return servePrayerTimes(request, city);
+    }
+
     // صفحة المكان داخل دليل السعودية؛ لا نرسل الزائر إلى OpenStreetMap تلقائيًا.
-    const placeMatch = p.match(/^\/place\/([a-z0-9-]+)\/(node|way|relation)\/(\\d+)\/?$/);
+    const placeMatch = p.match(/^\/place\/([a-z0-9-]+)\/(node|way|relation)\/(\d+)\/?$/);
     if (placeMatch && CITY_SLUGS.has(placeMatch[1])) {
       return servePlacePage(request, env, url, placeMatch);
     }
@@ -53,6 +61,35 @@ export default {
     return env.ASSETS.fetch(request);
   },
 };
+
+function servePrayerTimes(request, city) {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return new Response("Method not allowed", {
+      status: 405,
+      headers: { allow: "GET, HEAD", "content-type": "text/plain; charset=utf-8" },
+    });
+  }
+  try {
+    const html = prayerTimesPage(city, new Date());
+    return new Response(request.method === "HEAD" ? null : html, {
+      status: 200,
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=0, s-maxage=60, stale-while-revalidate=120",
+        "x-content-type-options": "nosniff",
+        "x-robots-tag": "index, follow",
+      },
+    });
+  } catch {
+    return new Response(
+      '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="robots" content="noindex"><title>تعذر حساب المواقيت</title><body><h1>تعذر حساب مواقيت الصلاة</h1><p>يرجى المحاولة لاحقًا.</p></body></html>',
+      {
+        status: 503,
+        headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
+      },
+    );
+  }
+}
 
 async function servePlacePage(request, env, url, match) {
   if (request.method !== "GET" && request.method !== "HEAD") {
