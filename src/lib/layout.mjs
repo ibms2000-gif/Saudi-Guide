@@ -61,6 +61,7 @@ function renderHeader() {
     <nav class="main-nav" aria-label="الأقسام الرئيسية">
       <a href="/regions/">المناطق</a>
       <a href="/categories/">الأقسام</a>
+      <a href="/calendar/">التقويم والمواعيد</a>
       <a href="/about/data-sources/">مصدر البيانات</a>
     </nav>
   </div>
