@@ -18,3 +18,54 @@
     });
   });
 })();
+
+
+// عدادات المناسبات والمواعيد — تعتمد على توقيت السعودية داخل تاريخ الهدف.
+(function () {
+  var formatNumber = new Intl.NumberFormat("ar-SA", { maximumFractionDigits: 0 });
+
+  function renderCountdown(element) {
+    var targetText = element.getAttribute("data-countdown-target");
+    var target = Date.parse(targetText || "");
+    var output = element.querySelector(".countdown-value");
+    if (!output || !Number.isFinite(target)) {
+      if (output) output.textContent = "تعذر حساب الموعد";
+      return false;
+    }
+
+    var remaining = target - Date.now();
+    if (remaining <= 0) {
+      output.textContent = "حان الموعد";
+      return false;
+    }
+
+    var seconds = Math.floor(remaining / 1000);
+    var days = Math.floor(seconds / 86400);
+    seconds %= 86400;
+    var hours = Math.floor(seconds / 3600);
+    seconds %= 3600;
+    var minutes = Math.floor(seconds / 60);
+    seconds %= 60;
+
+    output.textContent =
+      formatNumber.format(days) + " يوم · " +
+      formatNumber.format(hours) + " ساعة · " +
+      formatNumber.format(minutes) + " دقيقة · " +
+      formatNumber.format(seconds) + " ثانية";
+    return true;
+  }
+
+  var countdowns = Array.prototype.slice.call(
+    document.querySelectorAll("[data-countdown-target]")
+  );
+  if (!countdowns.length) return;
+
+  countdowns.forEach(renderCountdown);
+  var timer = window.setInterval(function () {
+    var active = false;
+    countdowns.forEach(function (element) {
+      if (renderCountdown(element)) active = true;
+    });
+    if (!active) window.clearInterval(timer);
+  }, 1000);
+})();
