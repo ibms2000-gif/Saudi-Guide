@@ -14,17 +14,17 @@ export default {
     const p = url.pathname;
 
     // صفحة المكان داخل دليل السعودية؛ لا نرسل الزائر إلى OpenStreetMap تلقائيًا.
-    const placeMatch = p.match(/^\\/place\\/([a-z0-9-]+)\\/(node|way|relation)\\/(\\d+)\\/?$/);
+    const placeMatch = p.match(/^\/place\/([a-z0-9-]+)\/(node|way|relation)\/(\\d+)\/?$/);
     if (placeMatch && CITY_SLUGS.has(placeMatch[1])) {
       return servePlacePage(request, env, url, placeMatch);
     }
 
     // روابط الطقس القديمة: لم يعد الموقع يعرض بيانات أرصاد جوية.
-    const weatherDirMatch = p.match(/^\\/directory\\/([^/]+)\\/weather\\/?$/);
+    const weatherDirMatch = p.match(/^\/directory\/([^/]+)\/weather\/?$/);
     if (weatherDirMatch && CITY_SLUGS.has(weatherDirMatch[1])) {
       return redirect(url, `/city/${weatherDirMatch[1]}/`);
     }
-    const weatherSlugMatch = p.match(/^\\/weather\\/([^/]+)\\/?$/);
+    const weatherSlugMatch = p.match(/^\/weather\/([^/]+)\/?$/);
     if (weatherSlugMatch && CITY_SLUGS.has(weatherSlugMatch[1])) {
       return redirect(url, `/city/${weatherSlugMatch[1]}/`);
     }
@@ -33,7 +33,7 @@ export default {
     }
 
     // Legacy category/city URLs are redirected for every configured category.
-    const legacyCategoryMatch = p.match(/^\\/([^/]+)\\/([^/]+)\\/?$/);
+    const legacyCategoryMatch = p.match(/^\/([^/]+)\/([^/]+)\/?$/);
     if (
       legacyCategoryMatch &&
       CATEGORY_SLUGS.has(legacyCategoryMatch[1]) &&
