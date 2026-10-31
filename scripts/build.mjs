@@ -23,6 +23,7 @@ import {
 } from "../src/lib/pages.mjs";
 import { calendarHomePage, annualEventPage, salarySchedulePage } from "../src/lib/calendar.mjs";
 import { prayerTimesIndexPage } from "../src/lib/prayer-times.mjs";
+import { benefitsIndexPage, benefitDetailPage } from "../src/lib/benefits.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(__dirname, "..");
@@ -66,6 +67,10 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     add(`/calendar/salaries/${schedule.year}/`, salarySchedulePage(schedule));
   }
   add("/prayer-times/", prayerTimesIndexPage(model.cities));
+  add("/benefits/", benefitsIndexPage(model.benefits));
+  for (const benefit of model.benefits) {
+    add(`/benefits/${benefit.slug}/`, benefitDetailPage(benefit));
+  }
 
   for (const region of model.regions) {
     add(`/region/${region.slug}/`, regionPage(model, region));

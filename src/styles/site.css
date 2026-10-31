@@ -301,3 +301,28 @@ main { display: block; max-width: var(--max); margin: 0 auto; padding: 2.4rem 1.
   .event-card, .calendar-feature { padding: .9rem; }
   .countdown-value { font-size: .95rem; }
 }
+
+
+/* أدلة المنافع الحكومية */
+.benefit-grid li { min-height: 11rem; }
+.benefit-grid a { height: 100%; }
+.benefit-grid a strong { font-size: 1.08rem; }
+.benefit-grid a span { line-height: 1.65; }
+.benefit-more { margin-top: auto; padding-top: .6rem; color: var(--link) !important; font-weight: 700; }
+.verified-date { font-size: .84rem; margin-top: .5rem; }
+.benefit-facts, .benefit-steps, .benefit-cautions, .benefit-sources {
+  padding-inline-start: 1.5rem;
+  margin: .7rem 0;
+}
+.benefit-facts li, .benefit-steps li, .benefit-cautions li, .benefit-sources li {
+  margin-block: .65rem;
+  padding-inline-start: .2rem;
+}
+.benefit-timing, .official-action {
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.benefit-cautions li::marker { color: #b45309; }
+.benefit-sources a { font-weight: 700; }

@@ -99,6 +99,25 @@ async function makeFixtureRoot() {
       dates: [{ month: 11, date: "2026-11-26", weekdayAr: "الخميس", hijri: "1448/06/16" }]
     }),
   );
+  await fs.writeFile(
+    path.join(root, "data/benefits.json"),
+    JSON.stringify([{
+      slug: "social-security",
+      nameAr: "الضمان الاجتماعي المطور",
+      categoryAr: "الدعم الحكومي",
+      summaryAr: "ملخص تجريبي.",
+      introAr: "مقدمة تجريبية.",
+      keyPoints: ["نقطة اختبار"],
+      steps: ["خطوة اختبار"],
+      timingTitleAr: "موعد الصرف",
+      timingAr: "معلومة موعد تجريبية.",
+      cautions: ["تنبيه اختبار"],
+      serviceName: "الخدمة الرسمية",
+      serviceUrl: "https://example.com/service",
+      verifiedAt: "2026-10-31",
+      sources: [{ name: "مصدر رسمي", url: "https://example.com/source", role: "الأساس النظامي" }]
+    }]),
+  );
 
   await fs.cp(path.join(REPO_ROOT, "public"), path.join(root, "public"), { recursive: true });
   await fs.cp(path.join(REPO_ROOT, "src/styles/site.css"), path.join(root, "src/styles/site.css"));
@@ -142,6 +161,19 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(prayerIndex, /city-with-data/);
   assert.ok(report.dynamicPrayerPages >= 2);
 
+  const benefitsIndex = await fs.readFile(path.join(dist, "benefits/index.html"), "utf8");
+  assert.match(benefitsIndex, /الدعم الحكومي والمنافع في السعودية/);
+  assert.match(benefitsIndex, /الضمان الاجتماعي المطور/);
+
+  const benefitPage = await fs.readFile(
+    path.join(dist, "benefits/social-security/index.html"),
+    "utf8",
+  );
+  assert.match(benefitPage, /نقطة اختبار/);
+  assert.match(benefitPage, /مصدر رسمي/);
+  assert.match(benefitPage, /example.com\/service/);
+
+
 
   // صفحة مدينة بها بيانات كافية تحتوي قسم المطاعم وإسناد المصدر
   const cityCategory = await fs.readFile(
@@ -184,6 +216,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(sitemap, /calendar\/events\/founding-day\//);
   assert.match(sitemap, /calendar\/salaries\/2026\//);
   assert.match(sitemap, /prayer-times\/city-with-data\//);
+  assert.match(sitemap, /benefits\/social-security\//);
   assert.ok(report.indexablePlacePages >= 1);
 
   // Thin city pages remain available for navigation but are explicitly noindex.
