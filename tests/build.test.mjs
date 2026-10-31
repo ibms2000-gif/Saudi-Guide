@@ -137,6 +137,11 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
     "utf8",
   );
   assert.match(salaryPage, /2026-11-26/);
+  const prayerIndex = await fs.readFile(path.join(dist, "prayer-times/index.html"), "utf8");
+  assert.match(prayerIndex, /مواقيت الصلاة في مدن المملكة/);
+  assert.match(prayerIndex, /city-with-data/);
+  assert.ok(report.dynamicPrayerPages >= 2);
+
 
   // صفحة مدينة بها بيانات كافية تحتوي قسم المطاعم وإسناد المصدر
   const cityCategory = await fs.readFile(
@@ -178,6 +183,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(sitemap, /calendar\//);
   assert.match(sitemap, /calendar\/events\/founding-day\//);
   assert.match(sitemap, /calendar\/salaries\/2026\//);
+  assert.match(sitemap, /prayer-times\/city-with-data\//);
   assert.ok(report.indexablePlacePages >= 1);
 
   // Thin city pages remain available for navigation but are explicitly noindex.
@@ -195,7 +201,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   for (const loc of sitemapLocs) {
     const pathname = new URL(loc).pathname;
     // Place URLs are rendered by the Worker from the city's JSON asset.
-    if (pathname.startsWith("/place/")) continue;
+    if (pathname.startsWith("/place/") || pathname.startsWith("/prayer-times/")) continue;
     const htmlPath = pathname === "/" ? path.join(dist, "index.html") : path.join(dist, pathname.replace(/^\/+|\/+$/g, ""), "index.html");
     await fs.access(htmlPath);
   }
