@@ -65,8 +65,11 @@ export function formatSaudiDate(isoDate) {
   }).format(date);
 }
 
-function countdownMarkup(targetIso, label = "الوقت المتبقي") {
-  return `<div class="countdown" data-countdown-target="${escapeHtml(targetIso)}">
+function countdownMarkup(targetIso, label = "الوقت المتبقي", annualEvent = null) {
+  const annualAttrs = annualEvent
+    ? ` data-countdown-month="${annualEvent.month}" data-countdown-day="${annualEvent.day}"`
+    : "";
+  return `<div class="countdown" data-countdown-target="${escapeHtml(targetIso)}"${annualAttrs}>
     <span class="countdown-label">${escapeHtml(label)}</span>
     <strong class="countdown-value" aria-live="off">جارٍ حساب الوقت المتبقي…</strong>
   </div>`;
@@ -87,8 +90,8 @@ function eventCard(event, now) {
   return `<li class="event-card">
     <h3><a href="/calendar/events/${escapeHtml(event.slug)}/">${escapeHtml(event.nameAr)}</a></h3>
     <p>${escapeHtml(event.descriptionAr)}</p>
-    <p class="event-date">الموعد القادم: <strong>${escapeHtml(formatSaudiDate(next.isoDate))}</strong></p>
-    ${countdownMarkup(next.targetIso)}
+    <p class="event-date">الموعد القادم: <strong data-next-annual-date>${escapeHtml(formatSaudiDate(next.isoDate))}</strong></p>
+    ${countdownMarkup(next.targetIso, "الوقت المتبقي", event)}
     <p class="event-source">الحالة: موعد سنوي رسمي · ${escapeHtml(event.scopeAr || "السعودية")}</p>
   </li>`;
 }
@@ -156,8 +159,8 @@ export function annualEventPage(event, now = new Date()) {
   </section>
   <section class="section calendar-feature">
     <h2>الموعد القادم</h2>
-    <p class="event-date"><strong>${escapeHtml(formatSaudiDate(next.isoDate))}</strong></p>
-    ${countdownMarkup(next.targetIso, "الوقت المتبقي حتى المناسبة")}
+    <p class="event-date"><strong data-next-annual-date>${escapeHtml(formatSaudiDate(next.isoDate))}</strong></p>
+    ${countdownMarkup(next.targetIso, "الوقت المتبقي حتى المناسبة", event)}
     <p>تاريخ المناسبة السنوي: ${String(event.day).padStart(2, "0")}/${String(event.month).padStart(2, "0")} من كل عام ميلادي.</p>
   </section>
   <section class="section">
@@ -170,8 +173,8 @@ export function annualEventPage(event, now = new Date()) {
 
   const safeSlug = escapeHtml(event.slug);
   return renderPage({
-    title: `${event.nameAr} ${next.year} — الموعد والعد التنازلي | ${SITE.name}`,
-    description: `موعد ${event.nameAr} القادم في ${next.year}، مع عد تنازلي وشرح للمناسبة ومصدر التاريخ الرسمي.`,
+    title: `${event.nameAr} — الموعد والعد التنازلي | ${SITE.name}`,
+    description: `تعرف على موعد ${event.nameAr} السنوي، العد التنازلي والمعلومات التاريخية والمصدر الرسمي.`,
     canonicalPath: `/calendar/events/${safeSlug}/`,
     body,
     breadcrumbs: [
