@@ -45,8 +45,33 @@
       "fetchedAt": "2026-10-30T22:09:33.966Z",
       "total": 27,
       "stale": false
+    },
+    "abu-arish": {
+      "fetchedAt": "2026-10-30T22:46:50.121Z",
+      "total": 148,
+      "stale": false
+    },
+    "medina": {
+      "fetchedAt": "2026-10-30T22:49:12.958Z",
+      "total": 1216,
+      "stale": false
+    },
+    "buraidah": {
+      "fetchedAt": "2026-10-30T22:49:53.361Z",
+      "total": 571,
+      "stale": false
+    },
+    "tabuk": {
+      "fetchedAt": "2026-10-30T22:50:32.966Z",
+      "total": 112,
+      "stale": false
+    },
+    "hail": {
+      "fetchedAt": "2026-10-30T22:51:18.000Z",
+      "total": 149,
+      "stale": false
     }
   },
-  "fetchedAt": "2026-10-30T22:09:33.966Z",
-  "lastAttemptAt": "2026-10-30T22:04:04.093Z"
+  "fetchedAt": "2026-10-30T22:51:18.000Z",
+  "lastAttemptAt": "2026-10-30T22:46:14.299Z"
 }
