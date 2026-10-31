@@ -68,11 +68,7 @@ jobs:
         env:
           SITE_URL: ${{ vars.SITE_URL }}
         run: npm run build
-      - name: Deploy Worker assets (dry run)
-        if: steps.credentials.outputs.enabled == 'true'
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Validate Worker bundle without uploading
         run: npx --yes wrangler deploy --dry-run
       - name: Deploy to Cloudflare Workers
         if: steps.credentials.outputs.enabled == 'true'
