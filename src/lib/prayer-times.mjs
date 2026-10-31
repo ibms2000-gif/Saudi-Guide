@@ -4,6 +4,7 @@ import {
   PrayerTimes,
 } from "adhan";
 import { renderPage } from "./layout.mjs";
+import { formatSaudiDate } from "./calendar.mjs";
 import { escapeHtml } from "./util.mjs";
 import { SITE } from "./config.mjs";
 
@@ -149,7 +150,7 @@ export function prayerTimesPage(city, now = new Date()) {
     <p class="eyebrow">مواقيت اليوم · ${escapeHtml(city.regionAr || "المملكة العربية السعودية")}</p>
     <h1>مواقيت الصلاة في ${escapeHtml(city.nameAr)}</h1>
     <p>مواقيت الفجر والشروق والظهر والعصر والمغرب والغروب والعشاء لهذا اليوم، محسوبة لإحداثيات ${escapeHtml(city.nameAr)} على توقيت المملكة العربية السعودية.</p>
-    <p class="event-date">تاريخ اليوم: <strong>${escapeHtml(formatSaudiPrayerTime(result.date).replace(/[^\u0600-\u06FF\d\s:]/g, ""))}</strong> — ${escapeHtml(result.dateIso)}</p>
+    <p class="event-date">تاريخ اليوم: <strong>${escapeHtml(formatSaudiDate(result.dateIso))}</strong></p>
   </section>
   <section class="section calendar-feature">
     <h2>الصلاة القادمة: ${escapeHtml(next.nameAr)}</h2>
