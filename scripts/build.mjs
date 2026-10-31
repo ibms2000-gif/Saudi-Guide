@@ -157,6 +157,7 @@ async function copyDir(src, dest) {
   } catch {
     return;
   }
+  await fs.mkdir(dest, { recursive: true });
   for (const entry of entries) {
     if (entry.name === ".assetsignore") continue;
     const s = path.join(src, entry.name);
