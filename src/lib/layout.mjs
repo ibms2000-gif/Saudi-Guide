@@ -14,7 +14,7 @@ export function renderPage({ title, description, canonicalPath, body, noindex = 
           name: b.name,
           item: `${SITE.url}${b.path}`,
         })),
-      })}</script>`
+      }).replaceAll("<", "\\\\u003c")}</script>`
     : "";
 
   return `<!doctype html>
