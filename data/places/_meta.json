@@ -70,8 +70,33 @@
       "fetchedAt": "2026-10-30T22:51:18.000Z",
       "total": 149,
       "stale": false
+    },
+    "najran": {
+      "fetchedAt": "2026-10-31T13:40:51.852Z",
+      "total": 103,
+      "stale": false
+    },
+    "albaha": {
+      "fetchedAt": "2026-10-31T13:43:00.580Z",
+      "total": 34,
+      "stale": false
+    },
+    "sakakah": {
+      "lastAttemptAt": "2026-10-31T13:45:23.061Z",
+      "lastError": "Overpass HTTP 502",
+      "stale": true
+    },
+    "arar": {
+      "fetchedAt": "2026-10-31T13:46:08.444Z",
+      "total": 49,
+      "stale": false
+    },
+    "diriyah": {
+      "fetchedAt": "2026-10-31T13:48:28.502Z",
+      "total": 539,
+      "stale": false
     }
   },
-  "fetchedAt": "2026-10-30T22:51:18.000Z",
-  "lastAttemptAt": "2026-10-30T22:46:14.299Z"
+  "fetchedAt": "2026-10-31T13:48:28.502Z",
+  "lastAttemptAt": "2026-10-31T13:40:23.393Z"
 }
