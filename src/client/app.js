@@ -24,9 +24,52 @@
 (function () {
   var formatNumber = new Intl.NumberFormat("ar-SA", { maximumFractionDigits: 0 });
 
+  function getAnnualTarget(element) {
+    var month = Number(element.getAttribute("data-countdown-month"));
+    var day = Number(element.getAttribute("data-countdown-day"));
+    if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(day) || day < 1 || day > 31) {
+      return null;
+    }
+
+    var parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Riyadh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(new Date());
+    var values = {};
+    parts.forEach(function (part) { values[part.type] = part.value; });
+    var year = Number(values.year);
+    var today = values.year + "-" + values.month + "-" + values.day;
+    var date = year + "-" + String(month).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+    var candidate = new Date(Date.UTC(year, month - 1, day));
+    if (candidate.getUTCMonth() !== month - 1 || candidate.getUTCDate() !== day) return null;
+    if (date < today) {
+      year += 1;
+      date = year + "-" + String(month).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+    }
+
+    var targetText = date + "T00:00:00+03:00";
+    element.setAttribute("data-countdown-target", targetText);
+    var parent = element.parentElement;
+    var dateLabel = parent ? parent.querySelector("[data-next-annual-date]") : null;
+    if (dateLabel) {
+      dateLabel.textContent = new Intl.DateTimeFormat("ar-SA-u-ca-gregory", {
+        timeZone: "Asia/Riyadh",
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      }).format(new Date(date + "T12:00:00+03:00"));
+    }
+    return Date.parse(targetText);
+  }
+
   function renderCountdown(element) {
     var targetText = element.getAttribute("data-countdown-target");
-    var target = Date.parse(targetText || "");
+    var target = element.hasAttribute("data-countdown-month")
+      ? getAnnualTarget(element)
+      : Date.parse(targetText || "");
     var output = element.querySelector(".countdown-value");
     if (!output || !Number.isFinite(target)) {
       if (output) output.textContent = "تعذر حساب الموعد";
