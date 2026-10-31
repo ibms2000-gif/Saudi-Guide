@@ -52,7 +52,7 @@ async function makeFixtureRoot() {
   ];
 
   const richPlaces = [
-    { id: "p1", name: "مطعم واحد", categorySlug: "restaurants", subcategorySlug: null, lat: 24, lon: 46 },
+    { id: "p1", name: "مطعم واحد", categorySlug: "restaurants", subcategorySlug: null, osmType: "node", osmId: 100, lat: 24, lon: 46, address: "شارع الاختبار", phone: "+966 50 123 4567" },
     { id: "p2", name: "مطعم اثنان", categorySlug: "restaurants", subcategorySlug: null, lat: 24, lon: 46 },
     { id: "p3", name: "مقهى واحد", categorySlug: "restaurants", subcategorySlug: "coffee", lat: 24, lon: 46 },
     { id: "p4", name: "مقهى اثنان", categorySlug: "restaurants", subcategorySlug: "coffee", lat: 24, lon: 46 },
@@ -99,6 +99,9 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   );
   assert.match(cityCategory, /OpenStreetMap/);
   assert.match(cityCategory, /ODbL|رخصة/);
+  assert.match(cityCategory, /href="\/place\/city-with-data\/node\/100\/"/);
+  const copiedPlaces = await fs.readFile(path.join(dist, "data/places/city-with-data.json"), "utf8");
+  assert.match(copiedPlaces, /مطعم واحد/);
 
   // الفئة الفرعية (قهوة) تولدت لأنها بلغت 3 عناصر
   const sub = await fs.readFile(
@@ -125,6 +128,8 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   const sitemap = await fs.readFile(path.join(dist, "sitemap.xml"), "utf8");
   assert.doesNotMatch(sitemap, /city-without-data\/restaurants/);
   assert.match(sitemap, /city-with-data\/restaurants/);
+  assert.match(sitemap, /place\/city-with-data\/node\/100\//);
+  assert.ok(report.indexablePlacePages >= 1);
 
   // Thin city pages remain available for navigation but are explicitly noindex.
   const sparseCityPage = await fs.readFile(path.join(dist, "city/city-without-data/index.html"), "utf8");
@@ -140,6 +145,8 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.ok(sitemapLocs.length > 0);
   for (const loc of sitemapLocs) {
     const pathname = new URL(loc).pathname;
+    // Place URLs are rendered by the Worker from the city's JSON asset.
+    if (pathname.startsWith("/place/")) continue;
     const htmlPath = pathname === "/" ? path.join(dist, "index.html") : path.join(dist, pathname.replace(/^\/+|\/+$/g, ""), "index.html");
     await fs.access(htmlPath);
   }
