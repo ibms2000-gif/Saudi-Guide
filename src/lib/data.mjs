@@ -47,7 +47,7 @@ async function loadSalarySchedules(directory) {
     throw error;
   }
   const schedules = [];
-  for (const file of files.filter((name) => /^\\d{4}\\.json$/.test(name)).sort()) {
+  for (const file of files.filter((name) => /^\d{4}\.json$/.test(name)).sort()) {
     const data = await readOptionalJSON(path.join(directory, file), null);
     if (data && Number.isInteger(data.year)) schedules.push(data);
   }
