@@ -179,7 +179,7 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   const sitemapBundle = buildSitemapBundle(indexablePaths);
   await fs.writeFile(path.join(DIST, "sitemap.xml"), sitemapBundle.index);
   for (const sitemapFile of sitemapBundle.files) {
-    const sitemapPath = path.join(DIST, sitemapFile.path.replace(/^\\//, ""));
+    const sitemapPath = path.join(DIST, sitemapFile.path.replace(/^\//, ""));
     await fs.mkdir(path.dirname(sitemapPath), { recursive: true });
     await fs.writeFile(sitemapPath, sitemapFile.content);
   }
