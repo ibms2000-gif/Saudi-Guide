@@ -82,9 +82,9 @@
       "stale": false
     },
     "sakakah": {
-      "lastAttemptAt": "2026-10-31T13:45:23.061Z",
-      "lastError": "Overpass HTTP 502",
-      "stale": true
+      "fetchedAt": "2026-11-03T19:42:27.729Z",
+      "total": 227,
+      "stale": false
     },
     "arar": {
       "fetchedAt": "2026-10-31T13:46:08.444Z",
@@ -95,8 +95,28 @@
       "fetchedAt": "2026-10-31T13:48:28.502Z",
       "total": 539,
       "stale": false
+    },
+    "alkharj": {
+      "fetchedAt": "2026-11-03T19:44:51.301Z",
+      "total": 86,
+      "stale": false
+    },
+    "almajmaah": {
+      "fetchedAt": "2026-11-03T19:45:45.841Z",
+      "total": 64,
+      "stale": false
+    },
+    "taif": {
+      "fetchedAt": "2026-11-03T19:46:39.863Z",
+      "total": 622,
+      "stale": false
+    },
+    "rabigh": {
+      "fetchedAt": "2026-11-03T19:47:39.627Z",
+      "total": 26,
+      "stale": false
     }
   },
-  "fetchedAt": "2026-10-31T13:48:28.502Z",
-  "lastAttemptAt": "2026-10-31T13:40:23.393Z"
+  "fetchedAt": "2026-11-03T19:47:39.627Z",
+  "lastAttemptAt": "2026-11-03T19:40:22.425Z"
 }
