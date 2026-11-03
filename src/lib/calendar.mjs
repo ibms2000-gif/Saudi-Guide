@@ -133,8 +133,8 @@ export function calendarHomePage({ events = [], schoolCalendars = [], salarySche
   </section>
   <section class="section">
     <h2>التقويم الدراسي والإجازات</h2>
-    ${schoolCalendars.filter(validSchoolCalendar).length
-      ? `<ul class="grid-list">${schoolCalendars.filter(validSchoolCalendar).map((calendar) => `<li><a href="/calendar/schools/${escapeHtml(calendar.slug)}/"><strong>${escapeHtml(calendar.academicYear)}</strong><span>${escapeHtml(calendar.regionNameAr)}</span></a></li>`).join("")}</ul>`
+    ${schoolCalendars.filter(isSchoolCalendarValid).length
+      ? `<ul class="grid-list">${schoolCalendars.filter(isSchoolCalendarValid).map((calendar) => `<li><a href="/calendar/schools/${escapeHtml(calendar.slug)}/"><strong>${escapeHtml(calendar.academicYear)}</strong><span>${escapeHtml(calendar.regionNameAr)}</span></a></li>`).join("")}</ul>`
       : "<p>ستظهر جداول الدراسة والإجازات عند توفر تواريخ موثقة من الجهة التعليمية المختصة.</p>"}
   </section>
   <section class="section">
@@ -287,7 +287,7 @@ function schoolEventRow(event, today) {
 }
 
 export function schoolCalendarsIndexPage(calendars = []) {
-  const items = calendars.filter(validSchoolCalendar).map((calendar) => `
+  const items = calendars.filter(isSchoolCalendarValid).map((calendar) => `
     <li class="calendar-feature">
       <h2><a href="/calendar/schools/${escapeHtml(calendar.slug)}/">${escapeHtml(calendar.titleAr)}</a></h2>
       <p>النطاق: ${escapeHtml(calendar.regionNameAr)}</p>
