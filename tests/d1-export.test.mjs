@@ -76,6 +76,19 @@ async function fixture() {
     sourceUrl: "https://example.com/event",
     scopeAr: "السعودية",
   }]);
+  await write("data/school-calendars.json", [{
+    slug: "1448-1449-test",
+    academicYear: "1448-1449",
+    titleAr: "التقويم الدراسي التجريبي",
+    regionNameAr: "نطاق تجريبي",
+    sourceName: "جهة تعليمية",
+    sourceUrl: "https://example.com/school",
+    verifiedAt: "2026-11-03",
+    events: [
+      { titleAr: "إجازة الخريف", startDate: "2026-11-20", endDate: "2026-11-28" },
+      { titleAr: "إجازة منتصف العام", startDate: "2027-01-08", endDate: "2027-01-16" }
+    ]
+  }]);
   await write("data/paydays/2026.json", {
     year: 2026,
     nameAr: "رواتب 2026",
@@ -126,10 +139,10 @@ test("builds a D1 seed from places and reference datasets without nested transac
   assert.equal(result.counts.categories, 1);
   assert.equal(result.counts.places, 2);
   assert.equal(result.counts.indexablePlacePages, 1);
-  assert.equal(result.counts.referenceRecords, 5);
-  assert.equal(result.counts.indexableReferencePages, 5);
+  assert.equal(result.counts.referenceRecords, 6);
+  assert.equal(result.counts.indexableReferencePages, 6);
   assert.ok(result.counts.sources >= 6);
-  assert.equal(result.counts.pageRegistry, 7);
+  assert.equal(result.counts.pageRegistry, 8);
 
   assert.match(result.sql, /^-- Saudi Guide D1 snapshot export/m);
   assert.doesNotMatch(result.sql, /BEGIN TRANSACTION|COMMIT;/);
@@ -139,6 +152,7 @@ test("builds a D1 seed from places and reference datasets without nested transac
   assert.match(result.sql, /'insufficient_supporting_details'/);
   assert.match(result.sql, /\/place\/riyadh\/node\/123\//);
   assert.match(result.sql, /\/calendar\/events\/founding-day\//);
+  assert.match(result.sql, /\/calendar\/schools\/1448-1449-test\//);
   assert.match(result.sql, /\/calendar\/salaries\/2026\//);
   assert.match(result.sql, /\/benefits\/social-security\//);
   assert.match(result.sql, /\/statistics\/population\//);
