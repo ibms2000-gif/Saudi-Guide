@@ -3,6 +3,7 @@ import citiesData from "../data/cities.json";
 import categoriesData from "../data/categories.json";
 import { isPlacePageIndexable, renderPlacePage } from "../src/lib/place-page.mjs";
 import { prayerTimesPage } from "../src/lib/prayer-times.mjs";
+import { findPlaceByOsmId } from "../src/lib/d1-repository.mjs";
 
 const CITIES_BY_SLUG = new Map(citiesData.map((city) => [city.slug, city]));
 const CITY_SLUGS = new Set(CITIES_BY_SLUG.keys());
@@ -101,42 +102,63 @@ async function servePlacePage(request, env, url, match) {
 
   const [, citySlug, osmType, osmId] = match;
   const city = CITIES_BY_SLUG.get(citySlug);
-  const assetUrl = new URL(`/data/places/${citySlug}.json`, url.origin);
-
-  let placesResponse;
-  try {
-    placesResponse = await env.ASSETS.fetch(new Request(assetUrl));
-  } catch {
-    return placeNotFound();
-  }
-  if (!placesResponse.ok) return placeNotFound();
-
-  let places;
-  try {
-    places = await placesResponse.json();
-  } catch {
-    return new Response("Place data is temporarily unavailable.", {
-      status: 503,
-      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
-    });
-  }
-
-  if (!Array.isArray(places)) return placeNotFound();
-  const place = places.find(
-    (item) => item && item.osmType === osmType && String(item.osmId) === osmId,
-  );
-  if (!place) return placeNotFound();
-
+  let place = null;
   let fetchedAt = null;
-  try {
-    const metaUrl = new URL("/data/places/_meta.json", url.origin);
-    const metaResponse = await env.ASSETS.fetch(new Request(metaUrl));
-    if (metaResponse.ok) {
-      const meta = await metaResponse.json();
-      fetchedAt = meta?.cities?.[citySlug]?.fetchedAt || null;
+
+  if (env.DB) {
+    // D1 is authoritative only after its migration and initial snapshot import are complete.
+    try {
+      const result = await findPlaceByOsmId(env.DB, citySlug, osmType, osmId);
+      if (!result) return placeNotFound();
+      place = result.place;
+      fetchedAt = result.fetchedAt;
+    } catch {
+      return new Response("Place data is temporarily unavailable.", {
+        status: 503,
+        headers: {
+          "content-type": "text/plain; charset=utf-8",
+          "cache-control": "no-store",
+          "retry-after": "60",
+        },
+      });
     }
-  } catch {
-    // تفاصيل المكان تبقى متاحة حتى عند تعذّر قراءة تاريخ آخر تحديث.
+  } else {
+    // Backward-compatible asset lookup until a D1 binding is configured.
+    const assetUrl = new URL(`/data/places/${citySlug}.json`, url.origin);
+    let placesResponse;
+    try {
+      placesResponse = await env.ASSETS.fetch(new Request(assetUrl));
+    } catch {
+      return placeNotFound();
+    }
+    if (!placesResponse.ok) return placeNotFound();
+
+    let places;
+    try {
+      places = await placesResponse.json();
+    } catch {
+      return new Response("Place data is temporarily unavailable.", {
+        status: 503,
+        headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+      });
+    }
+
+    if (!Array.isArray(places)) return placeNotFound();
+    place = places.find(
+      (item) => item && item.osmType === osmType && String(item.osmId) === osmId,
+    );
+    if (!place) return placeNotFound();
+
+    try {
+      const metaUrl = new URL("/data/places/_meta.json", url.origin);
+      const metaResponse = await env.ASSETS.fetch(new Request(metaUrl));
+      if (metaResponse.ok) {
+        const meta = await metaResponse.json();
+        fetchedAt = meta?.cities?.[citySlug]?.fetchedAt || null;
+      }
+    } catch {
+      // Details remain available when the optional snapshot timestamp cannot be read.
+    }
   }
 
   const category = CATEGORIES_BY_SLUG.get(place.categorySlug) || null;
