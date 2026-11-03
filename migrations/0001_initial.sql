@@ -1,7 +1,5 @@
 -- دليل السعودية — قاعدة D1 الأساسية
 -- بيانات الأماكن مشتقة من OpenStreetMap وتظل خاضعة لترخيص ODbL.
-PRAGMA foreign_keys = ON;
-
 CREATE TABLE IF NOT EXISTS regions (
   slug TEXT PRIMARY KEY,
   name_ar TEXT NOT NULL,
