@@ -238,7 +238,7 @@ export async function buildD1SeedSql({ root = ROOT, generatedAt = new Date().toI
       "opening_hours", "detail_count", "is_indexable", "fetched_at", "source_name",
       "payload_json", "updated_at",
     ], [
-      sql(place.id || `${place.osmType || "unknown"}-${place.osmId || pageHash(place).slice(0, 16)}`),
+      sql(`${city.slug}:${place.id || `${place.osmType || "unknown"}-${place.osmId || pageHash(place).slice(0, 16)}`}`),
       sql(city.slug), sql(place.osmType || null), sql(place.osmId === null || place.osmId === undefined ? null : String(place.osmId)),
       sql(place.name), sql(place.categorySlug), sql(place.subcategorySlug || null),
       sql(num(place.lat)), sql(num(place.lon)), sql(place.address || null), sql(place.phone || null),
