@@ -29,6 +29,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Run unit tests
         run: npm test
+      - name: Validate export of the current D1 data snapshot (export only; no remote writes)
+        run: npm run d1:export
       - name: Build static HTML for regression tests (empty data allowed in test job only)
         env:
           ALLOW_EMPTY_DATA: "true"
