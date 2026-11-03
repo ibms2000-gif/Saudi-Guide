@@ -129,7 +129,7 @@ test("builds a D1 seed from places and reference datasets without nested transac
   assert.equal(result.counts.referenceRecords, 5);
   assert.equal(result.counts.indexableReferencePages, 5);
   assert.ok(result.counts.sources >= 6);
-  assert.equal(result.counts.pageRegistry, 6);
+  assert.equal(result.counts.pageRegistry, 7);
 
   assert.match(result.sql, /^-- Saudi Guide D1 snapshot export/m);
   assert.doesNotMatch(result.sql, /BEGIN TRANSACTION|COMMIT;/);
