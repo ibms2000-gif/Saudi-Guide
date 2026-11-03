@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadModel } from "../src/lib/data.mjs";
-import { buildSitemap } from "../src/lib/sitemap.mjs";
+import { buildSitemapBundle } from "../src/lib/sitemap.mjs";
 import { SITE } from "../src/lib/config.mjs";
 import { isPlacePageIndexable, placePath } from "../src/lib/place-page.mjs";
 import {
@@ -176,7 +176,13 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     ...placePaths,
     ...prayerPaths,
   ];
-  await fs.writeFile(path.join(DIST, "sitemap.xml"), buildSitemap(indexablePaths));
+  const sitemapBundle = buildSitemapBundle(indexablePaths);
+  await fs.writeFile(path.join(DIST, "sitemap.xml"), sitemapBundle.index);
+  for (const sitemapFile of sitemapBundle.files) {
+    const sitemapPath = path.join(DIST, sitemapFile.path.replace(/^\\//, ""));
+    await fs.mkdir(path.dirname(sitemapPath), { recursive: true });
+    await fs.writeFile(sitemapPath, sitemapFile.content);
+  }
 
   // robots.txt
   await fs.writeFile(
@@ -204,6 +210,8 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     statisticsPages: 1 + qualifiedStatistics.length,
     newsPages: 1 + qualifiedNews.length + model.regions.filter((region) => qualifiedNews.filter((item) => item.regionSlug === region.slug).length >= 2).length,
     totalIndexableUrls: indexablePaths.length,
+    sitemapFileCount: sitemapBundle.files.length || 1,
+    sitemapShards: sitemapBundle.files.map((file) => ({ path: file.path, urlCount: file.urlCount })),
     byCategory: Object.fromEntries(
       model.categories.map((cat) => [
         cat.slug,
