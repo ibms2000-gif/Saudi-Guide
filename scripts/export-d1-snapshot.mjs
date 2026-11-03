@@ -174,7 +174,7 @@ export async function buildD1SeedSql({ root = ROOT, generatedAt = new Date().toI
     "-- Saudi Guide D1 snapshot export",
     `-- Generated at: ${generatedAt}`,
     "-- Source place data: OpenStreetMap contributors, ODbL 1.0",
-    "-- This file replaces the imported snapshot inside one transaction.",
+    "-- This file rebuilds the imported snapshot in dependency-safe statement order.",
     "DELETE FROM page_registry;",
     "DELETE FROM places;",
     "DELETE FROM reference_records;",
