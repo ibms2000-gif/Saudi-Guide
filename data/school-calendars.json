@@ -1,0 +1,93 @@
+[
+  {
+    "slug": "1448-1449-rcjy-western",
+    "academicYear": "1448–1449 هـ / 2026–2027 م",
+    "titleAr": "التقويم الدراسي 1448–1449 هـ للمدن المشمولة",
+    "regionNameAr": "مكة المكرمة والمدينة المنورة وجدة والطائف",
+    "descriptionAr": "مواعيد بداية الدراسة وعودة منسوبي التعليم والإجازات المنشورة في صفحة التقويم الدراسي للتعليم العام التابعة للإدارة العامة للتعليم بالهيئة الملكية للجبيل وينبع. هذا الجدول خاص بالنطاق الموضح في المصدر، ولا يُعمم على جميع مدارس المملكة.",
+    "sourceName": "الإدارة العامة للتعليم — الهيئة الملكية للجبيل وينبع",
+    "sourceUrl": "https://rcjy.edu.sa/ar/general-education-calendar/",
+    "verifiedAt": "2026-11-03",
+    "status": "official-published",
+    "events": [
+      {
+        "slug": "administrative-staff-return",
+        "titleAr": "عودة الهيئة الإدارية والمشرفين التربويين",
+        "startDate": "2026-08-16",
+        "endDate": "2026-08-16",
+        "kind": "school-staff",
+        "status": "official",
+        "noteAr": "التاريخ كما ورد في جدول النطاق المحدد."
+      },
+      {
+        "slug": "teachers-return",
+        "titleAr": "عودة المعلمين الممارسين للتدريس",
+        "startDate": "2026-08-23",
+        "endDate": "2026-08-23",
+        "kind": "school-staff",
+        "status": "official",
+        "noteAr": "التاريخ كما ورد في جدول النطاق المحدد."
+      },
+      {
+        "slug": "school-year-start",
+        "titleAr": "بداية العام الدراسي",
+        "startDate": "2026-08-30",
+        "endDate": "2026-08-30",
+        "kind": "school-term",
+        "status": "official",
+        "noteAr": "بداية الدراسة للعام 1448–1449 هـ."
+      },
+      {
+        "slug": "national-day-break",
+        "titleAr": "إجازة اليوم الوطني",
+        "startDate": "2026-09-23",
+        "endDate": "2026-09-26",
+        "kind": "holiday",
+        "status": "official",
+        "noteAr": "فترة الإجازة كما يعرضها جدول الجهة التعليمية."
+      },
+      {
+        "slug": "autumn-break",
+        "titleAr": "إجازة الخريف",
+        "startDate": "2026-11-20",
+        "endDate": "2026-11-28",
+        "kind": "holiday",
+        "status": "official",
+        "noteAr": "الفترة المنشورة في جدول التقويم الدراسي."
+      },
+      {
+        "slug": "midyear-break",
+        "titleAr": "إجازة منتصف العام الدراسي",
+        "startDate": "2027-01-08",
+        "endDate": "2027-01-16",
+        "kind": "holiday",
+        "status": "official",
+        "noteAr": "الفترة المنشورة في جدول التقويم الدراسي."
+      },
+      {
+        "slug": "founding-day-break",
+        "titleAr": "إجازة يوم التأسيس",
+        "startDate": "2027-02-19",
+        "endDate": "2027-02-22",
+        "kind": "holiday",
+        "status": "official",
+        "noteAr": "فترة الإجازة كما يعرضها جدول الجهة التعليمية."
+      },
+      {
+        "slug": "eid-al-adha-break",
+        "titleAr": "إجازة عيد الأضحى",
+        "startDate": "2027-04-30",
+        "endDate": "2027-05-22",
+        "kind": "holiday",
+        "status": "official",
+        "noteAr": "الفترة المنشورة في جدول التقويم الدراسي؛ تُراجع أي تحديثات لاحقة من الجهة التعليمية."
+      }
+    ],
+    "excludedEvents": [
+      {
+        "titleAr": "إجازة عيد الفطر",
+        "reasonAr": "لم تُدرج لأن التاريخ الظاهر في نتيجة صفحة المصدر لا يتسق مع بقية بيانات الفترة، ويلزم التحقق من الوثيقة الأصلية قبل النشر."
+      }
+    ]
+  }
+]
