@@ -243,6 +243,16 @@ export function salarySchedulePage(schedule) {
 }
 
 
+function isValidGregorianIsoDate(value) {
+  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(String(value || ""))) return false;
+  const [year, month, day] = String(value).split("-").map(Number);
+  try {
+    return makeIsoDate(year, month, day) === value;
+  } catch {
+    return false;
+  }
+}
+
 function validSchoolCalendar(calendar) {
   if (!calendar || !/^[a-z0-9-]+$/.test(String(calendar.slug || ""))) return false;
   if (!calendar.titleAr || !calendar.academicYear || !calendar.regionNameAr) return false;
