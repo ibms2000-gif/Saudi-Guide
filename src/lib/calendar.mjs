@@ -260,8 +260,8 @@ function validSchoolCalendar(calendar) {
   if (!Array.isArray(calendar.events) || calendar.events.length < 2) return false;
   return calendar.events.every((event) =>
     event && event.titleAr &&
-    /^\d{4}-\d{2}-\d{2}$/.test(String(event.startDate || "")) &&
-    /^\d{4}-\d{2}-\d{2}$/.test(String(event.endDate || "")) &&
+    isValidGregorianIsoDate(event.startDate) &&
+    isValidGregorianIsoDate(event.endDate) &&
     event.startDate <= event.endDate &&
     event.status === "official"
   );
