@@ -73,4 +73,8 @@ test("school calendar renderer rejects missing sources and malformed date ranges
     ...calendar,
     events: [{ ...calendar.events[0], startDate: "2026-11-28", endDate: "2026-11-20" }],
   }), /غير مكتملة/);
+  assert.throws(() => schoolCalendarPage({
+    ...calendar,
+    events: [{ ...calendar.events[0], startDate: "2027-02-31", endDate: "2027-03-01" }],
+  }), /غير مكتملة/);
 });
