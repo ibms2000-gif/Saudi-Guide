@@ -115,8 +115,33 @@
       "fetchedAt": "2026-11-03T19:47:39.627Z",
       "total": 26,
       "stale": false
+    },
+    "yanbu": {
+      "fetchedAt": "2026-11-03T19:54:52.844Z",
+      "total": 658,
+      "stale": false
+    },
+    "alula": {
+      "fetchedAt": "2026-11-03T19:55:40.211Z",
+      "total": 44,
+      "stale": false
+    },
+    "jubail": {
+      "fetchedAt": "2026-11-03T19:56:25.920Z",
+      "total": 182,
+      "stale": false
+    },
+    "alhasa": {
+      "fetchedAt": "2026-11-03T19:58:50.546Z",
+      "total": 515,
+      "stale": false
+    },
+    "qatif": {
+      "fetchedAt": "2026-11-03T20:01:20.694Z",
+      "total": 150,
+      "stale": false
     }
   },
-  "fetchedAt": "2026-11-03T19:47:39.627Z",
-  "lastAttemptAt": "2026-11-03T19:40:22.425Z"
+  "fetchedAt": "2026-11-03T20:01:20.694Z",
+  "lastAttemptAt": "2026-11-03T19:54:05.761Z"
 }
