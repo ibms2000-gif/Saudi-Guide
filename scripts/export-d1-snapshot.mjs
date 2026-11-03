@@ -1,3 +1,4 @@
+import { isSchoolCalendarValid } from "../src/lib/calendar.mjs";
 #!/usr/bin/env node
 // Export the current JSON snapshot as a repeatable SQL seed file for Cloudflare D1.
 // This script is deliberately export-only: it never writes to a remote database.
@@ -88,10 +89,7 @@ function referencePage(recordType, record) {
         ? `/calendar/events/${record.slug}/`
         : null;
     case "school_calendar":
-      return record.academicYear && record.regionNameAr && record.sourceName && record.sourceUrl && record.verifiedAt &&
-        Array.isArray(record.events) && record.events.length >= 2
-        ? `/calendar/schools/${record.slug}/`
-        : null;
+      return isSchoolCalendarValid(record) ? `/calendar/schools/${record.slug}/` : null;
     case "payroll_schedule":
       return Number.isInteger(Number(record.year))
         ? `/calendar/salaries/${record.year}/`
