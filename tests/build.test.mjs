@@ -88,6 +88,24 @@ async function makeFixtureRoot() {
     }]),
   );
   await fs.writeFile(
+    path.join(root, "data/school-calendars.json"),
+    JSON.stringify([{
+      slug: "1448-1449-test",
+      academicYear: "1448–1449 هـ",
+      titleAr: "التقويم الدراسي التجريبي",
+      regionNameAr: "نطاق تجريبي",
+      descriptionAr: "جدول اختباري لاختبار صفحات التقويم.",
+      sourceName: "جهة تعليمية تجريبية",
+      sourceUrl: "https://example.com/school-calendar",
+      verifiedAt: "2026-11-03",
+      status: "official-published",
+      events: [
+        { slug: "autumn", titleAr: "إجازة الخريف", startDate: "2026-11-20", endDate: "2026-11-28", status: "official" },
+        { slug: "midyear", titleAr: "إجازة منتصف العام", startDate: "2027-01-08", endDate: "2027-01-16", status: "official" }
+      ]
+    }]),
+  );
+  await fs.writeFile(
     path.join(root, "data/paydays/2026.json"),
     JSON.stringify({
       year: 2026,
@@ -195,6 +213,16 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(calendar, /التقويم السعودي/);
   assert.match(calendar, /يوم التأسيس/);
   assert.match(calendar, /رواتب/);
+  assert.match(calendar, /التقويم الدراسي التجريبي/);
+  assert.match(calendar, /calendar\/schools\/1448-1449-test/);
+
+  const schoolIndex = await fs.readFile(path.join(dist, "calendar/schools/index.html"), "utf8");
+  assert.match(schoolIndex, /نطاق تجريبي/);
+  const schoolPage = await fs.readFile(path.join(dist, "calendar/schools/1448-1449-test/index.html"), "utf8");
+  assert.match(schoolPage, /إجازة الخريف/);
+  assert.match(schoolPage, /2026-11-20/);
+  assert.match(schoolPage, /جهة تعليمية تجريبية/);
+  assert.match(schoolPage, /example.com\/school-calendar/);
 
   const eventPage = await fs.readFile(
     path.join(dist, "calendar/events/founding-day/index.html"),
@@ -281,6 +309,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(sitemap, /city-with-data\/restaurants/);
   assert.match(sitemap, /place\/city-with-data\/node\/100\//);
   assert.match(sitemap, /calendar\//);
+  assert.match(sitemap, /calendar\/schools\/1448-1449-test\//);
   assert.match(sitemap, /calendar\/events\/founding-day\//);
   assert.match(sitemap, /calendar\/salaries\/2026\//);
   assert.match(sitemap, /prayer-times\/city-with-data\//);
