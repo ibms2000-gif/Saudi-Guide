@@ -21,7 +21,7 @@ import {
   weatherNoticePage,
   notFoundPage,
 } from "../src/lib/pages.mjs";
-import { calendarHomePage, annualEventPage, salarySchedulePage, schoolCalendarsIndexPage, schoolCalendarPage } from "../src/lib/calendar.mjs";
+import { calendarHomePage, annualEventPage, salarySchedulePage, schoolCalendarsIndexPage, schoolCalendarPage, isSchoolCalendarValid } from "../src/lib/calendar.mjs";
 import { prayerTimesIndexPage } from "../src/lib/prayer-times.mjs";
 import { benefitsIndexPage, benefitDetailPage } from "../src/lib/benefits.mjs";
 import { statisticsIndexPage, statisticDetailPage } from "../src/lib/statistics.mjs";
@@ -69,13 +69,9 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   for (const schedule of model.salarySchedules) {
     add(`/calendar/salaries/${schedule.year}/`, salarySchedulePage(schedule));
   }
-  const qualifiedSchoolCalendars = model.schoolCalendars.filter((calendar) =>
-    calendar && /^[a-z0-9-]+$/.test(String(calendar.slug || "")) &&
-    calendar.titleAr && calendar.academicYear && calendar.regionNameAr &&
-    calendar.sourceName && calendar.sourceUrl && calendar.verifiedAt &&
-    Array.isArray(calendar.events) && calendar.events.length >= 2,
-  );
-  add("/calendar/schools/", schoolCalendarsIndexPage(qualifiedSchoolCalendars), qualifiedSchoolCalendars.length > 0);
+  const qualifiedSchoolCalendars = model.schoolCalendars.filter(isSchoolCalendarValid);
+  // Keep a one-item hub available for visitors, but do not index a thin listing page.
+  add("/calendar/schools/", schoolCalendarsIndexPage(qualifiedSchoolCalendars), qualifiedSchoolCalendars.length >= 2);
   for (const schoolCalendar of qualifiedSchoolCalendars) {
     add(`/calendar/schools/${schoolCalendar.slug}/`, schoolCalendarPage(schoolCalendar));
   }
