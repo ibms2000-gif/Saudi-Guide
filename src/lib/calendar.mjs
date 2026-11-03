@@ -253,7 +253,7 @@ function isValidGregorianIsoDate(value) {
   }
 }
 
-function validSchoolCalendar(calendar) {
+export function isSchoolCalendarValid(calendar) {
   if (!calendar || !/^[a-z0-9-]+$/.test(String(calendar.slug || ""))) return false;
   if (!calendar.titleAr || !calendar.academicYear || !calendar.regionNameAr) return false;
   if (!calendar.sourceName || !safeHttpUrl(calendar.sourceUrl) || !calendar.verifiedAt) return false;
@@ -321,7 +321,7 @@ export function schoolCalendarsIndexPage(calendars = []) {
 }
 
 export function schoolCalendarPage(calendar, now = new Date()) {
-  if (!validSchoolCalendar(calendar)) {
+  if (!isSchoolCalendarValid(calendar)) {
     throw new TypeError("بيانات التقويم الدراسي غير مكتملة أو غير صالحة للنشر.");
   }
 
