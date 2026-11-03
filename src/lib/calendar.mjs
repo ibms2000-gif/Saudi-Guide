@@ -235,3 +235,136 @@ export function salarySchedulePage(schedule) {
     ],
   });
 }
+
+
+function validSchoolCalendar(calendar) {
+  if (!calendar || !/^[a-z0-9-]+$/.test(String(calendar.slug || ""))) return false;
+  if (!calendar.titleAr || !calendar.academicYear || !calendar.regionNameAr) return false;
+  if (!calendar.sourceName || !safeHttpUrl(calendar.sourceUrl) || !calendar.verifiedAt) return false;
+  if (!Array.isArray(calendar.events) || calendar.events.length < 2) return false;
+  return calendar.events.every((event) =>
+    event && event.titleAr &&
+    /^\d{4}-\d{2}-\d{2}$/.test(String(event.startDate || "")) &&
+    /^\d{4}-\d{2}-\d{2}$/.test(String(event.endDate || "")) &&
+    event.startDate <= event.endDate &&
+    event.status === "official"
+  );
+}
+
+function schoolEventStatus(event, today) {
+  if (today < event.startDate) return "قادمة";
+  if (today > event.endDate) return "انتهت";
+  return "جارية الآن";
+}
+
+function schoolEventRow(event, today) {
+  const status = schoolEventStatus(event, today);
+  const range = event.startDate === event.endDate
+    ? formatSaudiDate(event.startDate)
+    : `من ${formatSaudiDate(event.startDate)} إلى ${formatSaudiDate(event.endDate)}`;
+  return `<tr>
+    <td><strong>${escapeHtml(event.titleAr)}</strong></td>
+    <td><time datetime="${escapeHtml(event.startDate)}">${escapeHtml(range)}</time></td>
+    <td>${escapeHtml(status)}</td>
+    <td>${escapeHtml(event.noteAr || "—")}</td>
+  </tr>`;
+}
+
+export function schoolCalendarsIndexPage(calendars = []) {
+  const items = calendars.filter(validSchoolCalendar).map((calendar) => `
+    <li class="calendar-feature">
+      <h2><a href="/calendar/schools/${escapeHtml(calendar.slug)}/">${escapeHtml(calendar.titleAr)}</a></h2>
+      <p>النطاق: ${escapeHtml(calendar.regionNameAr)}</p>
+      <p>${escapeHtml(calendar.academicYear)}</p>
+      <p>${calendar.events.length} مواعيد منشورة في الجدول</p>
+      <p>آخر تحقق: ${escapeHtml(calendar.verifiedAt)}</p>
+    </li>`).join("");
+
+  const body = `
+  <section class="hero">
+    <h1>التقويم الدراسي والإجازات</h1>
+    <p>جداول دراسية منشورة من الجهات التعليمية، مع تحديد النطاق الجغرافي والجهة صاحبة الجدول. قد تختلف المواعيد بين الجهات والمناطق؛ اختر الجدول المطابق لمدرستك.</p>
+  </section>
+  <section class="section">
+    <h2>الجداول المتاحة</h2>
+    ${items ? `<ul class="event-grid">${items}</ul>` : "<p>لا توجد جداول موثقة منشورة حاليًا.</p>"}
+  </section>
+  <p><a href="/calendar/">العودة إلى التقويم والمواعيد</a></p>`;
+
+  return renderPage({
+    title: `التقويم الدراسي والإجازات في السعودية | ${SITE.name}`,
+    description: "جداول التقويم الدراسي والإجازات المنشورة من الجهات التعليمية مع تحديد المنطقة ومصدر المعلومة.",
+    canonicalPath: "/calendar/schools/",
+    body,
+    breadcrumbs: [
+      { name: "الرئيسية", path: "/" },
+      { name: "التقويم والمواعيد", path: "/calendar/" },
+      { name: "التقويم الدراسي", path: "/calendar/schools/" },
+    ],
+  });
+}
+
+export function schoolCalendarPage(calendar, now = new Date()) {
+  if (!validSchoolCalendar(calendar)) {
+    throw new TypeError("بيانات التقويم الدراسي غير مكتملة أو غير صالحة للنشر.");
+  }
+
+  const today = riyadhDateIso(now);
+  const events = [...calendar.events].sort((a, b) =>
+    a.startDate.localeCompare(b.startDate) || a.titleAr.localeCompare(b.titleAr, "ar"),
+  );
+  const rows = events.map((event) => schoolEventRow(event, today)).join("");
+  const next = events.find((event) => event.endDate >= today);
+  const nextBlock = next
+    ? `<section class="calendar-feature">
+        <h2>المناسبة الدراسية القادمة</h2>
+        <p><strong>${escapeHtml(next.titleAr)}</strong></p>
+        <p>${escapeHtml(next.startDate === next.endDate ? formatSaudiDate(next.startDate) : `من ${formatSaudiDate(next.startDate)} إلى ${formatSaudiDate(next.endDate)}`)}</p>
+        ${countdownMarkup(`${next.startDate}T00:00:00+03:00`, "الوقت المتبقي لبداية الموعد")}
+      </section>`
+    : `<p class="status-note">انتهت جميع المواعيد الواردة في هذا الجدول.</p>`;
+
+  const excluded = Array.isArray(calendar.excludedEvents) && calendar.excludedEvents.length
+    ? `<section class="section">
+        <h2>مواعيد لم ندرجها</h2>
+        <ul>${calendar.excludedEvents.map((item) => `<li><strong>${escapeHtml(item.titleAr)}</strong>: ${escapeHtml(item.reasonAr)}</li>`).join("")}</ul>
+      </section>`
+    : "";
+
+  const body = `
+  <section class="hero">
+    <p class="eyebrow">تقويم دراسي منشور · ${escapeHtml(calendar.academicYear)}</p>
+    <h1>${escapeHtml(calendar.titleAr)}</h1>
+    <p>${escapeHtml(calendar.descriptionAr)}</p>
+    <p class="status-note">النطاق: ${escapeHtml(calendar.regionNameAr)}</p>
+  </section>
+  ${nextBlock}
+  <section class="section">
+    <h2>المواعيد والإجازات</h2>
+    <div class="table-scroll"><table class="data-table">
+      <thead><tr><th>الحدث</th><th>الفترة</th><th>الحالة في توقيت السعودية</th><th>ملاحظة</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+  </section>
+  <section class="section">
+    <h2>نطاق هذا الجدول</h2>
+    <p>هذا الجدول من الجهة التعليمية المذكورة ويخص النطاق الجغرافي المعروض. لا تفترض انطباق مواعيده على كل مدارس المملكة أو على الجامعات أو التدريب التقني أو المدارس الأهلية والدولية.</p>
+    <p>آخر تاريخ تحقق من المصدر: ${escapeHtml(calendar.verifiedAt)}.</p>
+  </section>
+  ${excluded}
+  ${sourceNote(calendar.sourceName, calendar.sourceUrl, "قد تعلن الجهات التعليمية تحديثات أو استثناءات لاحقة. تحقق من المدرسة أو إدارة التعليم التابعة لها قبل ترتيب الإجازات والسفر.")}
+  <p><a href="/calendar/schools/">العودة إلى جداول التقويم الدراسي</a> · <a href="/calendar/">التقويم والمواعيد</a></p>`;
+
+  return renderPage({
+    title: `${calendar.titleAr} — المواعيد والإجازات | ${SITE.name}`,
+    description: `مواعيد الدراسة والإجازات للعام ${calendar.academicYear} ضمن ${calendar.regionNameAr}، مع مصدر الجدول وتاريخ التحقق.`,
+    canonicalPath: `/calendar/schools/${calendar.slug}/`,
+    body,
+    breadcrumbs: [
+      { name: "الرئيسية", path: "/" },
+      { name: "التقويم والمواعيد", path: "/calendar/" },
+      { name: "التقويم الدراسي", path: "/calendar/schools/" },
+      { name: calendar.academicYear, path: `/calendar/schools/${calendar.slug}/` },
+    ],
+  });
+}
