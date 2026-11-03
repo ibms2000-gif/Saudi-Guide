@@ -87,6 +87,11 @@ function referencePage(recordType, record) {
       return record.kind === "fixed-annual" && record.status === "official"
         ? `/calendar/events/${record.slug}/`
         : null;
+    case "school_calendar":
+      return record.academicYear && record.regionNameAr && record.sourceName && record.sourceUrl && record.verifiedAt &&
+        Array.isArray(record.events) && record.events.length >= 2
+        ? `/calendar/schools/${record.slug}/`
+        : null;
     case "payroll_schedule":
       return Number.isInteger(Number(record.year))
         ? `/calendar/salaries/${record.year}/`
@@ -129,12 +134,13 @@ function genericRecordFields(recordType, record) {
 
 export async function buildD1SeedSql({ root = ROOT, generatedAt = new Date().toISOString() } = {}) {
   const dataDir = path.join(root, "data");
-  const [regions, cities, categories, meta, events, benefits, statistics, news] = await Promise.all([
+  const [regions, cities, categories, meta, events, schoolCalendars, benefits, statistics, news] = await Promise.all([
     readJson(path.join(dataDir, "regions.json"), []),
     readJson(path.join(dataDir, "cities.json"), []),
     readJson(path.join(dataDir, "categories.json"), []),
     readJson(path.join(dataDir, "places", "_meta.json"), { cities: {} }),
     readJson(path.join(dataDir, "events.json"), []),
+    readJson(path.join(dataDir, "school-calendars.json"), []),
     readJson(path.join(dataDir, "benefits.json"), []),
     readJson(path.join(dataDir, "statistics.json"), []),
     readJson(path.join(dataDir, "news.json"), []),
@@ -263,6 +269,7 @@ export async function buildD1SeedSql({ root = ROOT, generatedAt = new Date().toI
 
   const allReferences = [
     ...events.map((record) => ({ recordType: "event", record })),
+    ...schoolCalendars.map((record) => ({ recordType: "school_calendar", record })),
     ...paydaySchedules.filter(Boolean).map((record) => ({ recordType: "payroll_schedule", record: { ...record, slug: `payroll-${record.year}`, nameAr: record.nameAr || `جدول الرواتب ${record.year}` } })),
     ...benefits.map((record) => ({ recordType: "benefit", record })),
     ...statistics.map((record) => ({ recordType: "statistic", record })),
@@ -324,7 +331,7 @@ export async function buildD1SeedSql({ root = ROOT, generatedAt = new Date().toI
   }
 
   const snapshotPayload = {
-    regions, cities, categories, meta, events, paydaySchedules, benefits, statistics, news,
+    regions, cities, categories, meta, events, schoolCalendars, paydaySchedules, benefits, statistics, news,
     placeCounts: Object.fromEntries([...placesByCity].map(([slug, records]) => [slug, records.length])),
   };
   const snapshotSha = pageHash(snapshotPayload);
