@@ -21,7 +21,7 @@ import {
   weatherNoticePage,
   notFoundPage,
 } from "../src/lib/pages.mjs";
-import { calendarHomePage, annualEventPage, salarySchedulePage } from "../src/lib/calendar.mjs";
+import { calendarHomePage, annualEventPage, salarySchedulePage, schoolCalendarsIndexPage, schoolCalendarPage } from "../src/lib/calendar.mjs";
 import { prayerTimesIndexPage } from "../src/lib/prayer-times.mjs";
 import { benefitsIndexPage, benefitDetailPage } from "../src/lib/benefits.mjs";
 import { statisticsIndexPage, statisticDetailPage } from "../src/lib/statistics.mjs";
@@ -58,6 +58,7 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   // تقويم المناسبات والمواعيد الرسمية الموثقة.
   add("/calendar/", calendarHomePage({
     events: model.events,
+    schoolCalendars: model.schoolCalendars,
     salarySchedules: model.salarySchedules,
   }));
   for (const event of model.events) {
@@ -67,6 +68,16 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   }
   for (const schedule of model.salarySchedules) {
     add(`/calendar/salaries/${schedule.year}/`, salarySchedulePage(schedule));
+  }
+  const qualifiedSchoolCalendars = model.schoolCalendars.filter((calendar) =>
+    calendar && /^[a-z0-9-]+$/.test(String(calendar.slug || "")) &&
+    calendar.titleAr && calendar.academicYear && calendar.regionNameAr &&
+    calendar.sourceName && calendar.sourceUrl && calendar.verifiedAt &&
+    Array.isArray(calendar.events) && calendar.events.length >= 2,
+  );
+  add("/calendar/schools/", schoolCalendarsIndexPage(qualifiedSchoolCalendars), qualifiedSchoolCalendars.length > 0);
+  for (const schoolCalendar of qualifiedSchoolCalendars) {
+    add(`/calendar/schools/${schoolCalendar.slug}/`, schoolCalendarPage(schoolCalendar));
   }
   add("/prayer-times/", prayerTimesIndexPage(model.cities));
   add("/benefits/", benefitsIndexPage(model.benefits));
@@ -209,6 +220,7 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     dynamicPrayerPages: prayerPaths.length,
     statisticsPages: 1 + qualifiedStatistics.length,
     newsPages: 1 + qualifiedNews.length + model.regions.filter((region) => qualifiedNews.filter((item) => item.regionSlug === region.slug).length >= 2).length,
+    schoolCalendarPages: 1 + qualifiedSchoolCalendars.length,
     totalIndexableUrls: indexablePaths.length,
     sitemapFileCount: sitemapBundle.files.length || 1,
     sitemapShards: sitemapBundle.files.map((file) => ({ path: file.path, urlCount: file.urlCount })),
