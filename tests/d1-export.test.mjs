@@ -116,7 +116,7 @@ async function fixture() {
   return root;
 }
 
-test("builds a transactional D1 seed from places and reference datasets", async (t) => {
+test("builds a D1 seed from places and reference datasets without nested transaction statements", async (t) => {
   const root = await fixture();
   t.after(() => fs.rm(root, { recursive: true, force: true }));
 
@@ -132,8 +132,7 @@ test("builds a transactional D1 seed from places and reference datasets", async 
   assert.equal(result.counts.pageRegistry, 6);
 
   assert.match(result.sql, /^-- Saudi Guide D1 snapshot export/m);
-  assert.match(result.sql, /BEGIN TRANSACTION;/);
-  assert.match(result.sql, /COMMIT;/);
+  assert.doesNotMatch(result.sql, /BEGIN TRANSACTION|COMMIT;/);
   assert.match(result.sql, /O''Brian Cafe/);
   assert.match(result.sql, /King''s Road/);
   assert.match(result.sql, /'riyadh:node-123-cafe'/);
