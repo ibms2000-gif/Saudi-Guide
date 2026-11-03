@@ -176,7 +176,6 @@ export async function buildD1SeedSql({ root = ROOT, generatedAt = new Date().toI
     "-- Source place data: OpenStreetMap contributors, ODbL 1.0",
     "-- This file replaces the imported snapshot inside one transaction.",
     "PRAGMA foreign_keys = ON;",
-    "BEGIN TRANSACTION;",
     "DELETE FROM page_registry;",
     "DELETE FROM places;",
     "DELETE FROM reference_records;",
@@ -337,7 +336,6 @@ export async function buildD1SeedSql({ root = ROOT, generatedAt = new Date().toI
     sql(importId), sql(process.env.GITHUB_SHA || null), sql(generatedAt), json(counts), sql(snapshotSha),
   ]));
 
-  lines.push("COMMIT;");
   lines.push("");
   return {
     sql: lines.join("\n"),
