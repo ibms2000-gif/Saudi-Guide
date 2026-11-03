@@ -96,7 +96,7 @@ function eventCard(event, now) {
   </li>`;
 }
 
-export function calendarHomePage({ events = [], salarySchedules = [], now = new Date() }) {
+export function calendarHomePage({ events = [], schoolCalendars = [], salarySchedules = [], now = new Date() }) {
   const cards = events
     .filter((event) => event.kind === "fixed-annual" && event.status === "official")
     .map((event) => eventCard(event, now))
@@ -130,6 +130,12 @@ export function calendarHomePage({ events = [], salarySchedules = [], now = new 
   <section class="section">
     <h2>الرواتب ومواعيد الصرف</h2>
     ${salarySummary}
+  </section>
+  <section class="section">
+    <h2>التقويم الدراسي والإجازات</h2>
+    ${schoolCalendars.filter(validSchoolCalendar).length
+      ? `<ul class="grid-list">${schoolCalendars.filter(validSchoolCalendar).map((calendar) => `<li><a href="/calendar/schools/${escapeHtml(calendar.slug)}/"><strong>${escapeHtml(calendar.academicYear)}</strong><span>${escapeHtml(calendar.regionNameAr)}</span></a></li>`).join("")}</ul>`
+      : "<p>ستظهر جداول الدراسة والإجازات عند توفر تواريخ موثقة من الجهة التعليمية المختصة.</p>"}
   </section>
   <section class="section">
     <h2>مناسبات نضيف مواعيدها بعد الإعلان الرسمي</h2>
