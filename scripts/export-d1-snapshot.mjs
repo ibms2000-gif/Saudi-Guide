@@ -175,7 +175,6 @@ export async function buildD1SeedSql({ root = ROOT, generatedAt = new Date().toI
     `-- Generated at: ${generatedAt}`,
     "-- Source place data: OpenStreetMap contributors, ODbL 1.0",
     "-- This file replaces the imported snapshot inside one transaction.",
-    "PRAGMA foreign_keys = ON;",
     "DELETE FROM page_registry;",
     "DELETE FROM places;",
     "DELETE FROM reference_records;",
