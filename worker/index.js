@@ -4,6 +4,7 @@ import categoriesData from "../data/categories.json";
 import { isPlacePageIndexable, renderPlacePage } from "../src/lib/place-page.mjs";
 import { prayerTimesPage } from "../src/lib/prayer-times.mjs";
 import { findPlaceByOsmId } from "../src/lib/d1-repository.mjs";
+import { renderSeoConsole, handleSeoConsoleApi } from "./seo-console.mjs";
 
 const CITIES_BY_SLUG = new Map(citiesData.map((city) => [city.slug, city]));
 const CITY_SLUGS = new Set(CITIES_BY_SLUG.keys());
@@ -14,6 +15,26 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const p = url.pathname;
+
+    // لوحة SEO خاصة وتقارير Search Console (تتطلب رمز دخول).
+    if (p === "/seo" || p === "/seo/") {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        return new Response("Method not allowed", { status: 405, headers: { allow: "GET, HEAD" } });
+      }
+      const html = renderSeoConsole();
+      return new Response(request.method === "HEAD" ? null : html, {
+        status: 200,
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "no-store",
+          "x-robots-tag": "noindex, nofollow",
+          "x-content-type-options": "nosniff"
+        }
+      });
+    }
+    if (p === "/api/seo/connection" || p === "/api/seo/report") {
+      return handleSeoConsoleApi(request, env, p);
+    }
 
     // مواقيت الصلاة والشروق والغروب تُحسب عند الطلب وفق إحداثيات المدينة.
     const prayerMatch = p.match(/^\/prayer-times\/([a-z0-9-]+)\/?$/);
