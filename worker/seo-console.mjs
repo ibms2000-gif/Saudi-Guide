@@ -2,7 +2,7 @@
 // Credentials are read only from Cloudflare Worker secrets and never returned to clients.
 const GOOGLE_SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
-const GOOGLE_API_ROOT = "https://searchconsole.googleapis.com/webmasters/v3";
+const GOOGLE_API_ROOT = "https://www.googleapis.com/webmasters/v3";
 
 const encoder = new TextEncoder();
 
