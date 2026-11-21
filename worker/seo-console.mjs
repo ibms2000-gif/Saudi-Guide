@@ -139,6 +139,92 @@ function totalMetrics(rows) {
   };
 }
 
+
+async function getSitemapDiagnostics(request, env) {
+  const connection = await getSearchConsoleConnection(request, env);
+  if (!connection.property) {
+    return { propertyFound: false, requestedProperty: connection.requestedProperty, availableProperties: connection.sites };
+  }
+  const endpoint = GOOGLE_API_ROOT + "/sites/" + encodeURIComponent(connection.property.siteUrl) + "/sitemaps";
+  const payload = await googleApi(endpoint, connection.accessToken);
+  const sitemaps = Array.isArray(payload.sitemap) ? payload.sitemap : [];
+  return {
+    property: connection.property.siteUrl,
+    permissionLevel: connection.property.permissionLevel,
+    sitemapCount: sitemaps.length,
+    sitemaps: sitemaps.map((item) => ({
+      path: item.path || "",
+      type: item.type || "",
+      isPending: Boolean(item.isPending),
+      isSitemapsIndex: Boolean(item.isSitemapsIndex),
+      lastSubmitted: item.lastSubmitted || null,
+      lastDownloaded: item.lastDownloaded || null,
+      warnings: Number(item.warnings || 0),
+      errors: Number(item.errors || 0),
+      contents: (Array.isArray(item.contents) ? item.contents : []).map((content) => ({
+        type: content.type || "",
+        submitted: Number(content.submitted || 0),
+        indexed: Number(content.indexed || 0)
+      }))
+    }))
+  };
+}
+
+async function inspectIndexUrl(connection, inspectionUrl) {
+  const response = await googleApi(
+    "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+    connection.accessToken,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ inspectionUrl, siteUrl: connection.property.siteUrl, languageCode: "ar-SA" })
+    }
+  );
+  const status = response.inspectionResult?.indexStatusResult || {};
+  return {
+    url: inspectionUrl,
+    verdict: status.verdict || "UNKNOWN",
+    coverageState: status.coverageState || "",
+    robotsTxtState: status.robotsTxtState || "",
+    indexingState: status.indexingState || "",
+    pageFetchState: status.pageFetchState || "",
+    lastCrawlTime: status.lastCrawlTime || null,
+    googleCanonical: status.googleCanonical || "",
+    userCanonical: status.userCanonical || "",
+    sitemap: Array.isArray(status.sitemap) ? status.sitemap : [],
+    referringUrls: Array.isArray(status.referringUrls) ? status.referringUrls.slice(0, 5) : []
+  };
+}
+
+async function getIndexDiagnostics(request, env) {
+  const connection = await getSearchConsoleConnection(request, env);
+  if (!connection.property) {
+    return { propertyFound: false, requestedProperty: connection.requestedProperty, availableProperties: connection.sites };
+  }
+  const base = connection.property.siteUrl.endsWith("/") ? connection.property.siteUrl : connection.property.siteUrl + "/";
+  const urls = [
+    base,
+    base + "regions/",
+    base + "categories/",
+    base + "city/riyadh/",
+    base + "city/jeddah/"
+  ];
+  const inspections = [];
+  for (const url of urls) {
+    try {
+      inspections.push(await inspectIndexUrl(connection, url));
+    } catch (error) {
+      inspections.push({ url, verdict: "INSPECTION_ERROR", error: String(error?.message || "تعذر فحص العنوان").slice(0, 300) });
+    }
+  }
+  return {
+    property: connection.property.siteUrl,
+    permissionLevel: connection.property.permissionLevel,
+    inspectionCount: inspections.length,
+    inspections
+  };
+}
+
 async function getSearchConsoleReport(request, env) {
   const connection = await getSearchConsoleConnection(request, env);
   if (!connection.property) {
@@ -238,6 +324,12 @@ export async function handleSeoConsoleApi(request, env, pathname) {
   }
 
   try {
+    if (pathname === "/api/seo/sitemaps") {
+      return jsonResponse(await getSitemapDiagnostics(request, env));
+    }
+    if (pathname === "/api/seo/indexing") {
+      return jsonResponse(await getIndexDiagnostics(request, env));
+    }
     if (pathname === "/api/seo/connection") {
       const connection = await getSearchConsoleConnection(request, env);
       return jsonResponse({
@@ -293,6 +385,12 @@ button.secondary{background:#eaf0f4;color:var(--ink);margin-right:8px}.status{pa
 </section>
 <section id="report" class="hidden">
 <div class="card"><h2>ملخص الأداء</h2><p id="property" class="sub"></p><div id="range" class="note"></div><div class="stats" id="stats"></div></div>
+<section class="card">
+<h2>تشخيص الفهرسة وخرائط الموقع</h2>
+<p class="note">يفحص حالة خريطة الموقع المسجلة لدى Google وخمس صفحات أساسية في فهرسها. لا يرسل طلبات فهرسة ولا يغيّر إعدادات Google.</p>
+<button id="diagnose" type="button">فحص الفهرسة وخرائط الموقع</button>
+<div id="diagnostics" class="hidden" style="margin-top:14px"></div>
+</section>
 <div class="grid">
 <section class="card"><h2>أهم كلمات البحث</h2><div class="table-wrap"><table><thead><tr><th>الكلمة</th><th>النقرات</th><th>الظهور</th><th>الموضع</th></tr></thead><tbody id="queries"></tbody></table></div></section>
 <section class="card"><h2>أفضل الصفحات</h2><div class="table-wrap"><table><thead><tr><th>الصفحة</th><th>النقرات</th><th>الظهور</th><th>الموضع</th></tr></thead><tbody id="pages"></tbody></table></div></section>
@@ -310,6 +408,63 @@ function setStatus(message,isError=false){statusBox.textContent=message;statusBo
 function cell(value,cls=""){const td=document.createElement("td");td.textContent=value; if(cls)td.className=cls;return td}
 function fillTable(id,rows,key){const body=document.getElementById(id);body.replaceChildren();for(const r of rows||[]){const tr=document.createElement("tr");let label=r[key]||"";tr.append(cell(label));tr.append(cell(fmt.format(r.clicks),"num"));tr.append(cell(fmt.format(r.impressions),"num"));tr.append(cell(Number(r.position||0).toFixed(1),"num"));body.append(tr)}if(!rows||!rows.length){const tr=document.createElement("tr");const td=cell("لا توجد بيانات متاحة في هذه الفترة");td.colSpan=4;tr.append(td);body.append(tr)}}
 async function connect(){const token=tokenInput.value.trim();if(!token){setStatus("أدخل رمز الدخول أولًا.",true);return}sessionStorage.setItem("sgSeoToken",token);setStatus("جارٍ الاتصال بـ Google Search Console…");document.getElementById("connect").disabled=true;try{const res=await fetch("/api/seo/report",{headers:{Authorization:"Bearer "+token}});const data=await res.json();if(!res.ok||data.connected===false)throw new Error(data.error||"تعذر الاتصال.");if(!data.propertyFound){setStatus("تم توثيق حساب الخدمة، لكن الخاصية المطلوبة غير موجودة ضمن صلاحياته. راجع الخاصية المعروضة.",true);document.getElementById("property").textContent="الخاصية المطلوبة: "+data.requestedProperty+" · الخصائص المتاحة: "+(data.availableProperties||[]).map(x=>x.siteUrl).join("، ");reportBox.classList.remove("hidden");return}document.getElementById("property").textContent="الخاصية: "+data.property+" · صلاحية الحساب: "+data.permissionLevel;document.getElementById("range").textContent="الفترة: "+data.dateRange.startDate+" إلى "+data.dateRange.endDate;const s=data.summary||{};document.getElementById("stats").replaceChildren();[["النقرات",fmt.format(s.clicks)],["مرات الظهور",fmt.format(s.impressions)],["معدل النقر",pct(s.ctr)],["متوسط الموضع",Number(s.position||0).toFixed(1)]].forEach(([label,value])=>{const div=document.createElement("div");div.className="stat";const span=document.createElement("span");span.textContent=label;const strong=document.createElement("strong");strong.textContent=value;div.append(span,strong);document.getElementById("stats").append(div)});fillTable("queries",data.topQueries,"query");fillTable("pages",data.topPages,"page");reportBox.classList.remove("hidden");setStatus("تم الاتصال بنجاح وقراءة تقارير Search Console.");}catch(e){reportBox.classList.add("hidden");setStatus(e.message||"حدث خطأ غير معروف.",true)}finally{document.getElementById("connect").disabled=false}}
+
+async function runDiagnostics(){
+ const token=tokenInput.value.trim()||sessionStorage.getItem("sgSeoToken")||"";
+ if(!token){setStatus("أدخل رمز دخول لوحة SEO أولًا.",true);return}
+ sessionStorage.setItem("sgSeoToken",token);
+ const button=document.getElementById("diagnose");
+ const target=document.getElementById("diagnostics");
+ button.disabled=true;target.classList.remove("hidden");target.textContent="جارٍ فحص خرائط الموقع وحالة الصفحات…";
+ try{
+  const headers={Authorization:"Bearer "+token};
+  const [smRes,ixRes]=await Promise.all([
+   fetch("/api/seo/sitemaps",{headers}),
+   fetch("/api/seo/indexing",{headers})
+  ]);
+  const [sm,ix]=await Promise.all([smRes.json(),ixRes.json()]);
+  if(!smRes.ok)throw new Error(sm.error||"تعذر قراءة خرائط الموقع.");
+  if(!ixRes.ok)throw new Error(ix.error||"تعذر فحص حالة الفهرسة.");
+  target.replaceChildren();
+  const title=document.createElement("h3");title.textContent="خرائط الموقع المسجلة في Google";target.append(title);
+  const count=document.createElement("p");count.className="note";count.textContent="عدد الخرائط المسجلة: "+fmt.format(sm.sitemapCount||0);target.append(count);
+  const smTable=document.createElement("table");
+  const smHead=document.createElement("thead");const smHr=document.createElement("tr");
+  ["الخريطة","آخر قراءة","الأخطاء","التحذيرات","الروابط المرسلة / المفهرسة"].forEach(x=>{const th=document.createElement("th");th.textContent=x;smHr.append(th)});smHead.append(smHr);smTable.append(smHead);
+  const smBody=document.createElement("tbody");
+  for(const item of sm.sitemaps||[]){
+   const tr=document.createElement("tr");
+   const loc=cell(item.path);loc.style.direction="ltr";loc.style.textAlign="left";tr.append(loc);
+   tr.append(cell(item.lastDownloaded||"لم تُقرأ بعد"));
+   tr.append(cell(fmt.format(item.errors||0)));
+   tr.append(cell(fmt.format(item.warnings||0)));
+   const sums=(item.contents||[]).map(x=>fmt.format(x.submitted)+" / "+fmt.format(x.indexed)).join(" · ")||"—";
+   tr.append(cell(sums));smBody.append(tr);
+  }
+  if(!(sm.sitemaps||[]).length){const tr=document.createElement("tr");const td=cell("لا توجد خريطة مسجلة عبر Search Console API. تحقق من تقرير Sitemaps أو أرسل /sitemap.xml.");td.colSpan=5;tr.append(td);smBody.append(tr)}
+  smTable.append(smBody);const smWrap=document.createElement("div");smWrap.className="table-wrap";smWrap.append(smTable);target.append(smWrap);
+  const ixTitle=document.createElement("h3");ixTitle.textContent="فحص الصفحات الأساسية في فهرس Google";ixTitle.style.marginTop="24px";target.append(ixTitle);
+  const ixTable=document.createElement("table");
+  const ixHead=document.createElement("thead");const ixHr=document.createElement("tr");
+  ["العنوان","النتيجة","حالة التغطية","آخر زحف","Google canonical"].forEach(x=>{const th=document.createElement("th");th.textContent=x;ixHr.append(th)});ixHead.append(ixHr);ixTable.append(ixHead);
+  const ixBody=document.createElement("tbody");
+  for(const item of ix.inspections||[]){
+   const tr=document.createElement("tr");
+   const u=cell(item.url);u.style.direction="ltr";u.style.textAlign="left";tr.append(u);
+   tr.append(cell(item.verdict||"—"));
+   tr.append(cell(item.coverageState||item.error||"—"));
+   tr.append(cell(item.lastCrawlTime||"لم يزحف بعد / غير متاح"));
+   const can=cell(item.googleCanonical||"—");can.style.direction="ltr";can.style.textAlign="left";tr.append(can);
+   ixBody.append(tr);
+  }
+  ixTable.append(ixBody);const ixWrap=document.createElement("div");ixWrap.className="table-wrap";ixWrap.style.marginTop="12px";ixWrap.append(ixTable);target.append(ixWrap);
+  const note=document.createElement("p");note.className="note";note.textContent="فحص URL Inspection يقرأ النسخة المعروفة لدى Google، وليس اختبارًا مباشرًا لقابلية فهرسة الصفحة الآن.";target.append(note);
+  setStatus("اكتمل تشخيص خرائط الموقع وفحص خمس صفحات.");
+ }catch(e){target.textContent=e.message||"حدث خطأ أثناء التشخيص.";setStatus(e.message||"تعذر إكمال التشخيص.",true)}
+ finally{button.disabled=false}
+}
+document.getElementById("diagnose").addEventListener("click",runDiagnostics);
+
 document.getElementById("connect").addEventListener("click",connect);
 document.getElementById("clear").addEventListener("click",()=>{tokenInput.value="";sessionStorage.removeItem("sgSeoToken");reportBox.classList.add("hidden");setStatus("تم مسح رمز الدخول من جلسة المتصفح.")});
 tokenInput.value=sessionStorage.getItem("sgSeoToken")||"";
