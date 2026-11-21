@@ -22,6 +22,7 @@ export function renderPage({ title, description, canonicalPath, body, noindex = 
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google-site-verification" content="raSrNHfugTZ0xhqJ4B8AQ6noOd3hyphJHTNKtmoQ9q4" />
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}">
 <link rel="canonical" href="${canonical}">
