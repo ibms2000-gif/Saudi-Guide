@@ -32,7 +32,7 @@ export default {
         }
       });
     }
-    if (p === "/api/seo/connection" || p === "/api/seo/report") {
+    if (["/api/seo/connection", "/api/seo/report", "/api/seo/sitemaps", "/api/seo/indexing"].includes(p)) {
       return handleSeoConsoleApi(request, env, p);
     }
 
