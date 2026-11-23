@@ -35,9 +35,11 @@ test("حاسبة القسط تدعم التمويل دون فائدة", () => {
 });
 
 test("حاسبة تكلفة الوقود تحسب اللترات والتكلفة", () => {
-  assert.deepEqual(values(calculateTool("fuel-cost-calculator", {
+  const result = calculateTool("fuel-cost-calculator", {
     distance: "300", efficiency: "8", rate: "2.18"
-  })), [24, 52.32]);
+  });
+  assert.equal(result[0].value, 24);
+  assert.ok(Math.abs(result[1].value - 52.32) < 1e-9);
 });
 
 test("حاسبة العمر تحسب السنوات والأشهر والأيام", () => {
