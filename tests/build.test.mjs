@@ -175,6 +175,7 @@ async function makeFixtureRoot() {
   await fs.cp(path.join(REPO_ROOT, "src/styles/site.css"), path.join(root, "src/styles/site.css"));
   await fs.cp(path.join(REPO_ROOT, "src/client/app.js"), path.join(root, "src/client/app.js"));
   await fs.cp(path.join(REPO_ROOT, "src/client/tools.js"), path.join(root, "src/client/tools.js"));
+  await fs.cp(path.join(REPO_ROOT, "src/lib/tool-calculations.mjs"), path.join(root, "src/lib/tool-calculations.mjs"));
 
   return root;
 }
@@ -194,11 +195,15 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(toolsIndex, /حاسبة ضريبة القيمة المضافة/);
   const vatTool = await fs.readFile(path.join(dist, "tools/vat-calculator/index.html"), "utf8");
   assert.match(vatTool, /data-tool-calculator="vat-calculator"/);
+  assert.match(vatTool, /name="mode"/);
+  assert.match(vatTool, /type="module" src="\\/tools.js"/);
   assert.match(vatTool, /tools.js/);
   const installmentTool = await fs.readFile(path.join(dist, "tools/installment-calculator/index.html"), "utf8");
   assert.match(installmentTool, /معدل النسبة السنوي/);
   const toolsScript = await fs.readFile(path.join(dist, "tools.js"), "utf8");
-  assert.match(toolsScript, /debt-ratio-calculator/);
+  assert.match(toolsScript, /calculateTool/);
+  const calculationsScript = await fs.readFile(path.join(dist, "tool-calculations.mjs"), "utf8");
+  assert.match(calculationsScript, /debt-ratio-calculator/);
 
   // الصفحة الرئيسية موجودة
   const home = await fs.readFile(path.join(dist, "index.html"), "utf8");
@@ -301,6 +306,9 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(sitemap, /statistics\/population-test\//);
   assert.match(sitemap, /news\/test-region-first\//);
   assert.match(sitemap, /news\/region\/test-region\//);
+  assert.match(sitemap, /tools\//);
+  assert.match(sitemap, /tools\/vat-calculator\//);
+  assert.match(sitemap, /tools\/debt-ratio-calculator\//);
   assert.ok(report.indexablePlacePages >= 1);
 
   // Thin city pages remain available for navigation but are explicitly noindex.
