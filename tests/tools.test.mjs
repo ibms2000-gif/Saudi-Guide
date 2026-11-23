@@ -159,3 +159,120 @@ test("تُرفض مدخلات الأدوات الجديدة غير المنطق�
   assert.throws(() => calculateTool("savings-planner", { target: "1000", saved: "-1", months: "12" }));
   assert.throws(() => calculateTool("unit-price-comparison", { priceA: "10", quantityA: "0", priceB: "12", quantityB: "2" }));
 });
+
+test("مكافأة نهاية الخدمة تحسب نصف شهر لأول خمس سنوات وشهرًا بعدها", () => {
+  const result = calculateTool("end-of-service-calculator", {
+    wage: "8000", startDate: "2020-01-01", endDate: "2026-01-01", reason: "normal"
+  });
+  assert.equal(result[0].value, "6 سنة و0 شهر و0 يوم");
+  assert.equal(result[1].value, 28000);
+  assert.equal(result[3].value, 28000);
+});
+
+test("مكافأة نهاية الخدمة تطبق نسب الاستقالة النظامية", () => {
+  const result = calculateTool("end-of-service-calculator", {
+    wage: "6000", startDate: "2021-01-01", endDate: "2025-01-01", reason: "resignation"
+  });
+  assert.equal(result[1].value, 12000);
+  assert.equal(result[2].value, 100 / 3);
+  assert.equal(result[3].value, 4000);
+  const underTwoYears = calculateTool("end-of-service-calculator", {
+    wage: "6000", startDate: "2024-01-01", endDate: "2025-12-31", reason: "resignation"
+  });
+  assert.equal(underTwoYears[3].value, 0);
+});
+
+test("مكافأة نهاية الخدمة تحتسب أجزاء السنة بالتناسب", () => {
+  const result = calculateTool("end-of-service-calculator", {
+    wage: "6000", startDate: "2024-01-01", endDate: "2025-07-01", reason: "normal"
+  });
+  assert.equal(result[0].value, "1 سنة و6 شهر و0 يوم");
+  assert.equal(result[3].value, 4500);
+});
+
+test("العمل الإضافي يجمع أجر الساعة الفعلي مع نصف أجر الساعة الأساسي", () => {
+  const result = calculateTool("overtime-calculator", {
+    actualWage: "6000", basicWage: "4000", hours: "3"
+  });
+  assert.equal(result[0].value, 25);
+  assert.ok(Math.abs(result[1].value - 16.6666666667 * 0.5) < 1e-9);
+  assert.ok(Math.abs(result[3].value - 100) < 1e-9);
+});
+
+test("الإجازة السنوية تتدرج من 21 إلى 30 يومًا بعد خمس سنوات", () => {
+  const result = calculateTool("annual-leave-calculator", {
+    startDate: "2020-01-01", asOfDate: "2026-01-01", usedDays: "110", wage: "6000"
+  });
+  assert.equal(result[1].value, 135);
+  assert.equal(result[2].value, 25);
+  assert.equal(result[3].value, 5000);
+});
+
+test("الإجازة المرضية توزع الأجر على شرائح 30 و60 و30 يومًا", () => {
+  const result = calculateTool("sick-leave-calculator", {
+    wage: "6000", days: "100"
+  });
+  assert.equal(result[0].value, 30);
+  assert.equal(result[1].value, 60);
+  assert.equal(result[2].value, 10);
+  assert.equal(result[3].value, 4800);
+});
+
+test("استقطاع التأمينات يميز بين النظام الجديد والسابق وغير السعودي", () => {
+  const current = calculateTool("gosi-deduction-calculator", {
+    insuredWage: "8000", scheme: "new"
+  });
+  assert.equal(current[1].value, 10.75);
+  assert.equal(current[2].value, 860);
+  const legacy = calculateTool("gosi-deduction-calculator", {
+    insuredWage: "8000", scheme: "legacy"
+  });
+  assert.equal(legacy[2].value, 780);
+  const nonSaudi = calculateTool("gosi-deduction-calculator", {
+    insuredWage: "8000", scheme: "non-saudi"
+  });
+  assert.equal(nonSaudi[2].value, 0);
+});
+
+test("حاسبة زيادة الراتب تعرض الراتب الجديد والزيادة السنوية", () => {
+  const result = calculateTool("salary-increase-calculator", {
+    salary: "10000", rate: "5"
+  });
+  assert.equal(result[0].value, 500);
+  assert.equal(result[1].value, 10500);
+  assert.equal(result[2].value, 6000);
+});
+
+test("تحويل الراتب الشهري إلى يومي وساعي يستخدم قسمة 30 ثم 8", () => {
+  const result = calculateTool("wage-hour-converter", { monthlyWage: "6000" });
+  assert.equal(result[0].value, 200);
+  assert.equal(result[1].value, 25);
+});
+
+test("تعويض مهلة الإشعار يحسب الأيام غير المنفذة بحسب الطرف", () => {
+  const result = calculateTool("notice-compensation-calculator", {
+    monthlyWage: "6000", party: "employer", servedDays: "20"
+  });
+  assert.equal(result[0].value, 60);
+  assert.equal(result[1].value, 40);
+  assert.equal(result[2].value, 8000);
+});
+
+test("ترفض حاسبات العمل والرواتب المدخلات المخالفة للحدود", () => {
+  assert.throws(() => calculateTool("end-of-service-calculator", {
+    wage: "5000", startDate: "2025-01-01", endDate: "2024-01-01", reason: "normal"
+  }));
+  assert.throws(() => calculateTool("overtime-calculator", {
+    actualWage: "4000", basicWage: "5000", hours: "2"
+  }));
+  assert.throws(() => calculateTool("annual-leave-calculator", {
+    startDate: "2020-01-01", asOfDate: "2021-01-01", usedDays: "22", wage: "5000"
+  }));
+  assert.throws(() => calculateTool("sick-leave-calculator", { wage: "5000", days: "121" }));
+  assert.throws(() => calculateTool("gosi-deduction-calculator", { insuredWage: "50000", scheme: "new" }));
+  assert.throws(() => calculateTool("salary-increase-calculator", { salary: "0", rate: "5" }));
+  assert.throws(() => calculateTool("wage-hour-converter", { monthlyWage: "-1" }));
+  assert.throws(() => calculateTool("notice-compensation-calculator", {
+    monthlyWage: "5000", party: "other", servedDays: "0"
+  }));
+});
