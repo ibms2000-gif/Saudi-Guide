@@ -205,9 +205,9 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(toolsScript, /calculateTool/);
   const calculationsScript = await fs.readFile(path.join(dist, "tool-calculations.mjs"), "utf8");
   assert.match(calculationsScript, /debt-ratio-calculator/);
-  assert.match(sitemap, /tools\\/date-addition\\//);
-  assert.match(sitemap, /tools\\/tile-calculator\\//);
-  assert.match(sitemap, /tools\\/appliance-energy-calculator\\//);
+  assert.match(sitemap, /tools\/date-addition\//);
+  assert.match(sitemap, /tools\/tile-calculator\//);
+  assert.match(sitemap, /tools\/appliance-energy-calculator\//);
 
   // الصفحة الرئيسية موجودة
   const home = await fs.readFile(path.join(dist, "index.html"), "utf8");
