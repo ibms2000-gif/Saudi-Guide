@@ -16,6 +16,14 @@ const categories = [
     osmQueries: ["amenity=restaurant"],
     subcategories: [{ slug: "coffee", nameAr: "قهوة", match: { amenity: ["cafe"] } }],
   },
+  {
+    slug: "health",
+    nameAr: "صحة",
+    singularAr: "مرفق صحي",
+    minForPage: 4,
+    osmQueries: ["amenity=clinic"],
+    subcategories: [],
+  },
 ];
 
 function place(i, extra = {}) {
@@ -62,4 +70,52 @@ test("nationalByCategory يضم فقط المدن التي لديها صفحة �
   placesByCity["test-city"].push(place(2), place(3), place(4));
   const richModel = buildModel({ regions, cities, categories, placesByCity, meta: null });
   assert.deepEqual(richModel.nationalByCategory.restaurants.map((c) => c.slug), ["test-city"]);
+});
+
+
+test("لا ينشئ صفحات أحياء إلا عند وجود 8 أماكن في قسمين على الأقل", () => {
+  const items = [
+    ...Array.from({ length: 4 }, (_, i) => place(i + 1, { neighbourhood: "حي النرجس" })),
+    ...Array.from({ length: 4 }, (_, i) => place(i + 5, { categorySlug: "health", neighbourhood: "حي النرجس" })),
+  ];
+  const model = buildModel({
+    regions, cities, categories,
+    placesByCity: { "test-city": items, "empty-city": [] },
+    meta: null,
+  });
+  const city = model.citiesBySlug["test-city"];
+  assert.equal(city.totalNeighbourhoods, 1);
+  assert.equal(city.neighbourhoods[0].indexable, true);
+  assert.equal(city.neighbourhoods[0].totalPlaces, 8);
+  assert.equal(city.neighbourhoods[0].categoryCount, 2);
+  assert.equal(city.neighbourhoods[0].slug, "حي-النرجس");
+});
+
+test("يمنع إنشاء صفحة حي إذا كان العدد أقل من 8 أو كان كله من قسم واحد", () => {
+  const tooFew = [
+    ...Array.from({ length: 3 }, (_, i) => place(i + 1, { neighbourhood: "حي الندى" })),
+    ...Array.from({ length: 4 }, (_, i) => place(i + 4, { categorySlug: "health", neighbourhood: "حي الندى" })),
+  ];
+  const oneCategory = Array.from({ length: 9 }, (_, i) => place(i + 1, { neighbourhood: "حي المروج" }));
+  const model = buildModel({
+    regions, cities, categories,
+    placesByCity: { "test-city": [...tooFew, ...oneCategory], "empty-city": [] },
+    meta: null,
+  });
+  const neighbourhoods = model.citiesBySlug["test-city"].neighbourhoods;
+  assert.equal(neighbourhoods.find((item) => item.slug === "حي-الندى").indexable, false);
+  assert.equal(neighbourhoods.find((item) => item.slug === "حي-المروج").indexable, false);
+  assert.equal(model.citiesBySlug["test-city"].totalNeighbourhoods, 0);
+});
+
+test("يستبعد اسم المدينة من تجميع الأحياء", () => {
+  const items = Array.from({ length: 10 }, (_, i) =>
+    place(i + 1, { categorySlug: i < 5 ? "restaurants" : "health", neighbourhood: "مدينة تجريبية" }),
+  );
+  const model = buildModel({
+    regions, cities, categories,
+    placesByCity: { "test-city": items, "empty-city": [] },
+    meta: null,
+  });
+  assert.equal(model.citiesBySlug["test-city"].neighbourhoods.length, 0);
 });
