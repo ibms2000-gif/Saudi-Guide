@@ -358,7 +358,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   );
   assert.match(benefitPage, /نقطة اختبار/);
   assert.match(benefitPage, /مصدر رسمي/);
-  assert.match(benefitPage, /example.com\\/service/);
+  assert.ok(benefitPage.includes("example.com/service"));
 
   const benefitsHousing = await fs.readFile(path.join(dist, "benefits/housing-support/index.html"), "utf8");
   assert.match(benefitsHousing, /الدعم السكني/);
