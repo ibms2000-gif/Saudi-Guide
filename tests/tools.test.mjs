@@ -174,7 +174,7 @@ test("مكافأة نهاية الخدمة تطبق نسب الاستقالة ا
     wage: "6000", startDate: "2021-01-01", endDate: "2025-01-01", reason: "resignation"
   });
   assert.equal(result[1].value, 12000);
-  assert.equal(result[2].value, 100 / 3);
+  assert.ok(Math.abs(result[2].value - 100 / 3) < 1e-10);
   assert.equal(result[3].value, 4000);
   const underTwoYears = calculateTool("end-of-service-calculator", {
     wage: "6000", startDate: "2024-01-01", endDate: "2025-12-31", reason: "resignation"
