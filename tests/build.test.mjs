@@ -174,6 +174,7 @@ async function makeFixtureRoot() {
   await fs.cp(path.join(REPO_ROOT, "public"), path.join(root, "public"), { recursive: true });
   await fs.cp(path.join(REPO_ROOT, "src/styles/site.css"), path.join(root, "src/styles/site.css"));
   await fs.cp(path.join(REPO_ROOT, "src/client/app.js"), path.join(root, "src/client/app.js"));
+  await fs.cp(path.join(REPO_ROOT, "src/client/tools.js"), path.join(root, "src/client/tools.js"));
 
   return root;
 }
@@ -186,6 +187,18 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   const dist = path.join(root, "dist");
 
   assert.ok(report.totalPages > 0);
+
+  // أدوات وحاسبات الموقع: فهرس وثماني صفحات مستقلة قابلة للفهرسة.
+  const toolsIndex = await fs.readFile(path.join(dist, "tools/index.html"), "utf8");
+  assert.match(toolsIndex, /أدوات وحاسبات مجانية/);
+  assert.match(toolsIndex, /حاسبة ضريبة القيمة المضافة/);
+  const vatTool = await fs.readFile(path.join(dist, "tools/vat-calculator/index.html"), "utf8");
+  assert.match(vatTool, /data-tool-calculator="vat-calculator"/);
+  assert.match(vatTool, /tools.js/);
+  const installmentTool = await fs.readFile(path.join(dist, "tools/installment-calculator/index.html"), "utf8");
+  assert.match(installmentTool, /معدل النسبة السنوي/);
+  const toolsScript = await fs.readFile(path.join(dist, "tools.js"), "utf8");
+  assert.match(toolsScript, /debt-ratio-calculator/);
 
   // الصفحة الرئيسية موجودة
   const home = await fs.readFile(path.join(dist, "index.html"), "utf8");
