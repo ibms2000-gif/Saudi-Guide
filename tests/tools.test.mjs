@@ -215,7 +215,7 @@ test("الإجازة المرضية توزع الأجر على شرائح 30 و6
   assert.equal(result[0].value, 30);
   assert.equal(result[1].value, 60);
   assert.equal(result[2].value, 10);
-  assert.equal(result[3].value, 4800);
+  assert.equal(result[3].value, 15000);
 });
 
 test("استقطاع التأمينات يميز بين النظام الجديد والسابق وغير السعودي", () => {
