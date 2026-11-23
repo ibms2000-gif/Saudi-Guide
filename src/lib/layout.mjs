@@ -48,6 +48,7 @@ ${body}
 </main>
 ${renderFooter()}
 <script src="/app.js" defer></script>
+${canonicalPath.startsWith("/tools/") ? '<script src="/tools.js" defer></script>' : ""}
 </body>
 </html>`;
 }
