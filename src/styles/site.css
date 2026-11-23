@@ -463,3 +463,10 @@ main { display: block; max-width: var(--max); margin: 0 auto; padding: 2.4rem 1.
   font-size: .88rem;
 }
 .city-region-line { margin-bottom: 0; }
+
+
+/* صفحات الأحياء المبنية على وسوم العنوان الموثقة */
+.neighbourhood-list li { min-height: 7rem; }
+.neighbourhood-list a { height: 100%; }
+.neighbourhood-hero .eyebrow { margin-top: 0; }
+.neighbourhood-hero .city-metrics { margin-bottom: .8rem; }
