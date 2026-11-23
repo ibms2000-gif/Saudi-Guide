@@ -415,8 +415,8 @@ main { display: block; max-width: var(--max); margin: 0 auto; padding: 2.4rem 1.
 .tool-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: clamp(1rem, 3vw, 2rem); box-shadow: var(--shadow); max-width: 48rem; }
 .tool-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
 .tool-field { display: flex; flex-direction: column; gap: .35rem; color: var(--ink); font-weight: 600; }
-.tool-field input { width: 100%; min-height: 3rem; border: 1px solid var(--line); border-radius: 10px; padding: .55rem .75rem; background: var(--bg); color: var(--ink); font: inherit; }
-.tool-field input:focus { outline: 2px solid var(--link); outline-offset: 2px; }
+.tool-field input, .tool-field select { width: 100%; min-height: 3rem; border: 1px solid var(--line); border-radius: 10px; padding: .55rem .75rem; background: var(--bg); color: var(--ink); font: inherit; }
+.tool-field input:focus, .tool-field select:focus { outline: 2px solid var(--link); outline-offset: 2px; }
 .tool-submit, .tool-reset { border: 0; border-radius: 10px; padding: .65rem 1.2rem; margin: 1rem .4rem 0 0; font: inherit; font-weight: 700; cursor: pointer; }
 .tool-submit { background: var(--brand); color: var(--brand-ink); }
 .tool-reset { background: var(--bg); color: var(--ink); border: 1px solid var(--line); }

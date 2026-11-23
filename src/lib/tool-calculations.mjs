@@ -186,6 +186,111 @@ export function calculateTool(slug, values, options = {}) {
       ];
     }
 
+
+    case "date-addition": {
+      const start = parseDate(data.date || today, "تاريخ البداية");
+      const days = readNumber(data, "days", "عدد الأيام");
+      const operation = data.operation || "add";
+      if (!Number.isInteger(days) || days < 0 || days > 365000) throw new Error("أدخل عدد أيام صحيحًا بين صفر و365000.");
+      if (operation !== "add" && operation !== "subtract") throw new Error("اختر عملية إضافة أو طرح صحيحة.");
+      const resultDate = new Date(start.date.getTime());
+      resultDate.setUTCDate(resultDate.getUTCDate() + (operation === "add" ? days : -days));
+      if (!Number.isFinite(resultDate.getTime())) throw new Error("التاريخ الناتج خارج النطاق المدعوم.");
+      const isoDate = resultDate.toISOString().slice(0, 10);
+      const weekday = new Intl.DateTimeFormat("ar-SA-u-ca-gregory", { weekday: "long", timeZone: "UTC" }).format(resultDate);
+      return [row("التاريخ الناتج", isoDate, "text"), row("اليوم", weekday, "text")];
+    }
+
+    case "room-area-calculator": {
+      const length = readNumber(data, "length", "الطول");
+      const width = readNumber(data, "width", "العرض");
+      const unit = data.unit || "m";
+      if (length <= 0 || width <= 0 || length > 100000 || width > 100000) throw new Error("أدخل طولًا وعرضًا أكبر من صفر وضمن نطاق معقول.");
+      if (unit !== "m" && unit !== "cm") throw new Error("اختر وحدة قياس صحيحة.");
+      const factor = unit === "cm" ? 0.01 : 1;
+      const area = length * factor * width * factor;
+      return [row("مساحة الغرفة", area, "number", " م²"), row("المساحة بالقدم المربع", area * 10.7639104167, "number", " قدم²")];
+    }
+
+    case "tile-calculator": {
+      const roomLength = readNumber(data, "roomLength", "طول الأرضية");
+      const roomWidth = readNumber(data, "roomWidth", "عرض الأرضية");
+      const tileLength = readNumber(data, "tileLength", "طول البلاطة");
+      const tileWidth = readNumber(data, "tileWidth", "عرض البلاطة");
+      const tilesPerBox = readNumber(data, "tilesPerBox", "عدد البلاطات في الكرتون");
+      const waste = readNumber(data, "waste", "نسبة الهدر");
+      if (roomLength <= 0 || roomWidth <= 0 || tileLength <= 0 || tileWidth <= 0 || !Number.isInteger(tilesPerBox) || tilesPerBox < 1 || tilesPerBox > 1000 || waste < 0 || waste > 30) {
+        throw new Error("تحقق من أبعاد الأرضية والبلاطة وعدد البلاطات في الكرتون ونسبة الهدر (0–30%).");
+      }
+      const floorArea = roomLength * roomWidth;
+      const tileArea = tileLength * tileWidth / 10000;
+      const requiredTiles = Math.ceil(floorArea * (1 + waste / 100) / tileArea);
+      const boxes = Math.ceil(requiredTiles / tilesPerBox);
+      return [row("مساحة الأرضية", floorArea, "number", " م²"), row("عدد البلاطات المطلوب", requiredTiles, "number", " بلاطة"), row("عدد الكراتين المطلوب", boxes, "number", " كرتون"), row("المساحة التي تغطيها الكمية", requiredTiles * tileArea, "number", " م²")];
+    }
+
+    case "paint-calculator": {
+      const width = readNumber(data, "width", "عرض الجدار");
+      const height = readNumber(data, "height", "ارتفاع الجدار");
+      const openings = readNumber(data, "openings", "مساحة الفتحات");
+      const coats = readNumber(data, "coats", "عدد أوجه الدهان");
+      const coverage = readNumber(data, "coverage", "معدل التغطية");
+      const grossArea = width * height;
+      if (width <= 0 || height <= 0 || openings < 0 || openings >= grossArea || !Number.isInteger(coats) || coats < 1 || coats > 10 || coverage <= 0 || coverage > 100) {
+        throw new Error("تحقق من أبعاد الجدار ومساحة الفتحات وعدد الأوجه ومعدل تغطية اللتر.");
+      }
+      const netArea = grossArea - openings;
+      const liters = netArea * coats / coverage;
+      return [row("مساحة الجدار الصافية", netArea, "number", " م²"), row("إجمالي مساحة الدهان لكل الأوجه", netArea * coats, "number", " م²"), row("كمية الدهان التقديرية", liters, "number", " لتر")];
+    }
+
+    case "electricity-cost-calculator": {
+      const consumption = readNumber(data, "consumption", "الاستهلاك الشهري");
+      const rate = readNumber(data, "rate", "سعر الكيلوواط ساعة");
+      if (consumption < 0 || rate < 0) throw new Error("أدخل استهلاكًا وسعرًا غير سالبين.");
+      return [row("الاستهلاك الشهري", consumption, "number", " ك.و.س"), row("تكلفة الاستهلاك التقديرية", consumption * rate, "money")];
+    }
+
+    case "appliance-energy-calculator": {
+      const power = readNumber(data, "power", "قدرة الجهاز");
+      const hours = readNumber(data, "hours", "ساعات التشغيل");
+      const days = readNumber(data, "days", "أيام التشغيل");
+      const rate = readNumber(data, "rate", "سعر الكيلوواط ساعة");
+      if (power <= 0 || hours < 0 || hours > 24 || !Number.isInteger(days) || days < 0 || days > 31 || rate < 0) {
+        throw new Error("تحقق من قدرة الجهاز وساعات التشغيل (0–24) وأيام الاستخدام (0–31) والسعر.");
+      }
+      const dailyKwh = power / 1000 * hours;
+      const monthlyKwh = dailyKwh * days;
+      return [row("الاستهلاك اليومي", dailyKwh, "number", " ك.و.س"), row("الاستهلاك الشهري", monthlyKwh, "number", " ك.و.س"), row("تكلفة التشغيل الشهرية", monthlyKwh * rate, "money")];
+    }
+
+    case "savings-planner": {
+      const target = readNumber(data, "target", "المبلغ المستهدف");
+      const saved = readNumber(data, "saved", "المدخرات الحالية");
+      const months = readNumber(data, "months", "المدة");
+      if (target <= 0 || saved < 0 || !Number.isInteger(months) || months < 1 || months > 1200) {
+        throw new Error("أدخل هدفًا أكبر من صفر ومدخرات غير سالبة ومدة صحيحة من شهر إلى 1200 شهر.");
+      }
+      const remaining = Math.max(0, target - saved);
+      const monthly = remaining / months;
+      return [row("المبلغ المتبقي للوصول إلى الهدف", remaining, "money"), row("الادخار الشهري المطلوب", monthly, "money"), row("الادخار الأسبوعي التقريبي", remaining / (months * 52 / 12), "money"), row("حالة الهدف", remaining === 0 ? "تم بلوغ الهدف أو تجاوزه" : "لم يكتمل الهدف بعد", "text")];
+    }
+
+    case "unit-price-comparison": {
+      const priceA = readNumber(data, "priceA", "سعر المنتج الأول");
+      const quantityA = readNumber(data, "quantityA", "كمية المنتج الأول");
+      const priceB = readNumber(data, "priceB", "سعر المنتج الثاني");
+      const quantityB = readNumber(data, "quantityB", "كمية المنتج الثاني");
+      if (priceA < 0 || priceB < 0 || quantityA <= 0 || quantityB <= 0) throw new Error("أدخل أسعارًا غير سالبة وكميات أكبر من صفر.");
+      const unitA = priceA / quantityA;
+      const unitB = priceB / quantityB;
+      const cheaper = unitA < unitB ? "المنتج الأول" : unitB < unitA ? "المنتج الثاني" : "السعر متساوٍ";
+      const higher = Math.max(unitA, unitB);
+      const lower = Math.min(unitA, unitB);
+      const savingPercent = higher === 0 ? 0 : (higher - lower) / higher * 100;
+      return [row("سعر وحدة المنتج الأول", unitA, "money"), row("سعر وحدة المنتج الثاني", unitB, "money"), row("الأقل تكلفة لكل وحدة", cheaper, "text"), row("فرق التكلفة لكل وحدة", higher - lower, "money"), row("التوفير مقارنة بالأعلى سعرًا", savingPercent, "percent")];
+    }
+
     default:
       throw new Error("هذه الأداة غير معروفة.");
   }

@@ -310,6 +310,9 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(sitemap, /tools\//);
   assert.match(sitemap, /tools\/vat-calculator\//);
   assert.match(sitemap, /tools\/debt-ratio-calculator\//);
+  assert.match(sitemap, /tools\/date-addition\//);
+  assert.match(sitemap, /tools\/tile-calculator\//);
+  assert.match(sitemap, /tools\/appliance-energy-calculator\//);
   assert.ok(report.indexablePlacePages >= 1);
 
   // Thin city pages remain available for navigation but are explicitly noindex.
