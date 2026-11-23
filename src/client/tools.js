@@ -14,6 +14,10 @@
   function row(label, value) {
     return '<div class="tool-result-row"><span>' + label + '</span><strong>' + value + '</strong></div>';
   }
+  function localToday() {
+    var now = new Date();
+    return now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+  }
   function dateValue(value) {
     if (!value) return null;
     var parts = value.split("-").map(Number);
