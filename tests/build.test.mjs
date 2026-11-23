@@ -28,6 +28,14 @@ async function makeFixtureRoot() {
       osmQueries: ["amenity=restaurant", "amenity=cafe"],
       subcategories: [{ slug: "coffee", nameAr: "قهوة", match: { amenity: ["cafe"] } }],
     },
+    {
+      slug: "health",
+      nameAr: "صحة",
+      singularAr: "مرفق صحي",
+      minForPage: 4,
+      osmQueries: ["amenity=clinic"],
+      subcategories: [],
+    },
   ];
   const cities = [
     {
@@ -53,11 +61,15 @@ async function makeFixtureRoot() {
   ];
 
   const richPlaces = [
-    { id: "p1", name: "مطعم واحد", categorySlug: "restaurants", subcategorySlug: null, osmType: "node", osmId: 100, lat: 24, lon: 46, address: "شارع الاختبار", phone: "+966 50 123 4567" },
-    { id: "p2", name: "مطعم اثنان", categorySlug: "restaurants", subcategorySlug: null, lat: 24, lon: 46 },
-    { id: "p3", name: "مقهى واحد", categorySlug: "restaurants", subcategorySlug: "coffee", lat: 24, lon: 46 },
-    { id: "p4", name: "مقهى اثنان", categorySlug: "restaurants", subcategorySlug: "coffee", lat: 24, lon: 46 },
-    { id: "p5", name: "مقهى ثلاثة", categorySlug: "restaurants", subcategorySlug: "coffee", lat: 24, lon: 46 },
+    { id: "p1", name: "مطعم واحد", categorySlug: "restaurants", subcategorySlug: null, osmType: "node", osmId: 100, lat: 24, lon: 46, address: "شارع الاختبار", phone: "+966 50 123 4567", neighbourhood: "حي الاختبار", neighbourhoodSourceTag: "addr:neighbourhood" },
+    { id: "p2", name: "مطعم اثنان", categorySlug: "restaurants", subcategorySlug: null, lat: 24, lon: 46, neighbourhood: "حي الاختبار" },
+    { id: "p3", name: "مقهى واحد", categorySlug: "restaurants", subcategorySlug: "coffee", lat: 24, lon: 46, neighbourhood: "حي الاختبار" },
+    { id: "p4", name: "مقهى اثنان", categorySlug: "restaurants", subcategorySlug: "coffee", lat: 24, lon: 46, neighbourhood: "حي الاختبار" },
+    { id: "p5", name: "مقهى ثلاثة", categorySlug: "restaurants", subcategorySlug: "coffee", lat: 24, lon: 46, neighbourhood: "حي الاختبار" },
+    { id: "s1", name: "عيادة واحد", categorySlug: "health", subcategorySlug: null, lat: 24, lon: 46, neighbourhood: "حي الاختبار" },
+    { id: "s2", name: "عيادة اثنان", categorySlug: "health", subcategorySlug: null, lat: 24, lon: 46, neighbourhood: "حي الاختبار" },
+    { id: "s3", name: "عيادة ثلاثة", categorySlug: "health", subcategorySlug: null, lat: 24, lon: 46, neighbourhood: "حي الاختبار" },
+    { id: "s4", name: "عيادة أربعة", categorySlug: "health", subcategorySlug: null, lat: 24, lon: 46, neighbourhood: "حي الاختبار" },
   ];
   const sparsePlaces = [
     { id: "q1", name: "مطعم فقير أول", categorySlug: "restaurants", subcategorySlug: null, lat: 25, lon: 47 },
@@ -362,6 +374,18 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(cityGuide, /مدينة بلا بيانات كافية/);
   assert.match(cityGuide, /OpenStreetMap/);
   assert.match(cityGuide, /لا تمثل حصرًا رسميًا/);
+  assert.match(cityGuide, /أحياء تستوفي شروط صفحة مستقلة/);
+  assert.match(cityGuide, /حي الاختبار/);
+  assert.ok(cityGuide.includes("/city/city-with-data/neighbourhood/%D8%AD%D9%8A-%D8%A7%D9%84%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1/"));
+  const neighbourhoodPage = await fs.readFile(
+    path.join(dist, "city/city-with-data/neighbourhood", encodeURIComponent("حي الاختبار"), "index.html"),
+    "utf8",
+  );
+  assert.match(neighbourhoodPage, /دليل حي حي الاختبار في مدينة فيها بيانات/);
+  assert.match(neighbourhoodPage, /9 مكانًا/);
+  assert.match(neighbourhoodPage, /مطاعم \(5\)/);
+  assert.match(neighbourhoodPage, /صحة \(4\)/);
+  assert.match(neighbourhoodPage, /عيادة أربعة/);
 
   const calendar = await fs.readFile(path.join(dist, "calendar/index.html"), "utf8");
   assert.match(calendar, /التقويم السعودي/);
@@ -483,6 +507,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.ok(sitemap.includes("/benefits/retirement-pensions/"));
   assert.doesNotMatch(sitemap, /city-without-data\/restaurants/);
   assert.match(sitemap, /city-with-data\/restaurants/);
+  assert.ok(sitemap.includes("/city/city-with-data/neighbourhood/%D8%AD%D9%8A-%D8%A7%D9%84%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1/"));
   assert.match(sitemap, /place\/city-with-data\/node\/100\//);
   assert.match(sitemap, /calendar\//);
   assert.match(sitemap, /calendar\/events\/founding-day\//);
