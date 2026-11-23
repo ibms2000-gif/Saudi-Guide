@@ -13,6 +13,7 @@ import {
   regionPage,
   categoriesIndexPage,
   cityPage,
+  neighbourhoodPage,
   cityCategoryPage,
   cityCategorySubPage,
   categoryNationalPage,
@@ -128,6 +129,14 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   for (const city of model.cities) {
     add(`/city/${city.slug}/`, cityPage(model, city), city.totalPlaces >= 5);
 
+    for (const neighbourhood of city.neighbourhoods || []) {
+      if (!neighbourhood.indexable) continue;
+      add(
+        `/city/${city.slug}/neighbourhood/${encodeURIComponent(neighbourhood.slug)}/`,
+        neighbourhoodPage(model, city, neighbourhood),
+      );
+    }
+
     for (const category of model.categories) {
       const data = city.byCategory[category.slug];
       if (!data.indexable) continue;
@@ -212,6 +221,8 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     dynamicPlacePages: model.cities.reduce((sum, city) => sum + city.places.filter((place) => placePath(city.slug, place)).length, 0),
     indexablePlacePages: placePaths.length,
     dynamicPrayerPages: prayerPaths.length,
+    neighbourhoodPages: model.cities.reduce((sum, city) => sum + (city.totalNeighbourhoods || 0), 0),
+    neighbourhoodsByCity: Object.fromEntries(model.cities.map((city) => [city.slug, city.totalNeighbourhoods || 0]).filter(([, count]) => count > 0)),
     statisticsPages: 1 + qualifiedStatistics.length,
     newsPages: 1 + qualifiedNews.length + model.regions.filter((region) => qualifiedNews.filter((item) => item.regionSlug === region.slug).length >= 2).length,
     totalIndexableUrls: indexablePaths.length,
