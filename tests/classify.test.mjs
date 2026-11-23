@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { classifyElement, placeName } from "../src/lib/classify.mjs";
+import { classifyElement, placeName, extractNeighbourhood } from "../src/lib/classify.mjs";
 
 const categories = [
   {
@@ -57,4 +57,22 @@ test("يقدّم نوع الخدمة المحدد على قاعدة shop=* ال�
   assert.deepEqual(repair, { categorySlug: "services", subcategorySlug: "workshops" });
   const laundry = classifyElement({ shop: "laundry" }, categories);
   assert.deepEqual(laundry, { categorySlug: "services", subcategorySlug: "laundry" });
+});
+
+
+test("يستخرج اسم الحي من وسوم العنوان الصريحة بأولوية الحي ثم الضاحية", () => {
+  assert.deepEqual(
+    extractNeighbourhood({ "addr:neighbourhood": "حي النرجس", "addr:suburb": "شمال الرياض" }, "الرياض"),
+    { name: "حي النرجس", sourceTag: "addr:neighbourhood" },
+  );
+  assert.deepEqual(
+    extractNeighbourhood({ "addr:suburb": "الروضة" }, "الرياض"),
+    { name: "الروضة", sourceTag: "addr:suburb" },
+  );
+});
+
+test("يتجاهل اسم المدينة والقيم العامة ولا يخمّن الحي من الشارع", () => {
+  assert.equal(extractNeighbourhood({ "addr:suburb": "الرياض" }, "الرياض"), null);
+  assert.equal(extractNeighbourhood({ "addr:neighbourhood": "unknown" }, "الرياض"), null);
+  assert.equal(extractNeighbourhood({ "addr:street": "شارع الملك فهد" }, "الرياض"), null);
 });
