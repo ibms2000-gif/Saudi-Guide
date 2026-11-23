@@ -312,8 +312,33 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   const goldZakatTool = await fs.readFile(path.join(dist, "tools/gold-zakat-calculator/index.html"), "utf8");
   assert.match(goldZakatTool, /85 جرامًا/);
   const socialSecurityTool = await fs.readFile(path.join(dist, "tools/social-security-income-calculator/index.html"), "utf8");
-  assert.match(socialSecurityTool, /الحد الأدنى المحتسب للمعاش/);
+  assert.match(socialSecurityTool, /عدد التابعين الإضافيين/);
+  assert.match(socialSecurityTool, /1320/);
   assert.match(socialSecurityTool, /www.hrsd.gov.sa/);
+
+  const sanedTool = await fs.readFile(path.join(dist, "tools/saned-compensation-calculator/index.html"), "utf8");
+  assert.match(sanedTool, /متوسط الأجر الخاضع للاشتراك/);
+  assert.match(sanedTool, /9,000/);
+  assert.match(sanedTool, /beta.gosi.gov.sa/);
+
+  const jobSearchTool = await fs.readFile(path.join(dist, "tools/job-search-subsidy-planner/index.html"), "utf8");
+  assert.match(jobSearchTool, /عدد الدفعات التي سبق صرفها/);
+  assert.match(jobSearchTool, /2,000 ريال/);
+  assert.match(jobSearchTool, /hrdf.org.sa/);
+
+  const retirementTool = await fs.readFile(path.join(dist, "tools/new-retirement-pension-calculator/index.html"), "utf8");
+  assert.match(retirementTool, /2.25%/);
+  assert.match(retirementTool, /100% من متوسط الأجر/);
+  assert.match(retirementTool, /beta.gosi.gov.sa/);
+
+  const maternityTool = await fs.readFile(path.join(dist, "tools/maternity-benefit-calculator/index.html"), "utf8");
+  assert.match(maternityTool, /متوسط الأجر الشهري الخاضع للاشتراك/);
+  assert.match(maternityTool, /أربعة أشهر/);
+  assert.match(maternityTool, /cmsgosi.gosi.gov.sa/);
+
+  const citizenPlannerTool = await fs.readFile(path.join(dist, "tools/citizen-account-budget-calculator/index.html"), "utf8");
+  assert.match(citizenPlannerTool, /مبلغ الدعم الشهري من الحاسبة الرسمية/);
+  assert.match(citizenPlannerTool, /portal.ca.gov.sa/);
   const samaTool = await fs.readFile(path.join(dist, "tools/sama-affordability-calculator/index.html"), "utf8");
   assert.match(samaTool, /33.33%/);
   assert.match(samaTool, /rulebook.sama.gov.sa/);
@@ -477,6 +502,11 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(sitemap, /tools\/sama-affordability-calculator\//);
   assert.match(sitemap, /tools\/finance-amount-from-payment-calculator\//);
   assert.match(sitemap, /tools\/real-estate-purchase-cost-calculator\//);
+  assert.ok(sitemap.includes("/tools/saned-compensation-calculator/"));
+  assert.ok(sitemap.includes("/tools/job-search-subsidy-planner/"));
+  assert.ok(sitemap.includes("/tools/new-retirement-pension-calculator/"));
+  assert.ok(sitemap.includes("/tools/maternity-benefit-calculator/"));
+  assert.ok(sitemap.includes("/tools/citizen-account-budget-calculator/"));
   assert.ok(report.indexablePlacePages >= 1);
 
   // Thin city pages remain available for navigation but are explicitly noindex.

@@ -551,16 +551,120 @@ export function calculateTool(slug, values, options = {}) {
     case "social-security-income-calculator": {
       const earned = readNumber(data, "earned", "الدخل المكتسب");
       const unearned = readNumber(data, "unearned", "الدخل غير المكتسب");
-      const threshold = readNumber(data, "threshold", "الحد الأدنى المحتسب للمعاش");
-      if (earned < 0 || unearned < 0 || threshold <= 0) throw new Error("أدخل دخلًا غير سالب وحدًا أدنى محتسبًا أكبر من صفر.");
+      const basicThreshold = readNumber(data, "basicThreshold", "الحد الأساسي للعائل");
+      const dependents = readNumber(data, "dependents", "عدد التابعين");
+      const dependentIncrease = readNumber(data, "dependentIncrease", "زيادة كل تابع");
+      if (earned < 0 || unearned < 0 || basicThreshold <= 0 ||
+          !Number.isInteger(dependents) || dependents < 0 || dependents > 50 ||
+          dependentIncrease < 0) {
+        throw new Error("أدخل دخلًا غير سالب وحدًا أساسيًا أكبر من صفر وعدد تابعين صحيحًا من 0 إلى 50 وزيادة غير سالبة.");
+      }
       const countedIncome = earned * 0.5 + unearned;
+      const familyIncrease = Math.min(basicThreshold, dependents * dependentIncrease);
+      const threshold = basicThreshold + familyIncrease;
       const estimatedBenefit = Math.max(0, threshold - countedIncome);
       return [
         row("نصف الدخل المكتسب", earned * 0.5, "money"),
-        row("الدخل المحتسب الإجمالي", countedIncome, "money"),
-        row("الحد الأدنى المحتسب المدخل", threshold, "money"),
+        row("الدخل غير المكتسب المحتسب", unearned, "money"),
+        row("إجمالي الدخل المحتسب", countedIncome, "money"),
+        row("الحد الأساسي للعائل", basicThreshold, "money"),
+        row("زيادة التابعين المحتسبة بعد تطبيق السقف", familyIncrease, "money"),
+        row("الحد الأدنى المحتسب للأسرة", threshold, "money"),
         row("فرق المعاش الحسابي التقديري", estimatedBenefit, "money"),
-        row("مقارنة الدخل بالحد المدخل", countedIncome < threshold ? "الدخل المحتسب أقل من الحد المدخل" : "الدخل المحتسب يساوي الحد المدخل أو يتجاوزه", "text"),
+        row("المقارنة الحسابية", countedIncome < threshold ? "الدخل المحتسب أقل من الحد المدخل" : "الدخل المحتسب يساوي الحد المدخل أو يتجاوزه", "text"),
+      ];
+    }
+
+    case "saned-compensation-calculator": {
+      const averageWage = readNumber(data, "averageWage", "متوسط الأجر الخاضع للاشتراك");
+      const month = readNumber(data, "month", "رقم شهر التعويض");
+      const minimumFloor = readNumber(data, "minimumFloor", "الحد الأدنى المقرر إن انطبق");
+      if (averageWage <= 0 || averageWage > 45000 || !Number.isInteger(month) || month < 1 || month > 12 || minimumFloor < 0) {
+        throw new Error("أدخل متوسط أجر أكبر من صفر ولا يتجاوز 45,000 ريال، وشهرًا صحيحًا من 1 إلى 12 وحدًا أدنى غير سالب.");
+      }
+      const rate = month <= 3 ? 60 : 50;
+      const monthlyCap = month <= 3 ? 9000 : 7500;
+      const base = averageWage * rate / 100;
+      const estimated = Math.min(averageWage, monthlyCap, Math.max(base, minimumFloor));
+      return [
+        row("شهر التعويض", month, "number", " من 12"),
+        row("نسبة التعويض الأساسية", rate, "percent"),
+        row("التعويض قبل تطبيق الحد الأعلى أو الأدنى", base, "money"),
+        row("الحد الأعلى الشهري", monthlyCap, "money"),
+        row("الحد الأدنى المدخل (إن أكدته التأمينات)", minimumFloor, "money"),
+        row("التعويض الشهري التقديري", estimated, "money"),
+      ];
+    }
+
+    case "job-search-subsidy-planner": {
+      const paidMonths = readNumber(data, "paidMonths", "عدد الدفعات المصروفة");
+      if (!Number.isInteger(paidMonths) || paidMonths < 0 || paidMonths > 15) {
+        throw new Error("أدخل عدد دفعات صحيحًا من صفر إلى 15.");
+      }
+      const schedule = [
+        ...Array(4).fill(2000),
+        ...Array(4).fill(1500),
+        ...Array(4).fill(1000),
+        ...Array(3).fill(750),
+      ];
+      const paidTotal = schedule.slice(0, paidMonths).reduce((sum, amount) => sum + amount, 0);
+      const remaining = schedule.slice(paidMonths);
+      return [
+        row("عدد الدفعات المصروفة", paidMonths, "number", " دفعة"),
+        row("إجمالي ما صُرف حسب الجدول الأساسي", paidTotal, "money"),
+        row("قيمة الدفعة التالية", remaining[0] ?? 0, "money"),
+        row("عدد الدفعات المتبقية", remaining.length, "number", " دفعة"),
+        row("إجمالي الإعانة المتبقية حسب الجدول", remaining.reduce((sum, amount) => sum + amount, 0), "money"),
+        row("الحالة", remaining.length ? "توجد دفعات متبقية وفق الجدول الأساسي" : "اكتملت الدفعات الخمس عشرة", "text"),
+      ];
+    }
+
+    case "new-retirement-pension-calculator": {
+      const averageWage = readNumber(data, "averageWage", "متوسط الأجر الخاضع للاشتراك");
+      const months = readNumber(data, "months", "أشهر الاشتراك");
+      if (averageWage <= 0 || averageWage > 45000 || !Number.isInteger(months) || months < 1 || months > 1200) {
+        throw new Error("أدخل متوسط أجر أكبر من صفر ولا يتجاوز 45,000 ريال، وعدد أشهر صحيحًا من 1 إلى 1,200.");
+      }
+      const rawPension = 0.0225 * averageWage * months / 12;
+      const estimatedPension = Math.min(averageWage, rawPension);
+      const replacementRate = estimatedPension / averageWage * 100;
+      return [
+        row("مدة الاشتراك المدخلة", months, "number", " شهر"),
+        row("مدة الاشتراك بالسنوات", months / 12, "number", " سنة"),
+        row("نسبة المعاش إلى متوسط الأجر", replacementRate, "percent"),
+        row("المعاش الشهري التقديري", estimatedPension, "money"),
+        row("السقف الحسابي (100% من متوسط الأجر)", averageWage, "money"),
+      ];
+    }
+
+    case "maternity-benefit-calculator": {
+      const averageWage = readNumber(data, "averageWage", "متوسط الأجر الخاضع للاشتراك");
+      const extraMonth = data.extraMonth || "no";
+      if (averageWage <= 0 || averageWage > 45000 || !["yes", "no"].includes(extraMonth)) {
+        throw new Error("أدخل متوسط أجر أكبر من صفر ولا يتجاوز 45,000 ريال واختر حالة الشهر الإضافي.");
+      }
+      const duration = extraMonth === "yes" ? 4 : 3;
+      return [
+        row("التعويض الشهري التقديري (100% من المتوسط)", averageWage, "money"),
+        row("مدة المنفعة", duration, "number", " أشهر"),
+        row("إجمالي منفعة الأمومة التقديري", averageWage * duration, "money"),
+      ];
+    }
+
+    case "citizen-account-budget-calculator": {
+      const monthlySupport = readNumber(data, "monthlySupport", "مبلغ دعم حساب المواطن");
+      const monthlyExpenses = readNumber(data, "monthlyExpenses", "المصروفات الأساسية الشهرية");
+      if (monthlySupport < 0 || monthlyExpenses <= 0) {
+        throw new Error("أدخل دعمًا شهريًا غير سالب ومصروفات أساسية أكبر من صفر.");
+      }
+      const remaining = Math.max(0, monthlyExpenses - monthlySupport);
+      const coverage = monthlySupport / monthlyExpenses * 100;
+      return [
+        row("الدعم الشهري المدخل من الحاسبة الرسمية", monthlySupport, "money"),
+        row("إجمالي الدعم السنوي المخطط", monthlySupport * 12, "money"),
+        row("نسبة تغطية المصروفات الأساسية", coverage, "percent"),
+        row("المصروفات المتبقية بعد الدعم", remaining, "money"),
+        row("الدعم أعلى من المصروفات المدخلة", monthlySupport > monthlyExpenses ? "نعم – الفائض لا يعني دخلًا مضمونًا" : "لا", "text"),
       ];
     }
 
