@@ -64,8 +64,8 @@ export const MIN_NEIGHBOURHOOD_CATEGORIES = 2;
 function neighbourhoodKey(value) {
   return slugify(String(value || "")
     .normalize("NFKC")
-    .replace(/[\\u064B-\\u065F\\u0670\\u0640]/g, "")
-    .replace(/\\s+/g, " ")
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+    .replace(/\s+/g, " ")
     .toLocaleLowerCase("ar"));
 }
 
@@ -74,7 +74,7 @@ function buildNeighbourhoods(places, city) {
   const cityKey = neighbourhoodKey(city.nameAr);
   for (const place of places) {
     if (typeof place?.neighbourhood !== "string") continue;
-    const nameAr = place.neighbourhood.replace(/\\s+/g, " ").trim();
+    const nameAr = place.neighbourhood.replace(/\s+/g, " ").trim();
     const key = neighbourhoodKey(nameAr);
     if (!key || key === cityKey) continue;
     if (!groups.has(key)) groups.set(key, { slug: key, nameAr, places: [], categoryCounts: {} });
