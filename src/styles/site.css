@@ -428,3 +428,38 @@ main { display: block; max-width: var(--max); margin: 0 auto; padding: 2.4rem 1.
 .tool-error { color: #b42318; font-weight: 700; }
 .tool-explainer { max-width: 48rem; }
 .tools-grid li { border-top-color: #4338e0; }
+
+
+/* صفحات المدن: مؤشرات التغطية والروابط المحلية المبنية على البيانات */
+.city-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: .8rem;
+  margin: 1rem 0;
+}
+.city-metric {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.city-metric dt { color: var(--muted); font-size: .88rem; font-weight: 700; }
+.city-metric dd {
+  margin: .15rem 0 0;
+  color: var(--brand);
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+.city-coverage-note {
+  max-width: none;
+  padding: .8rem 1rem;
+  border-inline-start: 4px solid var(--accent);
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: .88rem;
+}
+.city-region-line { margin-bottom: 0; }
