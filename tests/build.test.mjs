@@ -351,6 +351,18 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   const home = await fs.readFile(path.join(dist, "index.html"), "utf8");
   assert.match(home, /دليل/);
 
+  // صفحات المدن تعرض مؤشرات مشتقة من السجلات الفعلية وروابط المنطقة مع توضيح حدود البيانات.
+  const cityGuide = await fs.readFile(path.join(dist, "city/city-with-data/index.html"), "utf8");
+  assert.match(cityGuide, /مؤشرات تغطية الدليل/);
+  assert.match(cityGuide, /أماكن مسجلة في المصدر/);
+  assert.match(cityGuide, /أقسام بلغت حد إنشاء صفحة/);
+  assert.match(cityGuide, /أقسام الأكثر ظهورًا في البيانات/);
+  assert.match(cityGuide, /5 مكان مسجل في البيانات الحالية/);
+  assert.match(cityGuide, /أماكن تتوفر لها تفاصيل إضافية/);
+  assert.match(cityGuide, /مدينة بلا بيانات كافية/);
+  assert.match(cityGuide, /OpenStreetMap/);
+  assert.match(cityGuide, /لا تمثل حصرًا رسميًا/);
+
   const calendar = await fs.readFile(path.join(dist, "calendar/index.html"), "utf8");
   assert.match(calendar, /التقويم السعودي/);
   assert.match(calendar, /يوم التأسيس/);
