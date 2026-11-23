@@ -25,6 +25,42 @@ function parseDate(value, label) {
   return { date, year, month, day };
 }
 
+
+function addCalendarMonths(start, months) {
+  const total = start.year * 12 + (start.month - 1) + months;
+  const year = Math.floor(total / 12);
+  const monthIndex = total % 12;
+  const lastDay = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
+  const day = Math.min(start.day, lastDay);
+  return new Date(Date.UTC(year, monthIndex, day));
+}
+
+function serviceDuration(start, end) {
+  let wholeMonths = (end.year - start.year) * 12 + (end.month - start.month);
+  let cursor = addCalendarMonths(start, wholeMonths);
+  if (cursor > end.date) {
+    wholeMonths -= 1;
+    cursor = addCalendarMonths(start, wholeMonths);
+  }
+  const nextMonth = addCalendarMonths(start, wholeMonths + 1);
+  const remainingDays = (end.date - cursor) / DAY_MS;
+  const partialMonthDays = (nextMonth - cursor) / DAY_MS;
+  const totalYears = (wholeMonths + remainingDays / partialMonthDays) / 12;
+  return {
+    years: Math.floor(wholeMonths / 12),
+    months: wholeMonths % 12,
+    days: remainingDays,
+    totalYears,
+  };
+}
+
+function serviceYearsFromDates(startValue, endValue, today, endLabel = "تاريخ النهاية") {
+  const start = parseDate(startValue, "تاريخ بداية الخدمة");
+  const end = parseDate(endValue || today, endLabel);
+  if (end.date < start.date) throw new Error("تاريخ نهاية الخدمة لا يمكن أن يسبق تاريخ البداية.");
+  return serviceDuration(start, end);
+}
+
 function row(label, value, kind = "number", suffix = "") {
   return { label, value, kind, suffix };
 }
@@ -289,6 +325,167 @@ export function calculateTool(slug, values, options = {}) {
       const lower = Math.min(unitA, unitB);
       const savingPercent = higher === 0 ? 0 : (higher - lower) / higher * 100;
       return [row("سعر وحدة المنتج الأول", unitA, "money"), row("سعر وحدة المنتج الثاني", unitB, "money"), row("الأقل تكلفة لكل وحدة", cheaper, "text"), row("فرق التكلفة لكل وحدة", higher - lower, "money"), row("التوفير مقارنة بالأعلى سعرًا", savingPercent, "percent")];
+    }
+
+
+    case "end-of-service-calculator": {
+      const wage = readNumber(data, "wage", "الأجر الشهري الأخير");
+      if (wage <= 0) throw new Error("أدخل أجرًا شهريًا أكبر من صفر.");
+      const service = serviceYearsFromDates(data.startDate, data.endDate || today, today);
+      const fullAward = wage * (
+        0.5 * Math.min(service.totalYears, 5) +
+        Math.max(service.totalYears - 5, 0)
+      );
+      const reason = data.reason || "normal";
+      let factor = 1;
+      let reasonLabel = "مكافأة كاملة وفق الأساس العام";
+      if (reason === "resignation") {
+        if (service.totalYears < 2) factor = 0;
+        else if (service.totalYears <= 5) factor = 1 / 3;
+        else if (service.totalYears < 10) factor = 2 / 3;
+        reasonLabel = factor === 0 ? "لا تستحق مكافأة الاستقالة قبل إكمال سنتين وفق المادة 85" : "تطبيق شريحة الاستقالة وفق المادة 85";
+      } else if (reason === "exception") {
+        reasonLabel = "كامل المكافأة في الحالة الاستثنائية المحددة بالمادة 87";
+      } else if (reason !== "normal") {
+        throw new Error("اختر سبب انتهاء خدمة صحيحًا.");
+      }
+      return [
+        row("مدة الخدمة", service.years + " سنة و" + service.months + " شهر و" + service.days + " يوم", "text"),
+        row("المكافأة قبل تطبيق حكم الاستقالة", fullAward, "money"),
+        row("نسبة الاستحقاق المطبقة", factor * 100, "percent"),
+        row("المكافأة التقديرية", fullAward * factor, "money"),
+        row("بيان طريقة الاستحقاق", reasonLabel, "text"),
+      ];
+    }
+
+    case "overtime-calculator": {
+      const actualWage = readNumber(data, "actualWage", "الأجر الفعلي");
+      const basicWage = readNumber(data, "basicWage", "الأجر الأساسي");
+      const hours = readNumber(data, "hours", "ساعات العمل الإضافية");
+      if (actualWage <= 0 || basicWage <= 0 || basicWage > actualWage || hours < 0 || hours > 1000) {
+        throw new Error("تحقق من الأجر الفعلي والأساسي (الأساسي لا يتجاوز الفعلي) وعدد الساعات بين صفر و1000.");
+      }
+      const actualHourly = actualWage / 30 / 8;
+      const basicHourly = basicWage / 30 / 8;
+      const overtimeHourly = actualHourly + basicHourly * 0.5;
+      return [
+        row("أجر الساعة من الأجر الفعلي", actualHourly, "money"),
+        row("50% من أجر الساعة الأساسي", basicHourly * 0.5, "money"),
+        row("أجر الساعة الإضافية", overtimeHourly, "money"),
+        row("إجمالي أجر الساعات الإضافية", overtimeHourly * hours, "money"),
+      ];
+    }
+
+    case "annual-leave-calculator": {
+      const wage = readNumber(data, "wage", "الأجر الشهري");
+      const usedDays = readNumber(data, "usedDays", "أيام الإجازة المستخدمة");
+      if (wage <= 0 || usedDays < 0) throw new Error("أدخل أجرًا أكبر من صفر وأيام إجازة مستخدمة غير سالبة.");
+      const service = serviceYearsFromDates(data.startDate, data.asOfDate || today, today, "تاريخ الحساب");
+      const firstFiveYears = Math.min(service.totalYears, 5);
+      const yearsAfterFive = Math.max(service.totalYears - 5, 0);
+      const accrued = firstFiveYears * 21 + yearsAfterFive * 30;
+      if (usedDays > accrued + 1e-9) throw new Error("أيام الإجازة المستخدمة تتجاوز الاستحقاق التقديري المحسوب.");
+      const balance = Math.max(0, accrued - usedDays);
+      return [
+        row("مدة الخدمة المحسوبة", service.years + " سنة و" + service.months + " شهر و" + service.days + " يوم", "text"),
+        row("أيام الإجازة المستحقة تقديريًا", accrued, "number", " يوم"),
+        row("رصيد الإجازة المتبقي", balance, "number", " يوم"),
+        row("قيمة الرصيد التقديرية عند نهاية الخدمة", balance * wage / 30, "money"),
+      ];
+    }
+
+    case "sick-leave-calculator": {
+      const wage = readNumber(data, "wage", "الأجر الشهري");
+      const days = readNumber(data, "days", "أيام الإجازة المرضية");
+      if (wage <= 0 || !Number.isInteger(days) || days < 0 || days > 120) {
+        throw new Error("أدخل أجرًا شهريًا أكبر من صفر وعدد أيام صحيحًا من صفر إلى 120.");
+      }
+      const dailyWage = wage / 30;
+      const fullDays = Math.min(days, 30);
+      const threeQuarterDays = Math.min(Math.max(days - 30, 0), 60);
+      const unpaidDays = Math.min(Math.max(days - 90, 0), 30);
+      const fullPay = fullDays * dailyWage;
+      const partialPay = threeQuarterDays * dailyWage * 0.75;
+      return [
+        row("أيام بأجر كامل", fullDays, "number", " يوم"),
+        row("أيام بثلاثة أرباع الأجر", threeQuarterDays, "number", " يوم"),
+        row("أيام دون أجر", unpaidDays, "number", " يوم"),
+        row("الأجر المستحق خلال الإجازة", fullPay + partialPay, "money"),
+      ];
+    }
+
+    case "gosi-deduction-calculator": {
+      const insuredWage = readNumber(data, "insuredWage", "الأجر الخاضع للاشتراك");
+      const scheme = data.scheme || "new";
+      if (insuredWage <= 0 || insuredWage > 45000) {
+        throw new Error("أدخل أجرًا خاضعًا للاشتراك أكبر من صفر ولا يتجاوز 45,000 ريال.");
+      }
+      let employeeRate;
+      let schemeLabel;
+      if (scheme === "new") {
+        employeeRate = 10.75;
+        schemeLabel = "النظام الجديد: 10% معاشات + 0.75% ساند";
+      } else if (scheme === "legacy") {
+        employeeRate = 9.75;
+        schemeLabel = "النظام السابق: 9% معاشات + 0.75% ساند";
+      } else if (scheme === "non-saudi") {
+        employeeRate = 0;
+        schemeLabel = "لا تُخصم حصة الموظف للمعاشات وساند في الحالة القياسية لغير السعودي";
+      } else {
+        throw new Error("اختر فئة اشتراك صحيحة.");
+      }
+      const deduction = insuredWage * employeeRate / 100;
+      return [
+        row("النظام المختار", schemeLabel, "text"),
+        row("نسبة حصة الموظف", employeeRate, "percent"),
+        row("استقطاع الموظف الشهري التقديري", deduction, "money"),
+        row("الأجر بعد هذا الاستقطاع", insuredWage - deduction, "money"),
+      ];
+    }
+
+    case "salary-increase-calculator": {
+      const salary = readNumber(data, "salary", "الراتب الحالي");
+      const rate = readNumber(data, "rate", "نسبة الزيادة");
+      if (salary <= 0 || rate < 0 || rate > 500) {
+        throw new Error("أدخل راتبًا أكبر من صفر ونسبة زيادة بين صفر و500%.");
+      }
+      const increase = salary * rate / 100;
+      const newSalary = salary + increase;
+      return [
+        row("قيمة الزيادة الشهرية", increase, "money"),
+        row("الراتب الشهري الجديد", newSalary, "money"),
+        row("إجمالي الزيادة السنوية", increase * 12, "money"),
+        row("نسبة الزيادة", rate, "percent"),
+      ];
+    }
+
+    case "wage-hour-converter": {
+      const monthlyWage = readNumber(data, "monthlyWage", "الأجر الشهري");
+      if (monthlyWage <= 0) throw new Error("أدخل أجرًا شهريًا أكبر من صفر.");
+      const daily = monthlyWage / 30;
+      return [
+        row("الأجر اليومي التقديري", daily, "money"),
+        row("أجر الساعة التقديري", daily / 8, "money"),
+      ];
+    }
+
+    case "notice-compensation-calculator": {
+      const monthlyWage = readNumber(data, "monthlyWage", "الأجر الشهري");
+      const servedDays = readNumber(data, "servedDays", "أيام الإشعار المنفذة");
+      const party = data.party || "employee";
+      if (monthlyWage <= 0 || !Number.isInteger(servedDays) || servedDays < 0 || servedDays > 60) {
+        throw new Error("أدخل أجرًا شهريًا أكبر من صفر وعدد أيام إشعار صحيحًا من صفر إلى 60.");
+      }
+      let requiredDays;
+      if (party === "employee") requiredDays = 30;
+      else if (party === "employer") requiredDays = 60;
+      else throw new Error("اختر الطرف الذي أنهى العقد.");
+      const remainingDays = Math.max(0, requiredDays - servedDays);
+      return [
+        row("مهلة الإشعار الدنيا", requiredDays, "number", " يوم"),
+        row("الأيام غير المنفذة", remainingDays, "number", " يوم"),
+        row("التعويض التقديري عن المهلة غير المنفذة", monthlyWage / 30 * remainingDays, "money"),
+      ];
     }
 
     default:
