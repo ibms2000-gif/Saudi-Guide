@@ -26,6 +26,7 @@ import { prayerTimesIndexPage } from "../src/lib/prayer-times.mjs";
 import { benefitsIndexPage, benefitDetailPage } from "../src/lib/benefits.mjs";
 import { statisticsIndexPage, statisticDetailPage } from "../src/lib/statistics.mjs";
 import { newsIndexPage, newsRegionPage, newsDetailPage } from "../src/lib/news.mjs";
+import { toolsIndexPage, toolPages } from "../src/lib/tools.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(__dirname, "..");
