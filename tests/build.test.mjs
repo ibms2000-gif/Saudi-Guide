@@ -207,6 +207,8 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(calculationsScript, /debt-ratio-calculator/);
   const eosTool = await fs.readFile(path.join(dist, "tools/end-of-service-calculator/index.html"), "utf8");
   assert.match(eosTool, /name="reason"/);
+  assert.match(eosTool, /المصادر الرسمية/);
+  assert.match(eosTool, /www.hrsd.gov.sa/);
   const overtimeTool = await fs.readFile(path.join(dist, "tools/overtime-calculator/index.html"), "utf8");
   assert.match(overtimeTool, /الأجر الشهري الفعلي/);
   const sickLeaveTool = await fs.readFile(path.join(dist, "tools/sick-leave-calculator/index.html"), "utf8");
