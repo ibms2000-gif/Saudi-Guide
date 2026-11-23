@@ -378,7 +378,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(cityGuide, /حي الاختبار/);
   assert.ok(cityGuide.includes("/city/city-with-data/neighbourhood/%D8%AD%D9%8A-%D8%A7%D9%84%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1/"));
   const neighbourhoodPage = await fs.readFile(
-    path.join(dist, "city/city-with-data/neighbourhood", encodeURIComponent("حي الاختبار"), "index.html"),
+    path.join(dist, "city/city-with-data/neighbourhood", encodeURIComponent("حي-الاختبار"), "index.html"),
     "utf8",
   );
   assert.match(neighbourhoodPage, /دليل حي الاختبار في مدينة فيها بيانات/);
