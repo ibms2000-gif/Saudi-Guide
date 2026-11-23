@@ -5,6 +5,7 @@ import { SITE } from "./config.mjs";
 function placeCard(p, city) {
   const bits = [];
   if (p.address) bits.push(escapeHtml(p.address));
+  if (p.neighbourhood) bits.push(`الحي المسجل: ${escapeHtml(p.neighbourhood)}`);
   if (p.openingHours) bits.push(`ساعات العمل المسجلة: ${escapeHtml(p.openingHours)}`);
 
   // The place name stays on our site; external contact and map links are optional actions.
@@ -195,6 +196,21 @@ export function cityPage(model, city) {
   const regionalSection = regionalItems
     ? `<section class="section"><h2>مدن ومحافظات أخرى في ${escapeHtml(city.regionAr)}</h2><p>روابط إلى مدن أخرى ضمن المنطقة نفسها تتوفر لها سجلات أماكن في الدليل.</p><ul class="grid-list">${regionalItems}</ul></section>`
     : "";
+  const neighbourhoodItems = (city.neighbourhoods || [])
+    .filter((item) => item.indexable)
+    .map((item) => {
+      const categories = Object.entries(item.categoryCounts)
+        .map(([slug, count]) => {
+          const category = model.categoryBySlug[slug];
+          return category ? `${escapeHtml(category.nameAr)} (${count})` : `${count} مكان`;
+        })
+        .join(" · ");
+      return `<li><a href="/city/${city.slug}/neighbourhood/${encodeURIComponent(item.slug)}/"><strong>${escapeHtml(item.nameAr)}</strong><span>${item.totalPlaces} مكانًا في ${item.categoryCount} أقسام · ${categories}</span></a></li>`;
+    })
+    .join("");
+  const neighbourhoodSection = neighbourhoodItems
+    ? `<section class="section"><h2>أحياء تتوفر لها بيانات كافية</h2><p>تُنشأ صفحة الحي عند توفر 8 أماكن مسجلة على الأقل موزعة على قسمين مختلفين، باستخدام اسم الحي المصرح به في وسوم العنوان لدى OpenStreetMap.</p><ul class="grid-list neighbourhood-list">${neighbourhoodItems}</ul></section>`
+    : `<section class="section"><h2>الأحياء</h2><p>لا تتوفر حاليًا سجلات أحياء تستوفي معايير النشر لهذه المدينة. لا نستنتج أسماء الأحياء من أسماء الشوارع أو الإحداثيات؛ ستظهر الصفحات بعد تحديث البيانات عندما تتوفر وسوم حي صريحة وبيانات كافية.</p></section>`;
 
   const body = `
   <section class="hero city-hero">
@@ -208,6 +224,7 @@ export function cityPage(model, city) {
       <div class="city-metric"><dt>أماكن مسجلة في المصدر</dt><dd>${city.totalPlaces}</dd></div>
       <div class="city-metric"><dt>أقسام بلغت حد إنشاء صفحة</dt><dd>${availableCategories.length}</dd></div>
       <div class="city-metric"><dt>أماكن تتوفر لها تفاصيل إضافية</dt><dd>${detailCount}</dd></div>
+      <div class="city-metric"><dt>أحياء تستوفي شروط صفحة مستقلة</dt><dd>${city.totalNeighbourhoods || 0}</dd></div>
     </dl>
     <p class="city-coverage-note">تعكس الأعداد سجلات OpenStreetMap المتاحة في الإصدار الحالي، ولا تمثل حصرًا رسميًا أو قائمة شاملة لكل منشآت المدينة. ${freshness}</p>
   </section>
@@ -217,6 +234,7 @@ export function cityPage(model, city) {
     <p>تُعرض صفحة القسم عندما يبلغ عدد السجلات الحد الأدنى المحدد له؛ أما الأقسام التي لا تبلغ الحد فتظهر حالتها بوضوح دون إنشاء صفحة ضعيفة المحتوى.</p>
     <ul class="grid-list">${catItems}</ul>
   </section>
+  ${neighbourhoodSection}
   ${regionalSection}
   ${dataAttributionNote({ cityNameAr: city.nameAr, fetchedAt })}`;
 
@@ -229,6 +247,52 @@ export function cityPage(model, city) {
       { name: "الرئيسية", path: "/" },
       { name: city.regionAr, path: `/region/${city.regionSlug}/` },
       { name: city.nameAr, path: `/city/${city.slug}/` },
+    ],
+  });
+}
+
+export function neighbourhoodPage(model, city, neighbourhood) {
+  const categorySections = model.categories
+    .map((category) => {
+      const places = neighbourhood.places
+        .filter((place) => place.categorySlug === category.slug)
+        .sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ar"));
+      if (!places.length) return "";
+      const cards = places.map((place) => placeCard(place, city)).join("");
+      return `<section class="section"><h2>${escapeHtml(category.nameAr)} (${places.length})</h2><ul class="place-list">${cards}</ul></section>`;
+    })
+    .filter(Boolean)
+    .join("");
+  const categorySummary = Object.entries(neighbourhood.categoryCounts)
+    .map(([slug, count]) => {
+      const category = model.categoryBySlug[slug];
+      return category ? `${escapeHtml(category.nameAr)}: ${count}` : `أخرى: ${count}`;
+    })
+    .join(" · ");
+  const body = `
+  <section class="hero neighbourhood-hero">
+    <p class="eyebrow"><a href="/city/${city.slug}/">دليل ${escapeHtml(city.nameAr)}</a></p>
+    <h1>دليل ${escapeHtml(neighbourhood.nameAr)} في ${escapeHtml(city.nameAr)}</h1>
+    <p>تضم سجلات الدليل ${neighbourhood.totalPlaces} مكانًا بهذا الاسم ضمن ${neighbourhood.categoryCount} أقسام. هذا العدد يعكس السجلات الموثقة في المصدر المفتوح المتاح، ولا يعني حصرًا رسميًا لكل منشآت الحي.</p>
+    <dl class="city-metrics">
+      <div class="city-metric"><dt>أماكن مسجلة</dt><dd>${neighbourhood.totalPlaces}</dd></div>
+      <div class="city-metric"><dt>أقسام مختلفة</dt><dd>${neighbourhood.categoryCount}</dd></div>
+    </dl>
+    <p class="city-coverage-note">${categorySummary}</p>
+  </section>
+  ${categorySections}
+  ${dataAttributionNote({ cityNameAr: city.nameAr, fetchedAt: model.meta?.cities?.[city.slug]?.fetchedAt || model.meta?.fetchedAt })}
+  <p><a href="/city/${city.slug}/">العودة إلى دليل ${escapeHtml(city.nameAr)}</a></p>`;
+
+  return renderPage({
+    title: `دليل حي ${neighbourhood.nameAr} في ${city.nameAr} — الأماكن والخدمات | ${SITE.name}`,
+    description: `أماكن وخدمات حي ${neighbourhood.nameAr} في ${city.nameAr}: ${neighbourhood.totalPlaces} سجلًا موزعًا على ${neighbourhood.categoryCount} أقسام، وفق بيانات OpenStreetMap المتاحة.`,
+    canonicalPath: `/city/${city.slug}/neighbourhood/${encodeURIComponent(neighbourhood.slug)}/`,
+    body,
+    breadcrumbs: [
+      { name: "الرئيسية", path: "/" },
+      { name: city.nameAr, path: `/city/${city.slug}/` },
+      { name: neighbourhood.nameAr, path: `/city/${city.slug}/neighbourhood/${encodeURIComponent(neighbourhood.slug)}/` },
     ],
   });
 }
