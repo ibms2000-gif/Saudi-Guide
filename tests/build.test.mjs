@@ -174,6 +174,7 @@ async function makeFixtureRoot() {
   await fs.cp(path.join(REPO_ROOT, "public"), path.join(root, "public"), { recursive: true });
   await fs.cp(path.join(REPO_ROOT, "src/styles/site.css"), path.join(root, "src/styles/site.css"));
   await fs.cp(path.join(REPO_ROOT, "src/client/app.js"), path.join(root, "src/client/app.js"));
+  await fs.cp(path.join(REPO_ROOT, "src/client/tools.js"), path.join(root, "src/client/tools.js"));
 
   return root;
 }
