@@ -140,29 +140,89 @@ export function categoriesIndexPage(model) {
 }
 
 export function cityPage(model, city) {
-  const catItems = model.categories
-    .map((cat) => {
-      const data = city.byCategory[cat.slug];
+  const categoryEntries = model.categories.map((category) => ({
+    category,
+    data: city.byCategory[category.slug],
+    count: city.byCategory[category.slug]?.all?.length || 0,
+  }));
+  const availableCategories = categoryEntries
+    .filter((entry) => entry.data?.indexable && entry.count > 0)
+    .sort((a, b) => b.count - a.count);
+  const detailCount = city.places.filter((place) =>
+    ["address", "phone", "website", "openingHours"].some((field) =>
+      place?.[field] !== null && place?.[field] !== undefined && String(place[field]).trim() !== "",
+    ),
+  ).length;
+  const regionalCities = (model.citiesByRegion[city.regionSlug] || [])
+    .filter((other) => other.slug !== city.slug && other.totalPlaces > 0)
+    .sort((a, b) => b.totalPlaces - a.totalPlaces)
+    .slice(0, 8);
+
+  const catItems = categoryEntries
+    .map(({ category, data, count }) => {
       if (!data.indexable) {
-        return `<li class="muted"><span>${escapeHtml(cat.nameAr)}</span><span>قريبًا</span></li>`;
+        const status = count === 0
+          ? "لا توجد سجلات مسجلة في المصدر حاليًا"
+          : `${count} سجل مسجل؛ يلزم ${category.minForPage || 4} سجلات لإنشاء صفحة مستقلة`;
+        return `<li class="muted"><span><strong>${escapeHtml(category.nameAr)}</strong></span><span>${status}</span></li>`;
       }
-      return `<li style="--card-accent:${cat.color}"><a href="/city/${city.slug}/${cat.slug}/"><strong>${escapeHtml(cat.nameAr)}</strong><span>${data.all.length} مكان</span></a></li>`;
+      return `<li style="--card-accent:${category.color}"><a href="/city/${city.slug}/${category.slug}/"><strong>${escapeHtml(category.nameAr)}</strong><span>${count} مكان مسجل</span></a></li>`;
     })
     .join("");
 
+  const featuredItems = availableCategories
+    .slice(0, 4)
+    .map(({ category, count }) =>
+      `<li style="--card-accent:${category.color}"><a href="/city/${city.slug}/${category.slug}/"><strong>${escapeHtml(category.nameAr)}</strong><span>${count} مكان مسجل في البيانات الحالية</span></a></li>`,
+    )
+    .join("");
+  const regionalItems = regionalCities
+    .map((other) =>
+      `<li><a href="/city/${other.slug}/"><strong>${escapeHtml(other.nameAr)}</strong><span>${other.totalPlaces} سجل مكان متاح</span></a></li>`,
+    )
+    .join("");
+
+  const fetchedAt = model.meta?.cities?.[city.slug]?.fetchedAt || model.meta?.fetchedAt;
+  const fetchedDate = fetchedAt && Number.isFinite(Date.parse(fetchedAt))
+    ? new Date(fetchedAt).toLocaleDateString("ar-SA")
+    : null;
+  const freshness = fetchedDate
+    ? `آخر جلب ناجح لبيانات هذه المدينة: ${escapeHtml(fetchedDate)}.`
+    : "تاريخ آخر جلب ناجح لهذه المدينة غير متوفر في بيانات الإصدار الحالي.";
+  const highlightsSection = featuredItems
+    ? `<section class="section"><h2>الأقسام الأكثر ظهورًا في البيانات</h2><p>ترتيب هذه الأقسام مبني على عدد السجلات المتاحة في قاعدة بيانات الدليل، وليس على تقييم أو ترتيب جودة المنشآت.</p><ul class="grid-list">${featuredItems}</ul></section>`
+    : `<section class="section"><h2>الأقسام المتاحة</h2><p>لا توجد حتى الآن سجلات كافية لإنشاء صفحات أقسام مستقلة لهذه المدينة. ستظهر الصفحات عند توفر بيانات كافية وفق معايير الدليل.</p></section>`;
+  const regionalSection = regionalItems
+    ? `<section class="section"><h2>مدن ومحافظات أخرى في ${escapeHtml(city.regionAr)}</h2><p>روابط إلى مدن أخرى ضمن المنطقة نفسها تتوفر لها سجلات أماكن في الدليل.</p><ul class="grid-list">${regionalItems}</ul></section>`
+    : "";
+
   const body = `
-  <h1>دليل ${escapeHtml(city.nameAr)}</h1>
-  <p>${escapeHtml(city.overview || "")}</p>
-  <p><a href="/region/${city.regionSlug}/">${escapeHtml(city.regionAr)}</a> · <a href="/prayer-times/${city.slug}/">مواقيت الصلاة في ${escapeHtml(city.nameAr)}</a></p>
+  <section class="hero city-hero">
+    <h1>دليل ${escapeHtml(city.nameAr)}</h1>
+    <p>${escapeHtml(city.overview || "")}</p>
+    <p class="city-region-line"><a href="/region/${city.regionSlug}/">${escapeHtml(city.regionAr)}</a> · <a href="/prayer-times/${city.slug}/">مواقيت الصلاة في ${escapeHtml(city.nameAr)}</a></p>
+  </section>
   <section class="section">
-    <h2>الأقسام المتاحة في ${escapeHtml(city.nameAr)}</h2>
+    <h2>مؤشرات تغطية الدليل</h2>
+    <dl class="city-metrics">
+      <div class="city-metric"><dt>أماكن مسجلة في المصدر</dt><dd>${city.totalPlaces}</dd></div>
+      <div class="city-metric"><dt>أقسام بلغت حد إنشاء صفحة</dt><dd>${availableCategories.length}</dd></div>
+      <div class="city-metric"><dt>أماكن تتوفر لها تفاصيل إضافية</dt><dd>${detailCount}</dd></div>
+    </dl>
+    <p class="city-coverage-note">تعكس الأعداد سجلات OpenStreetMap المتاحة في الإصدار الحالي، ولا تمثل حصرًا رسميًا أو قائمة شاملة لكل منشآت المدينة. ${freshness}</p>
+  </section>
+  ${highlightsSection}
+  <section class="section">
+    <h2>الأقسام في ${escapeHtml(city.nameAr)}</h2>
+    <p>تُعرض صفحة القسم عندما يبلغ عدد السجلات الحد الأدنى المحدد له؛ أما الأقسام التي لا تبلغ الحد فتظهر حالتها بوضوح دون إنشاء صفحة ضعيفة المحتوى.</p>
     <ul class="grid-list">${catItems}</ul>
   </section>
-  ${dataAttributionNote({ cityNameAr: city.nameAr, fetchedAt: model.meta?.cities?.[city.slug]?.fetchedAt || model.meta?.fetchedAt })}`;
+  ${regionalSection}
+  ${dataAttributionNote({ cityNameAr: city.nameAr, fetchedAt })}`;
 
   return renderPage({
-    title: `دليل ${city.nameAr} — مطاعم، تسوق، خدمات وسياحة | ${SITE.name}`,
-    description: `دليل ${city.nameAr} في ${city.regionAr}: مطاعم ومقاهي، محلات تسوق، خدمات عامة، صحة وتعليم ومعالم سياحية.`,
+    title: `دليل ${city.nameAr} — ${city.totalPlaces} سجلًا للأماكن والخدمات | ${SITE.name}`,
+    description: `دليل ${city.nameAr} في ${city.regionAr}: ${city.totalPlaces} سجلًا متاحًا للأماكن، مع أقسام المطاعم والتسوق والخدمات والصحة والتعليم والسياحة بحسب البيانات المتوفرة.`,
     canonicalPath: `/city/${city.slug}/`,
     body,
     breadcrumbs: [
