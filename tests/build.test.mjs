@@ -190,7 +190,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
 
   assert.ok(report.totalPages > 0);
 
-  // أدوات وحاسبات الموقع: فهرس وثماني صفحات مستقلة قابلة للفهرسة.
+  // أدوات وحاسبات الموقع: فهرس وصفحات مستقلة قابلة للفهرسة.
   const toolsIndex = await fs.readFile(path.join(dist, "tools/index.html"), "utf8");
   assert.match(toolsIndex, /أدوات وحاسبات مجانية/);
   assert.match(toolsIndex, /حاسبة ضريبة القيمة المضافة/);
@@ -205,6 +205,17 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(toolsScript, /calculateTool/);
   const calculationsScript = await fs.readFile(path.join(dist, "tool-calculations.mjs"), "utf8");
   assert.match(calculationsScript, /debt-ratio-calculator/);
+  const eosTool = await fs.readFile(path.join(dist, "tools/end-of-service-calculator/index.html"), "utf8");
+  assert.match(eosTool, /name="reason"/);
+  const overtimeTool = await fs.readFile(path.join(dist, "tools/overtime-calculator/index.html"), "utf8");
+  assert.match(overtimeTool, /الأجر الشهري الفعلي/);
+  const sickLeaveTool = await fs.readFile(path.join(dist, "tools/sick-leave-calculator/index.html"), "utf8");
+  assert.match(sickLeaveTool, /المادة 117/);
+  const gosiTool = await fs.readFile(path.join(dist, "tools/gosi-deduction-calculator/index.html"), "utf8");
+  assert.match(gosiTool, /name="scheme"/);
+  const noticeTool = await fs.readFile(path.join(dist, "tools/notice-compensation-calculator/index.html"), "utf8");
+  assert.match(noticeTool, /مهلة الإشعار/);
+
 
   // الصفحة الرئيسية موجودة
   const home = await fs.readFile(path.join(dist, "index.html"), "utf8");
@@ -313,6 +324,14 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(sitemap, /tools\/date-addition\//);
   assert.match(sitemap, /tools\/tile-calculator\//);
   assert.match(sitemap, /tools\/appliance-energy-calculator\//);
+  assert.match(sitemap, /tools\/end-of-service-calculator\//);
+  assert.match(sitemap, /tools\/overtime-calculator\//);
+  assert.match(sitemap, /tools\/annual-leave-calculator\//);
+  assert.match(sitemap, /tools\/sick-leave-calculator\//);
+  assert.match(sitemap, /tools\/gosi-deduction-calculator\//);
+  assert.match(sitemap, /tools\/salary-increase-calculator\//);
+  assert.match(sitemap, /tools\/wage-hour-converter\//);
+  assert.match(sitemap, /tools\/notice-compensation-calculator\//);
   assert.ok(report.indexablePlacePages >= 1);
 
   // Thin city pages remain available for navigation but are explicitly noindex.
