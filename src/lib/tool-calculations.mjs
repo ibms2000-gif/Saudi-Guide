@@ -488,6 +488,146 @@ export function calculateTool(slug, values, options = {}) {
       ];
     }
 
+
+    case "real-estate-transfer-tax-calculator": {
+      const value = readNumber(data, "value", "قيمة التصرف العقاري");
+      if (value <= 0) throw new Error("أدخل قيمة تصرف عقاري أكبر من صفر.");
+      const tax = value * 0.05;
+      return [
+        row("قيمة التصرف العقاري", value, "money"),
+        row("نسبة الضريبة العامة", 5, "percent"),
+        row("ضريبة التصرفات العقارية التقديرية", tax, "money"),
+        row("قيمة التصرف بعد إضافة الضريبة", value + tax, "money"),
+      ];
+    }
+
+    case "cash-zakat-calculator": {
+      const amount = readNumber(data, "amount", "إجمالي النقود والمدخرات");
+      const nisab = readNumber(data, "nisab", "قيمة النصاب");
+      const haul = data.haul || "yes";
+      if (amount < 0 || nisab <= 0 || !["yes", "no"].includes(haul)) throw new Error("أدخل مبلغًا غير سالب ونصابًا أكبر من صفر واختر حالة الحول.");
+      const due = haul === "yes" && amount >= nisab;
+      return [
+        row("إجمالي النقود المدخلة", amount, "money"),
+        row("قيمة النصاب المدخلة", nisab, "money"),
+        row("حالة بلوغ النصاب واكتمال الحول", due ? "تحققا وفق المدخلات" : "لم يتحققا معًا", "text"),
+        row("الزكاة التقديرية", due ? amount / 40 : 0, "money"),
+      ];
+    }
+
+    case "trade-zakat-calculator": {
+      const inventory = readNumber(data, "inventory", "قيمة البضائع");
+      const cash = readNumber(data, "cash", "النقود");
+      const receivables = readNumber(data, "receivables", "الديون المرجوة");
+      const nisab = readNumber(data, "nisab", "قيمة النصاب");
+      const haul = data.haul || "yes";
+      if ([inventory, cash, receivables].some((value) => value < 0) || nisab <= 0 || !["yes", "no"].includes(haul)) throw new Error("تحقق من أن قيم الموجودات غير سالبة وأن النصاب أكبر من صفر.");
+      const base = inventory + cash + receivables;
+      const due = haul === "yes" && base >= nisab;
+      return [
+        row("وعاء الزكاة التقديري", base, "money"),
+        row("حالة بلوغ النصاب واكتمال الحول", due ? "تحققا وفق المدخلات" : "لم يتحققا معًا", "text"),
+        row("الزكاة التقديرية", due ? base / 40 : 0, "money"),
+      ];
+    }
+
+    case "gold-zakat-calculator": {
+      const weight = readNumber(data, "weight", "وزن الذهب");
+      const karat = readNumber(data, "karat", "عيار الذهب");
+      const price24 = readNumber(data, "price24", "سعر جرام الذهب عيار 24");
+      const haul = data.haul || "yes";
+      if (weight <= 0 || ![18, 21, 22, 24].includes(karat) || price24 <= 0 || !["yes", "no"].includes(haul)) throw new Error("تحقق من وزن الذهب وعياره وسعر الجرام وحالة الحول.");
+      const pureWeight = weight * karat / 24;
+      const value = pureWeight * price24;
+      const due = haul === "yes" && pureWeight >= 85;
+      return [
+        row("وزن الذهب الخالص التقريبي", pureWeight, "number", " جرام"),
+        row("قيمة الذهب الخالص التقريبية", value, "money"),
+        row("حالة بلوغ نصاب 85 جرامًا واكتمال الحول", due ? "تحققا وفق المدخلات" : "لم يتحققا معًا", "text"),
+        row("الزكاة التقديرية", due ? value * 0.025 : 0, "money"),
+      ];
+    }
+
+    case "social-security-income-calculator": {
+      const earned = readNumber(data, "earned", "الدخل المكتسب");
+      const unearned = readNumber(data, "unearned", "الدخل غير المكتسب");
+      const threshold = readNumber(data, "threshold", "الحد الأدنى المحتسب للمعاش");
+      if (earned < 0 || unearned < 0 || threshold <= 0) throw new Error("أدخل دخلًا غير سالب وحدًا أدنى محتسبًا أكبر من صفر.");
+      const countedIncome = earned * 0.5 + unearned;
+      const estimatedBenefit = Math.max(0, threshold - countedIncome);
+      return [
+        row("نصف الدخل المكتسب", earned * 0.5, "money"),
+        row("الدخل المحتسب الإجمالي", countedIncome, "money"),
+        row("الحد الأدنى المحتسب المدخل", threshold, "money"),
+        row("فرق المعاش الحسابي التقديري", estimatedBenefit, "money"),
+        row("مقارنة الدخل بالحد المدخل", countedIncome < threshold ? "الدخل المحتسب أقل من الحد المدخل" : "الدخل المحتسب يساوي الحد المدخل أو يتجاوزه", "text"),
+      ];
+    }
+
+    case "sama-affordability-calculator": {
+      const income = readNumber(data, "income", "الدخل الشهري المعتمد");
+      const salary = readNumber(data, "salary", "الراتب الشهري");
+      const payroll = readNumber(data, "payroll", "التزامات الاستقطاع من الراتب");
+      const nonMortgage = readNumber(data, "nonMortgage", "الالتزامات غير العقارية");
+      const total = readNumber(data, "total", "إجمالي الالتزامات");
+      const retired = data.retired || "no";
+      const supportedHousing = data.supportedHousing || "no";
+      if (income <= 0 || salary <= 0 || [payroll, nonMortgage, total].some((value) => value < 0) || !["yes", "no"].includes(retired) || !["yes", "no"].includes(supportedHousing)) throw new Error("تحقق من الدخل والراتب والالتزامات والخيارات المحددة.");
+      const payrollCap = salary * (retired === "yes" ? 0.25 : 1 / 3);
+      const payrollRoom = Math.max(0, payrollCap - payroll);
+      const nonMortgageCap = income < 25000 ? income * 0.45 : null;
+      const nonMortgageRoom = nonMortgageCap === null ? null : Math.max(0, nonMortgageCap - nonMortgage);
+      let totalCap = null;
+      if (income <= 15000) totalCap = income * (supportedHousing === "yes" ? 0.65 : 0.55);
+      else if (income < 25000) totalCap = income * 0.65;
+      const totalRoom = totalCap === null ? null : Math.max(0, totalCap - total);
+      return [
+        row("الحد الأعلى المرجعي للاستقطاع من الراتب", payrollCap, "money"),
+        row("المتاح حسابيًا ضمن حد الاستقطاع", payrollRoom, "money"),
+        row("الحد الأعلى للالتزامات غير العقارية", nonMortgageCap === null ? "يخضع لسياسة الممول عند دخل 25,000 ريال فأكثر" : nonMortgageCap, nonMortgageCap === null ? "text" : "money"),
+        row("المتاح ضمن حد الالتزامات غير العقارية", nonMortgageRoom === null ? "يخضع لسياسة الممول" : nonMortgageRoom, nonMortgageRoom === null ? "text" : "money"),
+        row("الحد الإجمالي المرجعي للالتزامات", totalCap === null ? "يخضع لسياسة الممول عند دخل 25,000 ريال فأكثر" : totalCap, totalCap === null ? "text" : "money"),
+        row("المتاح حسابيًا ضمن الحد الإجمالي", totalRoom === null ? "يخضع لسياسة الممول" : totalRoom, totalRoom === null ? "text" : "money"),
+      ];
+    }
+
+    case "finance-amount-from-payment-calculator": {
+      const payment = readNumber(data, "payment", "القسط الشهري");
+      const annualRate = readNumber(data, "rate", "معدل النسبة السنوي");
+      const years = readNumber(data, "years", "مدة التمويل");
+      if (payment <= 0 || annualRate < 0 || annualRate > 100 || !Number.isInteger(years) || years < 1 || years > 30) throw new Error("أدخل قسطًا أكبر من صفر ومعدلًا من صفر إلى 100 ومدة صحيحة من سنة إلى 30 سنة.");
+      const months = years * 12;
+      const monthlyRate = annualRate / 1200;
+      const principal = monthlyRate === 0 ? payment * months : payment * (1 - Math.pow(1 + monthlyRate, -months)) / monthlyRate;
+      const totalPayments = payment * months;
+      return [
+        row("مبلغ التمويل التقديري", principal, "money"),
+        row("إجمالي الأقساط طوال المدة", totalPayments, "money"),
+        row("تكلفة التمويل التقديرية فوق أصل المبلغ", totalPayments - principal, "money"),
+      ];
+    }
+
+    case "real-estate-purchase-cost-calculator": {
+      const price = readNumber(data, "price", "سعر العقار");
+      const downRate = readNumber(data, "downRate", "نسبة الدفعة المقدمة");
+      const brokerRate = readNumber(data, "brokerRate", "نسبة عمولة الوساطة");
+      const otherFees = readNumber(data, "otherFees", "الرسوم الأخرى");
+      if (price <= 0 || downRate < 0 || downRate > 100 || brokerRate < 0 || brokerRate > 100 || otherFees < 0) throw new Error("تحقق من سعر العقار والنسب والرسوم المدخلة.");
+      const downPayment = price * downRate / 100;
+      const tax = price * 0.05;
+      const brokerFee = price * brokerRate / 100;
+      const financed = price - downPayment;
+      const upfront = downPayment + tax + brokerFee + otherFees;
+      return [
+        row("الدفعة المقدمة", downPayment, "money"),
+        row("ضريبة التصرفات العقارية التقديرية", tax, "money"),
+        row("عمولة الوساطة المدخلة", brokerFee, "money"),
+        row("مبلغ التمويل قبل الرسوم", financed, "money"),
+        row("إجمالي النقد المطلوب مبدئيًا", upfront, "money"),
+        row("إجمالي كلفة التملك مع الرسوم المدخلة", price + tax + brokerFee + otherFees, "money"),
+      ];
+    }
+
     default:
       throw new Error("هذه الأداة غير معروفة.");
   }

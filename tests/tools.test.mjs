@@ -276,3 +276,100 @@ test("ترفض حاسبات العمل والرواتب المدخلات الم�
     monthlyWage: "5000", party: "other", servedDays: "0"
   }));
 });
+
+
+test("ضريبة التصرفات العقارية تحسب النسبة العامة 5%", () => {
+  const result = calculateTool("real-estate-transfer-tax-calculator", { value: "1000000" });
+  assert.equal(result[2].value, 50000);
+  assert.equal(result[3].value, 1050000);
+});
+
+test("زكاة النقود تشترط بلوغ النصاب واكتمال الحول", () => {
+  const due = calculateTool("cash-zakat-calculator", { amount: "25000", nisab: "20000", haul: "yes" });
+  assert.equal(due[3].value, 625);
+  const noHaul = calculateTool("cash-zakat-calculator", { amount: "25000", nisab: "20000", haul: "no" });
+  assert.equal(noHaul[3].value, 0);
+  const belowNisab = calculateTool("cash-zakat-calculator", { amount: "15000", nisab: "20000", haul: "yes" });
+  assert.equal(belowNisab[3].value, 0);
+});
+
+test("زكاة عروض التجارة تضم البضاعة بسعرها الحالي والنقد والديون المرجوة", () => {
+  const result = calculateTool("trade-zakat-calculator", {
+    inventory: "100000", cash: "20000", receivables: "30000", nisab: "20000", haul: "yes"
+  });
+  assert.equal(result[0].value, 150000);
+  assert.equal(result[2].value, 3750);
+});
+
+test("زكاة الذهب تحول العيار إلى وزن خالص وتتحقق من النصاب", () => {
+  const result = calculateTool("gold-zakat-calculator", {
+    weight: "100", karat: "21", price24: "300", haul: "yes"
+  });
+  assert.equal(result[0].value, 87.5);
+  assert.equal(result[1].value, 26250);
+  assert.equal(result[3].value, 656.25);
+});
+
+test("حاسبة الضمان تخصم نصف الدخل المكتسب وتضيف غير المكتسب", () => {
+  const result = calculateTool("social-security-income-calculator", {
+    earned: "2000", unearned: "500", threshold: "2500"
+  });
+  assert.equal(result[1].value, 1500);
+  assert.equal(result[3].value, 1000);
+});
+
+test("حاسبة ساما تطبق شرائح الدخل وحد الاستقطاع من الراتب", () => {
+  const result = calculateTool("sama-affordability-calculator", {
+    income: "18000", salary: "15000", payroll: "4000", nonMortgage: "8000",
+    total: "10000", retired: "no", supportedHousing: "no"
+  });
+  assert.ok(Math.abs(result[0].value - 5000) < 1e-8);
+  assert.equal(result[1].value, 1000);
+  assert.equal(result[2].value, 8100);
+  assert.equal(result[4].value, 11700);
+  assert.equal(result[5].value, 1700);
+  const highIncome = calculateTool("sama-affordability-calculator", {
+    income: "25000", salary: "20000", payroll: "0", nonMortgage: "0",
+    total: "0", retired: "yes", supportedHousing: "no"
+  });
+  assert.equal(highIncome[2].kind, "text");
+  assert.equal(highIncome[4].kind, "text");
+  assert.equal(highIncome[0].value, 5000);
+});
+
+test("مبلغ التمويل من القسط يدعم المعدل الصفري والمعدل السنوي", () => {
+  const zeroRate = calculateTool("finance-amount-from-payment-calculator", {
+    payment: "1000", rate: "0", years: "2"
+  });
+  assert.equal(zeroRate[0].value, 24000);
+  assert.equal(zeroRate[1].value, 24000);
+  const interest = calculateTool("finance-amount-from-payment-calculator", {
+    payment: "1000", rate: "12", years: "1"
+  });
+  assert.ok(interest[0].value < 12000);
+  assert.ok(interest[2].value > 0);
+});
+
+test("تكاليف شراء العقار تجمع الدفعة والضريبة والعمولة والرسوم", () => {
+  const result = calculateTool("real-estate-purchase-cost-calculator", {
+    price: "1000000", downRate: "20", brokerRate: "2.5", otherFees: "5000"
+  });
+  assert.equal(result[0].value, 200000);
+  assert.equal(result[1].value, 50000);
+  assert.equal(result[2].value, 25000);
+  assert.equal(result[3].value, 800000);
+  assert.equal(result[4].value, 280000);
+});
+
+test("ترفض حاسبات الخدمات الحكومية والتمويلية المدخلات غير المنطقية", () => {
+  assert.throws(() => calculateTool("real-estate-transfer-tax-calculator", { value: "0" }));
+  assert.throws(() => calculateTool("cash-zakat-calculator", { amount: "1000", nisab: "0", haul: "yes" }));
+  assert.throws(() => calculateTool("trade-zakat-calculator", { inventory: "-1", cash: "0", receivables: "0", nisab: "100", haul: "yes" }));
+  assert.throws(() => calculateTool("gold-zakat-calculator", { weight: "10", karat: "20", price24: "300", haul: "yes" }));
+  assert.throws(() => calculateTool("social-security-income-calculator", { earned: "1000", unearned: "0", threshold: "0" }));
+  assert.throws(() => calculateTool("sama-affordability-calculator", {
+    income: "0", salary: "10000", payroll: "0", nonMortgage: "0", total: "0"
+  }));
+  assert.throws(() => calculateTool("finance-amount-from-payment-calculator", { payment: "0", rate: "5", years: "20" }));
+  assert.throws(() => calculateTool("real-estate-purchase-cost-calculator", { price: "100000", downRate: "101", brokerRate: "2.5", otherFees: "0" }));
+});
