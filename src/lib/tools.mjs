@@ -6,11 +6,11 @@ const tools = [
   {
     slug: "vat-calculator",
     name: "حاسبة ضريبة القيمة المضافة",
-    short: "احسب ضريبة القيمة المضافة أو استخرجها من مبلغ شامل.",
-    description: "احسب قيمة ضريبة القيمة المضافة على مبلغ قبل الضريبة، واعرف إجمالي المبلغ بعد إضافتها. يمكنك تعديل النسبة بحسب حاجتك.",
-    fields: [{ key: "amount", label: "المبلغ بالريال", type: "number", min: "0.01", step: "0.01", value: "1000" }, { key: "rate", label: "نسبة الضريبة (%)", type: "number", min: "0", max: "100", step: "0.01", value: "15" }],
-    formula: "المبلغ × نسبة الضريبة ÷ 100",
-    note: "هذه أداة حسابية عامة وليست إقرارًا ضريبيًا أو استشارة محاسبية. أدخل النسبة المطبقة على معاملتك وتحقق من المتطلبات لدى هيئة الزكاة والضريبة والجمارك."
+    short: "احسب الضريبة على مبلغ قبل الضريبة أو استخرجها من مبلغ شامل.",
+    description: "احسب قيمة ضريبة القيمة المضافة على مبلغ غير شامل للضريبة، أو استخرج قيمة الضريبة والمبلغ قبلها من إجمالي شامل. يمكنك تعديل النسبة بحسب حاجتك.",
+    fields: [{ key: "amount", label: "المبلغ بالريال", type: "number", min: "0.01", step: "0.01", value: "1000" }, { key: "rate", label: "نسبة الضريبة (%)", type: "number", min: "0", max: "100", step: "0.01", value: "15" }, { key: "mode", label: "طريقة إدخال المبلغ", type: "select", value: "exclusive", options: [{ value: "exclusive", label: "المبلغ قبل الضريبة" }, { value: "inclusive", label: "المبلغ شامل الضريبة" }] }],
+    formula: "إذا كان المبلغ قبل الضريبة: الضريبة = المبلغ × النسبة. وإذا كان شاملًا: الضريبة = المبلغ الشامل × النسبة ÷ (100 + النسبة).",
+    note: "تعرض الحاسبة المبلغ قبل الضريبة وقيمة الضريبة والإجمالي. هذه أداة حسابية عامة وليست إقرارًا ضريبيًا أو استشارة محاسبية؛ أدخل النسبة المطبقة على معاملتك وتحقق من المتطلبات لدى هيئة الزكاة والضريبة والجمارك."
   },
   {
     slug: "discount-calculator",
@@ -81,8 +81,11 @@ function fieldsHtml(fields) {
   return fields.map((field) => {
     const value = field.value === "today" ? "" : field.value;
     const attrs = ["min", "max", "step"].filter((key) => field[key] !== undefined).map((key) => `${key}="${escapeHtml(field[key])}"`).join(" ");
-    const defaultToday = field.value === "today" ? ' data-today="true"' : "";
-    return `<label class="tool-field"><span>${escapeHtml(field.label)}</span><input type="${field.type}" name="${field.key}" value="${escapeHtml(value)}" ${attrs} required${defaultToday}></label>`;
+    const defaultToday = field.value === "today" ? " data-today=\"true\"" : "";
+    const control = field.type === "select"
+      ? `<select name="${field.key}" required>${field.options.map((option) => `<option value="${escapeHtml(option.value)}"${option.value === field.value ? " selected" : ""}>${escapeHtml(option.label)}</option>`).join("")}</select>`
+      : `<input type="${field.type}" name="${field.key}" value="${escapeHtml(value)}" ${attrs} required${defaultToday}>`;
+    return `<label class="tool-field"><span>${escapeHtml(field.label)}</span>${control}</label>`;
   }).join("");
 }
 

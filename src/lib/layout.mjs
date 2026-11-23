@@ -48,7 +48,7 @@ ${body}
 </main>
 ${renderFooter()}
 <script src="/app.js" defer></script>
-${canonicalPath.startsWith("/tools/") ? '<script src="/tools.js" defer></script>' : ""}
+${canonicalPath.startsWith("/tools/") ? '<script type="module" src="/tools.js"></script>' : ""}
 </body>
 </html>`;
 }
