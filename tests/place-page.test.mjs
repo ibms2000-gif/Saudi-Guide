@@ -83,3 +83,15 @@ test("escapes untrusted place names and ignores unsafe website schemes", () => {
   assert.match(html, /&lt;img src=x/);
   assert.doesNotMatch(html, /href="javascript:/);
 });
+
+
+test("يعرض اسم الحي المسجل صراحة من المصدر على صفحة المكان", () => {
+  const html = renderPlacePage({
+    place: { ...completePlace, neighbourhood: "حي النرجس" },
+    city,
+    category,
+    siteUrl: "https://saudi-guide.example",
+  });
+  assert.match(html, /الحي المسجل/);
+  assert.match(html, /حي النرجس/);
+});

@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { slugify } from "./util.mjs";
 
 export async function loadModel(root) {
   const regions = JSON.parse(await fs.readFile(path.join(root, "data/regions.json"), "utf8"));
@@ -57,6 +58,47 @@ async function loadSalarySchedules(directory) {
   return schedules.sort((a, b) => a.year - b.year);
 }
 
+export const MIN_NEIGHBOURHOOD_PLACES = 8;
+export const MIN_NEIGHBOURHOOD_CATEGORIES = 2;
+
+function neighbourhoodKey(value) {
+  return slugify(String(value || "")
+    .normalize("NFKC")
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+    .replace(/\s+/g, " ")
+    .toLocaleLowerCase("ar"));
+}
+
+function buildNeighbourhoods(places, city) {
+  const groups = new Map();
+  const cityKey = neighbourhoodKey(city.nameAr);
+  for (const place of places) {
+    if (typeof place?.neighbourhood !== "string") continue;
+    const nameAr = place.neighbourhood.replace(/\s+/g, " ").trim();
+    const key = neighbourhoodKey(nameAr);
+    if (!key || key === cityKey) continue;
+    if (!groups.has(key)) groups.set(key, { slug: key, nameAr, places: [], categoryCounts: {} });
+    const group = groups.get(key);
+    group.places.push(place);
+    const category = place.categorySlug || "other";
+    group.categoryCounts[category] = (group.categoryCounts[category] || 0) + 1;
+  }
+
+  return [...groups.values()]
+    .map((group) => {
+      const categoryCount = Object.keys(group.categoryCounts).length;
+      const totalPlaces = group.places.length;
+      return {
+        ...group,
+        totalPlaces,
+        categoryCount,
+        indexable: totalPlaces >= MIN_NEIGHBOURHOOD_PLACES &&
+          categoryCount >= MIN_NEIGHBOURHOOD_CATEGORIES,
+      };
+    })
+    .sort((a, b) => b.totalPlaces - a.totalPlaces || a.nameAr.localeCompare(b.nameAr, "ar"));
+}
+
 export function buildModel({ regions, cities, categories, placesByCity, meta, events = [], salarySchedules = [], benefits = [], statistics = [], news = [] }) {
   const categoryBySlug = Object.fromEntries(categories.map((c) => [c.slug, c]));
   const regionBySlug = Object.fromEntries(regions.map((r) => [r.slug, r]));
@@ -79,7 +121,15 @@ export function buildModel({ regions, cities, categories, placesByCity, meta, ev
         subcategories: bySub,
       };
     }
-    return { ...city, places, byCategory, totalPlaces: places.length };
+    const neighbourhoods = buildNeighbourhoods(places, city);
+    return {
+      ...city,
+      places,
+      byCategory,
+      neighbourhoods,
+      totalNeighbourhoods: neighbourhoods.filter((item) => item.indexable).length,
+      totalPlaces: places.length,
+    };
   });
 
   const citiesBySlug = Object.fromEntries(citiesEnriched.map((c) => [c.slug, c]));

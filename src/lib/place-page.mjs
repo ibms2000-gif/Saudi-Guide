@@ -55,6 +55,7 @@ export function renderPlacePage({ place, city, category, siteUrl, fetchedAt }) {
 
   const detailRows = [
     place.address ? `<div class="place-fact"><dt>العنوان</dt><dd>${escapeHtml(place.address)}</dd></div>` : "",
+    place.neighbourhood ? `<div class="place-fact"><dt>الحي المسجل</dt><dd>${escapeHtml(place.neighbourhood)}</dd></div>` : "",
     place.phone ? `<div class="place-fact"><dt>الهاتف</dt><dd>${phone ? `<a href="tel:${escapeHtml(phone)}">${escapeHtml(place.phone)}</a>` : escapeHtml(place.phone)}</dd></div>` : "",
     place.openingHours ? `<div class="place-fact"><dt>ساعات العمل المسجلة</dt><dd>${escapeHtml(place.openingHours)}</dd></div>` : "",
     website ? `<div class="place-fact"><dt>الموقع الإلكتروني</dt><dd><a href="${escapeHtml(website)}" rel="noopener noreferrer nofollow" target="_blank">زيارة الموقع الرسمي أو المدرج في المصدر</a></dd></div>` : "",

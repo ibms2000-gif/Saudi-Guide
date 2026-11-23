@@ -42,3 +42,38 @@ function classifySubcategory(tags, category) {
 export function placeName(tags, fallbackAr) {
   return tags["name:ar"] || tags.name || fallbackAr;
 }
+
+
+// Prefer explicit OSM address hierarchy tags. Do not infer a neighbourhood
+// from a street name, coordinates, or a place's free-form description.
+const NEIGHBOURHOOD_TAGS = [
+  "addr:neighbourhood",
+  "addr:suburb",
+  "addr:district",
+  "addr:city_district",
+];
+
+function normaliseLocality(value) {
+  return String(value || "")
+    .normalize("NFKC")
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLocaleLowerCase("ar");
+}
+
+export function extractNeighbourhood(tags, cityNameAr = "") {
+  if (!tags || typeof tags !== "object") return null;
+  const cityKey = normaliseLocality(cityNameAr);
+  const ignored = new Set(["yes", "no", "unknown", "n/a", "na", "none", "null", "-", "غير معروف"]);
+
+  for (const sourceTag of NEIGHBOURHOOD_TAGS) {
+    const raw = tags[sourceTag];
+    if (raw === null || raw === undefined) continue;
+    const name = String(raw).replace(/[\u0000-\u001F\u007F]/g, " ").replace(/\s+/g, " ").trim();
+    const key = normaliseLocality(name);
+    if (!key || ignored.has(key) || key === cityKey || name.length > 100) continue;
+    return { name, sourceTag };
+  }
+  return null;
+}
