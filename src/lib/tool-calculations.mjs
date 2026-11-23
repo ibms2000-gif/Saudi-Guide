@@ -2,17 +2,16 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 function readNumber(values, key, label) {
   const value = Number(values[key]);
-  if (!Number.isFinite(value)) throw new Error(\`أدخل قيمة رقمية صحيحة في حقل \${label}.\`);
+  if (!Number.isFinite(value)) throw new Error("أدخل قيمة رقمية صحيحة في حقل " + label + ".");
   return value;
 }
 
 function parseDate(value, label) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || ""));
-  if (!match) throw new Error(\`أدخل تاريخًا صحيحًا في حقل \${label}.\`);
-  const [, yearText, monthText, dayText] = match;
-  const year = Number(yearText);
-  const month = Number(monthText);
-  const day = Number(dayText);
+  if (!match) throw new Error("أدخل تاريخًا صحيحًا في حقل " + label + ".");
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
   const date = new Date(0);
   date.setUTCHours(0, 0, 0, 0);
   date.setUTCFullYear(year, month - 1, day);
@@ -21,7 +20,7 @@ function parseDate(value, label) {
     date.getUTCMonth() !== month - 1 ||
     date.getUTCDate() !== day
   ) {
-    throw new Error(\`التاريخ المدخل في حقل \${label} غير موجود في التقويم.\`);
+    throw new Error("التاريخ المدخل في حقل " + label + " غير موجود في التقويم.");
   }
   return { date, year, month, day };
 }
@@ -46,10 +45,7 @@ function calendarAge(start, end) {
   return { years, months, days };
 }
 
-/**
- * Calculate a tool result without touching the DOM.
- * values contains the named form fields as strings.
- */
+/** Calculate a tool result without touching the DOM. */
 export function calculateTool(slug, values, options = {}) {
   const data = values || {};
   const today = options.today || (() => {
@@ -154,7 +150,7 @@ export function calculateTool(slug, values, options = {}) {
       if (target.date < birth.date) throw new Error("تاريخ الحساب لا يمكن أن يسبق تاريخ الميلاد.");
       const age = calendarAge(birth, target);
       return [
-        row("العمر", \`\${age.years} سنة و\${age.months} شهر و\${age.days} يوم\`, "text"),
+        row("العمر", age.years + " سنة و" + age.months + " شهر و" + age.days + " يوم", "text"),
         row("إجمالي الأيام", (target.date - birth.date) / DAY_MS, "number", " يوم"),
       ];
     }
