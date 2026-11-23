@@ -318,12 +318,12 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
 
   const sanedTool = await fs.readFile(path.join(dist, "tools/saned-compensation-calculator/index.html"), "utf8");
   assert.match(sanedTool, /متوسط الأجر الخاضع للاشتراك/);
-  assert.match(sanedTool, /9000/);
+  assert.match(sanedTool, /9,000/);
   assert.match(sanedTool, /beta.gosi.gov.sa/);
 
   const jobSearchTool = await fs.readFile(path.join(dist, "tools/job-search-subsidy-planner/index.html"), "utf8");
   assert.match(jobSearchTool, /عدد الدفعات التي سبق صرفها/);
-  assert.match(jobSearchTool, /2000 ريال/);
+  assert.match(jobSearchTool, /2,000 ريال/);
   assert.match(jobSearchTool, /hrdf.org.sa/);
 
   const retirementTool = await fs.readFile(path.join(dist, "tools/new-retirement-pension-calculator/index.html"), "utf8");
