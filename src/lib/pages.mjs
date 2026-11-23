@@ -285,7 +285,7 @@ export function neighbourhoodPage(model, city, neighbourhood) {
   <p><a href="/city/${city.slug}/">العودة إلى دليل ${escapeHtml(city.nameAr)}</a></p>`;
 
   return renderPage({
-    title: `دليل حي ${neighbourhood.nameAr} في ${city.nameAr} — الأماكن والخدمات | ${SITE.name}`,
+    title: `دليل ${neighbourhood.nameAr} في ${city.nameAr} — الأماكن والخدمات | ${SITE.name}`,
     description: `أماكن وخدمات حي ${neighbourhood.nameAr} في ${city.nameAr}: ${neighbourhood.totalPlaces} سجلًا موزعًا على ${neighbourhood.categoryCount} أقسام، وفق بيانات OpenStreetMap المتاحة.`,
     canonicalPath: `/city/${city.slug}/neighbourhood/${encodeURIComponent(neighbourhood.slug)}/`,
     body,
