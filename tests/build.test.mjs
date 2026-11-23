@@ -381,7 +381,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
     path.join(dist, "city/city-with-data/neighbourhood", encodeURIComponent("حي الاختبار"), "index.html"),
     "utf8",
   );
-  assert.match(neighbourhoodPage, /دليل حي حي الاختبار في مدينة فيها بيانات/);
+  assert.match(neighbourhoodPage, /دليل حي الاختبار في مدينة فيها بيانات/);
   assert.match(neighbourhoodPage, /9 مكانًا/);
   assert.match(neighbourhoodPage, /مطاعم \(5\)/);
   assert.match(neighbourhoodPage, /صحة \(4\)/);
