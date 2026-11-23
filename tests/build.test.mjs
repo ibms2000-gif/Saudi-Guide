@@ -219,6 +219,27 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(noticeTool, /مهلة الإشعار/);
 
 
+
+  const rettTool = await fs.readFile(path.join(dist, "tools/real-estate-transfer-tax-calculator/index.html"), "utf8");
+  assert.match(rettTool, /5%/);
+  assert.match(rettTool, /www.zatca.gov.sa/);
+  const cashZakatTool = await fs.readFile(path.join(dist, "tools/cash-zakat-calculator/index.html"), "utf8");
+  assert.match(cashZakatTool, /قيمة النصاب/);
+  const tradeZakatTool = await fs.readFile(path.join(dist, "tools/trade-zakat-calculator/index.html"), "utf8");
+  assert.match(tradeZakatTool, /القيمة السوقية الحالية للبضائع/);
+  const goldZakatTool = await fs.readFile(path.join(dist, "tools/gold-zakat-calculator/index.html"), "utf8");
+  assert.match(goldZakatTool, /85 جرامًا/);
+  const socialSecurityTool = await fs.readFile(path.join(dist, "tools/social-security-income-calculator/index.html"), "utf8");
+  assert.match(socialSecurityTool, /الحد الأدنى المحتسب للمعاش/);
+  assert.match(socialSecurityTool, /www.hrsd.gov.sa/);
+  const samaTool = await fs.readFile(path.join(dist, "tools/sama-affordability-calculator/index.html"), "utf8");
+  assert.match(samaTool, /33.33%/);
+  assert.match(samaTool, /rulebook.sama.gov.sa/);
+  const financeAmountTool = await fs.readFile(path.join(dist, "tools/finance-amount-from-payment-calculator/index.html"), "utf8");
+  assert.match(financeAmountTool, /القسط الشهري الذي تستطيع تحمله/);
+  const propertyCostTool = await fs.readFile(path.join(dist, "tools/real-estate-purchase-cost-calculator/index.html"), "utf8");
+  assert.match(propertyCostTool, /عمولة الوساطة المتفق عليها/);
+
   // الصفحة الرئيسية موجودة
   const home = await fs.readFile(path.join(dist, "index.html"), "utf8");
   assert.match(home, /دليل/);
@@ -334,6 +355,14 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(sitemap, /tools\/salary-increase-calculator\//);
   assert.match(sitemap, /tools\/wage-hour-converter\//);
   assert.match(sitemap, /tools\/notice-compensation-calculator\//);
+  assert.match(sitemap, /tools\/real-estate-transfer-tax-calculator\//);
+  assert.match(sitemap, /tools\/cash-zakat-calculator\//);
+  assert.match(sitemap, /tools\/trade-zakat-calculator\//);
+  assert.match(sitemap, /tools\/gold-zakat-calculator\//);
+  assert.match(sitemap, /tools\/social-security-income-calculator\//);
+  assert.match(sitemap, /tools\/sama-affordability-calculator\//);
+  assert.match(sitemap, /tools\/finance-amount-from-payment-calculator\//);
+  assert.match(sitemap, /tools\/real-estate-purchase-cost-calculator\//);
   assert.ok(report.indexablePlacePages >= 1);
 
   // Thin city pages remain available for navigation but are explicitly noindex.
