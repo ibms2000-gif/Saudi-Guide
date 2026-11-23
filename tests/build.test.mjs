@@ -187,6 +187,18 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
 
   assert.ok(report.totalPages > 0);
 
+  // أدوات وحاسبات الموقع: فهرس وثماني صفحات مستقلة قابلة للفهرسة.
+  const toolsIndex = await fs.readFile(path.join(dist, "tools/index.html"), "utf8");
+  assert.match(toolsIndex, /أدوات وحاسبات مجانية/);
+  assert.match(toolsIndex, /حاسبة ضريبة القيمة المضافة/);
+  const vatTool = await fs.readFile(path.join(dist, "tools/vat-calculator/index.html"), "utf8");
+  assert.match(vatTool, /data-tool-calculator="vat-calculator"/);
+  assert.match(vatTool, /tools.js/);
+  const installmentTool = await fs.readFile(path.join(dist, "tools/installment-calculator/index.html"), "utf8");
+  assert.match(installmentTool, /معدل النسبة السنوي/);
+  const toolsScript = await fs.readFile(path.join(dist, "tools.js"), "utf8");
+  assert.match(toolsScript, /debt-ratio-calculator/);
+
   // الصفحة الرئيسية موجودة
   const home = await fs.readFile(path.join(dist, "index.html"), "utf8");
   assert.match(home, /دليل/);
