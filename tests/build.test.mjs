@@ -354,22 +354,17 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
 
   const benefitPage = await fs.readFile(
     path.join(dist, "benefits/social-security/index.html"),
-  assert.match(sitemap, /benefits\\/housing-support\\//);
-  assert.match(sitemap, /benefits\\/saned-unemployment\\//);
-  assert.match(sitemap, /benefits\\/job-search-subsidy\\//);
-  assert.match(sitemap, /benefits\\/maternity-benefit\\//);
-  assert.match(sitemap, /benefits\\/retirement-pensions\\//);
     "utf8",
   );
   assert.match(benefitPage, /نقطة اختبار/);
   assert.match(benefitPage, /مصدر رسمي/);
-  assert.match(benefitPage, /example.com\/service/);
+  assert.match(benefitPage, /example.com\\/service/);
 
   const benefitsHousing = await fs.readFile(path.join(dist, "benefits/housing-support/index.html"), "utf8");
   assert.match(benefitsHousing, /الدعم السكني/);
   assert.match(benefitsHousing, /ما الذي تجهزه قبل التقديم/);
   assert.match(benefitsHousing, /بيانات الأسرة والملكية/);
-  assert.match(benefitsHousing, /tools\\/installment-calculator/);
+  assert.ok(benefitsHousing.includes("/tools/installment-calculator/"));
   assert.match(benefitsHousing, /sakani.sa/);
 
   const benefitsSaned = await fs.readFile(path.join(dist, "benefits/saned-unemployment/index.html"), "utf8");
@@ -390,7 +385,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   const benefitsRetirement = await fs.readFile(path.join(dist, "benefits/retirement-pensions/index.html"), "utf8");
   assert.match(benefitsRetirement, /3 يوليو 2024/);
   assert.match(benefitsRetirement, /65 سنة/);
-  assert.match(benefitsRetirement, /tools\\/gosi-deduction-calculator/);
+  assert.ok(benefitsRetirement.includes("/tools/gosi-deduction-calculator/"));
 
   const statisticsIndex = await fs.readFile(path.join(dist, "statistics/index.html"), "utf8");
   assert.match(statisticsIndex, /إحصاءات ومؤشرات السعودية/);
@@ -444,6 +439,11 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
 
   // خريطة الموقع لا تحتوي مسار فئة المدينة التي لم تبلغ العتبة
   const sitemap = await fs.readFile(path.join(dist, "sitemap.xml"), "utf8");
+  assert.ok(sitemap.includes("/benefits/housing-support/"));
+  assert.ok(sitemap.includes("/benefits/saned-unemployment/"));
+  assert.ok(sitemap.includes("/benefits/job-search-subsidy/"));
+  assert.ok(sitemap.includes("/benefits/maternity-benefit/"));
+  assert.ok(sitemap.includes("/benefits/retirement-pensions/"));
   assert.doesNotMatch(sitemap, /city-without-data\/restaurants/);
   assert.match(sitemap, /city-with-data\/restaurants/);
   assert.match(sitemap, /place\/city-with-data\/node\/100\//);
