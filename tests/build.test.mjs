@@ -115,8 +115,90 @@ async function makeFixtureRoot() {
       cautions: ["تنبيه اختبار"],
       serviceName: "الخدمة الرسمية",
       serviceUrl: "https://example.com/service",
-      verifiedAt: "2026-10-31",
+      verifiedAt: "2026-11-24",
       sources: [{ name: "مصدر رسمي", url: "https://example.com/source", role: "الأساس النظامي" }]
+    }, {
+      slug: "housing-support",
+      nameAr: "الدعم السكني",
+      categoryAr: "السكن والتمويل",
+      summaryAr: "دليل تجريبي للسكن.",
+      introAr: "مقدمة الدعم السكني.",
+      keyPoints: ["أن يكون المتقدم سعودي الجنسية وألا يقل عمره عن 25 سنة."],
+      documents: ["بيانات الأسرة والملكية."],
+      relatedTools: [{ slug: "installment-calculator", labelAr: "حاسبة القسط الشهري", descriptionAr: "تقدير القسط." }],
+      steps: ["الدخول إلى سكني."],
+      timingTitleAr: "التحقق",
+      timingAr: "الخدمة فورية.",
+      cautions: ["القرار النهائي للجهة."],
+      serviceName: "سكني",
+      serviceUrl: "https://sakani.sa/services/check-eligibility",
+      verifiedAt: "2026-11-24",
+      sources: [{ name: "سكني", url: "https://sakani.sa/services/check-eligibility", role: "التحقق" }]
+    }, {
+      slug: "saned-unemployment",
+      nameAr: "ساند",
+      categoryAr: "التأمينات",
+      summaryAr: "دليل ساند.",
+      introAr: "تعويض التعطل.",
+      keyPoints: ["التسجيل خلال 90 يومًا.", "60% ثم 50% من متوسط الأجر."],
+      documents: ["بيانات الاشتراك."],
+      steps: ["التحقق من الأهلية."],
+      timingTitleAr: "المهلة",
+      timingAr: "90 يومًا.",
+      cautions: ["شروط الاشتراك تختلف."],
+      serviceName: "ساند",
+      serviceUrl: "https://www.gosi.gov.sa/GOSIOnline/SANED",
+      verifiedAt: "2026-11-24",
+      sources: [{ name: "التأمينات", url: "https://beta.gosi.gov.sa/saned", role: "النظام" }]
+    }, {
+      slug: "job-search-subsidy",
+      nameAr: "إعانة البحث عن عمل",
+      categoryAr: "التوظيف",
+      summaryAr: "إعانة البحث عن عمل.",
+      introAr: "دعم الباحثين عن عمل.",
+      keyPoints: ["مدة الدعم 15 شهرًا.", "يبدأ الدعم بمبلغ 2000 ريال."],
+      documents: ["بيانات التعليم والحساب البنكي."],
+      steps: ["التقديم عبر هدف."],
+      timingTitleAr: "مدة الدعم",
+      timingAr: "15 شهرًا.",
+      cautions: ["تطبق حدود الدخل."],
+      serviceName: "هدف",
+      serviceUrl: "https://www.hrdf.org.sa/products-and-services/programs/individuals/other/job-search-subsidy/apply/",
+      verifiedAt: "2026-11-24",
+      sources: [{ name: "هدف", url: "https://www.hrdf.org.sa/products-and-services/programs/individuals/other/job-search-subsidy/", role: "الشروط" }]
+    }, {
+      slug: "maternity-benefit",
+      nameAr: "منفعة الأمومة",
+      categoryAr: "التأمينات",
+      summaryAr: "منفعة الأمومة.",
+      introAr: "تعويض الولادة.",
+      keyPoints: ["12 شهر اشتراك خلال 36 شهرًا.", "الصرف 3 أشهر."],
+      documents: ["بيانات الاشتراك والأجر."],
+      steps: ["متابعة الإشعار في التأمينات."],
+      timingTitleAr: "موعد الصرف",
+      timingAr: "بداية شهر الولادة.",
+      cautions: ["لا تجمع مع الراتب."],
+      serviceName: "منفعة الأمومة",
+      serviceUrl: "https://beta.gosi.gov.sa/maternity-benefit",
+      verifiedAt: "2026-11-24",
+      sources: [{ name: "التأمينات", url: "https://beta.gosi.gov.sa/maternity-benefit", role: "الشروط" }]
+    }, {
+      slug: "retirement-pensions",
+      nameAr: "التقاعد والتأمينات",
+      categoryAr: "التقاعد",
+      summaryAr: "أنظمة التقاعد.",
+      introAr: "تختلف الأنظمة بحسب تاريخ الاشتراك.",
+      keyPoints: ["النظام الجديد بدأ في 3 يوليو 2024.", "السن النظامية للمشمولين 65 سنة."],
+      documents: ["بيانات مدة الاشتراك."],
+      relatedTools: [{ slug: "gosi-deduction-calculator", labelAr: "حاسبة استقطاع التأمينات" }],
+      steps: ["تحقق من الفئة النظامية."],
+      timingTitleAr: "السن النظامية",
+      timingAr: "65 سنة للمشمولين بالنظام الجديد.",
+      cautions: ["المعادلات تختلف حسب النظام."],
+      serviceName: "التأمينات",
+      serviceUrl: "https://awareness.gosi.gov.sa/",
+      verifiedAt: "2026-11-24",
+      sources: [{ name: "التأمينات", url: "https://beta.gosi.gov.sa/new-system", role: "النظام الجديد" }]
     }]),
   );
   await fs.writeFile(
@@ -276,7 +358,34 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   );
   assert.match(benefitPage, /نقطة اختبار/);
   assert.match(benefitPage, /مصدر رسمي/);
-  assert.match(benefitPage, /example.com\/service/);
+  assert.ok(benefitPage.includes("example.com/service"));
+
+  const benefitsHousing = await fs.readFile(path.join(dist, "benefits/housing-support/index.html"), "utf8");
+  assert.match(benefitsHousing, /الدعم السكني/);
+  assert.match(benefitsHousing, /ما الذي تجهزه قبل التقديم/);
+  assert.match(benefitsHousing, /بيانات الأسرة والملكية/);
+  assert.ok(benefitsHousing.includes("/tools/installment-calculator/"));
+  assert.match(benefitsHousing, /sakani.sa/);
+
+  const benefitsSaned = await fs.readFile(path.join(dist, "benefits/saned-unemployment/index.html"), "utf8");
+  assert.match(benefitsSaned, /90 يومًا/);
+  assert.match(benefitsSaned, /60% ثم 50%/);
+  assert.match(benefitsSaned, /gosi.gov.sa/);
+
+  const benefitsJobSearch = await fs.readFile(path.join(dist, "benefits/job-search-subsidy/index.html"), "utf8");
+  assert.match(benefitsJobSearch, /مدة الدعم 15 شهرًا/);
+  assert.match(benefitsJobSearch, /2000 ريال/);
+  assert.match(benefitsJobSearch, /hrdf.org.sa/);
+
+  const benefitsMaternity = await fs.readFile(path.join(dist, "benefits/maternity-benefit/index.html"), "utf8");
+  assert.match(benefitsMaternity, /12 شهر اشتراك خلال 36 شهرًا/);
+  assert.match(benefitsMaternity, /الصرف 3 أشهر/);
+  assert.match(benefitsMaternity, /beta.gosi.gov.sa/);
+
+  const benefitsRetirement = await fs.readFile(path.join(dist, "benefits/retirement-pensions/index.html"), "utf8");
+  assert.match(benefitsRetirement, /3 يوليو 2024/);
+  assert.match(benefitsRetirement, /65 سنة/);
+  assert.ok(benefitsRetirement.includes("/tools/gosi-deduction-calculator/"));
 
   const statisticsIndex = await fs.readFile(path.join(dist, "statistics/index.html"), "utf8");
   assert.match(statisticsIndex, /إحصاءات ومؤشرات السعودية/);
@@ -330,6 +439,11 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
 
   // خريطة الموقع لا تحتوي مسار فئة المدينة التي لم تبلغ العتبة
   const sitemap = await fs.readFile(path.join(dist, "sitemap.xml"), "utf8");
+  assert.ok(sitemap.includes("/benefits/housing-support/"));
+  assert.ok(sitemap.includes("/benefits/saned-unemployment/"));
+  assert.ok(sitemap.includes("/benefits/job-search-subsidy/"));
+  assert.ok(sitemap.includes("/benefits/maternity-benefit/"));
+  assert.ok(sitemap.includes("/benefits/retirement-pensions/"));
   assert.doesNotMatch(sitemap, /city-without-data\/restaurants/);
   assert.match(sitemap, /city-with-data\/restaurants/);
   assert.match(sitemap, /place\/city-with-data\/node\/100\//);

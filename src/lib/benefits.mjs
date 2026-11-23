@@ -22,6 +22,16 @@ function bulletList(items = []) {
   return items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 }
 
+function relatedToolsList(items = []) {
+  return items.map((item) => {
+    if (!item || !safeSlug(item.slug) || !item.labelAr) return "";
+    return `<li>
+      <a href="/tools/${escapeHtml(item.slug)}/">${escapeHtml(item.labelAr)}</a>
+      ${item.descriptionAr ? `<p>${escapeHtml(item.descriptionAr)}</p>` : ""}
+    </li>`;
+  }).filter(Boolean).join("");
+}
+
 export function benefitsIndexPage(benefits = []) {
   const groups = new Map();
   for (const benefit of benefits) {
@@ -61,7 +71,7 @@ export function benefitsIndexPage(benefits = []) {
 
   return renderPage({
     title: `الدعم الحكومي والمنافع في السعودية — ${SITE.name}`,
-    description: "دليل الضمان الاجتماعي وحساب المواطن والتقاعد والتأمينات وإعانة ذوي الإعاقة، مع الشروط العامة وخطوات التقديم والمصادر الرسمية.",
+    description: "أدلة الخدمات الحكومية السعودية: الدعم السكني والضمان وحساب المواطن والتأمينات وساند والإعانات، مع الشروط وخطوات التقديم والمصادر الرسمية.",
     canonicalPath: "/benefits/",
     body,
     breadcrumbs: [
@@ -80,6 +90,8 @@ export function benefitDetailPage(benefit) {
   const points = bulletList(benefit.keyPoints);
   const steps = bulletList(benefit.steps);
   const cautions = bulletList(benefit.cautions);
+  const documents = bulletList(benefit.documents);
+  const relatedTools = relatedToolsList(benefit.relatedTools);
   const serviceUrl = safeHttpUrl(benefit.serviceUrl);
 
   const body = `
@@ -93,6 +105,10 @@ export function benefitDetailPage(benefit) {
     <h2>أهم المعلومات</h2>
     <ul class="benefit-facts">${points}</ul>
   </section>
+  ${documents ? `<section class="section">
+    <h2>ما الذي تجهزه قبل التقديم؟</h2>
+    <ul class="benefit-facts">${documents}</ul>
+  </section>` : ""}
   <section class="section">
     <h2>خطوات التقديم والمتابعة</h2>
     <ol class="benefit-steps">${steps}</ol>
@@ -105,6 +121,10 @@ export function benefitDetailPage(benefit) {
     <h2>تنبيهات قبل التقديم</h2>
     <ul class="benefit-cautions">${cautions}</ul>
   </section>
+  ${relatedTools ? `<section class="section">
+    <h2>أدوات وحاسبات مرتبطة بالخدمة</h2>
+    <ul class="benefit-sources">${relatedTools}</ul>
+  </section>` : ""}
   <section class="section official-action">
     <h2>الخدمة الحكومية الرسمية</h2>
     <p>لإتمام الطلب أو معرفة نتيجة أهليتك، استخدم الخدمة الرسمية التابعة للجهة الحكومية.</p>
