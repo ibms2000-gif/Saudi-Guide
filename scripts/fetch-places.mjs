@@ -5,7 +5,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildQuery, fetchOverpass, elementToRecord } from "../src/lib/overpass.mjs";
-import { classifyElement, placeName } from "../src/lib/classify.mjs";
+import { classifyElement, placeName, extractNeighbourhood } from "../src/lib/classify.mjs";
 import { slugify, sleep } from "../src/lib/util.mjs";
 import { selectBootstrapBatch } from "../src/lib/data-refresh.mjs";
 
@@ -117,6 +117,7 @@ for (const city of citiesToProcess) {
     if (!name) continue; // نتجاهل العناصر بلا اسم لضمان جودة المحتوى
     const cls = classifyElement(rec.tags, categories);
     if (!cls) continue;
+    const neighbourhood = extractNeighbourhood(rec.tags, city.nameAr);
 
     // Relations, ways and nodes can all describe the same named place.
     // Collapse same-category records whose names and rounded coordinates match.
@@ -137,6 +138,8 @@ for (const city of citiesToProcess) {
       phone: rec.tags.phone || rec.tags["contact:phone"] || null,
       website: rec.tags.website || rec.tags["contact:website"] || null,
       openingHours: rec.tags.opening_hours || null,
+      neighbourhood: neighbourhood?.name || null,
+      neighbourhoodSourceTag: neighbourhood?.sourceTag || null,
       osmType: rec.osmType,
       osmId: rec.osmId,
     });
