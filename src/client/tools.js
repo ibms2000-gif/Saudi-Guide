@@ -59,7 +59,7 @@
         if (monthsAge < 0) { years--; monthsAge += 12; }
         return row("العمر", number.format(years) + " سنة و" + number.format(monthsAge) + " شهر و" + number.format(daysAge) + " يوم") + row("إجمالي الأيام", number.format((b - a) / 86400000) + " يوم");
       case "date-difference":
-        a = dateValue(val(form, "start")); b = dateValue(val(form, "end") || new Date().toISOString().slice(0, 10));
+        a = dateValue(val(form, "start")); b = dateValue(val(form, "end") || localToday());
         if (!a || !b || b < a) throw new Error("تأكد من إدخال تاريخين صحيحين وأن النهاية ليست قبل البداية.");
         c = (b - a) / 86400000;
         return row("الفرق بالأيام", number.format(c) + " يوم") + row("بالأسابيع", number.format(c / 7) + " أسبوع") + row("بالشهور التقريبية", number.format(c / 30.4375) + " شهر");
@@ -83,7 +83,7 @@
     var content = panel.querySelector(".tool-result-content");
     var error = panel.querySelector(".tool-error");
     form.querySelectorAll('[data-today="true"]').forEach(function (field) {
-      field.value = new Date().toISOString().slice(0, 10);
+      field.value = localToday();
     });
     form.addEventListener("submit", function (event) {
       event.preventDefault();
