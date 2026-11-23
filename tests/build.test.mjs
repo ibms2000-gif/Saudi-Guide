@@ -16,6 +16,7 @@ async function makeFixtureRoot() {
   await fs.mkdir(path.join(root, "public"), { recursive: true });
   await fs.mkdir(path.join(root, "src/styles"), { recursive: true });
   await fs.mkdir(path.join(root, "src/client"), { recursive: true });
+  await fs.mkdir(path.join(root, "src/lib"), { recursive: true });
 
   const regions = [{ slug: "test-region", nameAr: "منطقة تجريبية" }];
   const categories = [
@@ -196,7 +197,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   const vatTool = await fs.readFile(path.join(dist, "tools/vat-calculator/index.html"), "utf8");
   assert.match(vatTool, /data-tool-calculator="vat-calculator"/);
   assert.match(vatTool, /name="mode"/);
-  assert.match(vatTool, /type="module" src="\\/tools.js"/);
+  assert.ok(vatTool.includes("type=\"module\" src=\"/tools.js\""));
   assert.match(vatTool, /tools.js/);
   const installmentTool = await fs.readFile(path.join(dist, "tools/installment-calculator/index.html"), "utf8");
   assert.match(installmentTool, /معدل النسبة السنوي/);
