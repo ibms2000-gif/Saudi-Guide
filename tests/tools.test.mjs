@@ -310,12 +310,21 @@ test("زكاة الذهب تحول العيار إلى وزن خالص وتتح�
   assert.equal(result[3].value, 656.25);
 });
 
-test("حاسبة الضمان تخصم نصف الدخل المكتسب وتضيف غير المكتسب", () => {
+test("حاسبة الضمان تحتسب زيادة التابعين وتطبق سقف الحد الأساسي", () => {
   const result = calculateTool("social-security-income-calculator", {
-    earned: "2000", unearned: "500", threshold: "2500"
+    earned: "3000", unearned: "200", basicThreshold: "1320",
+    dependents: "2", dependentIncrease: "660"
   });
-  assert.equal(result[1].value, 1500);
-  assert.equal(result[3].value, 1000);
+  assert.equal(result[2].value, 1700);
+  assert.equal(result[4].value, 1320);
+  assert.equal(result[5].value, 2640);
+  assert.equal(result[6].value, 940);
+
+  const capped = calculateTool("social-security-income-calculator", {
+    earned: "0", unearned: "0", basicThreshold: "1320",
+    dependents: "10", dependentIncrease: "660"
+  });
+  assert.equal(capped[5].value, 2640);
 });
 
 test("حاسبة ساما تطبق شرائح الدخل وحد الاستقطاع من الراتب", () => {
@@ -372,4 +381,96 @@ test("ترفض حاسبات الخدمات الحكومية والتمويلية
   }));
   assert.throws(() => calculateTool("finance-amount-from-payment-calculator", { payment: "0", rate: "5", years: "20" }));
   assert.throws(() => calculateTool("real-estate-purchase-cost-calculator", { price: "100000", downRate: "101", brokerRate: "2.5", otherFees: "0" }));
+});
+
+
+test("حاسبة ساند تطبق 60% لأول ثلاثة أشهر و50% بعدها مع الحدود العليا", () => {
+  const first = calculateTool("saned-compensation-calculator", {
+    averageWage: "8000", month: "1", minimumFloor: "0"
+  });
+  assert.equal(first[2].value, 4800);
+  assert.equal(first[3].value, 9000);
+  assert.equal(first[5].value, 4800);
+
+  const later = calculateTool("saned-compensation-calculator", {
+    averageWage: "8000", month: "5", minimumFloor: "0"
+  });
+  assert.equal(later[1].value, 50);
+  assert.equal(later[2].value, 4000);
+  assert.equal(later[3].value, 7500);
+
+  const floor = calculateTool("saned-compensation-calculator", {
+    averageWage: "5000", month: "7", minimumFloor: "6000"
+  });
+  assert.equal(floor[5].value, 5000);
+});
+
+test("حاسبة إعانة البحث عن عمل تحسب الدفعة التالية والمتبقي", () => {
+  const result = calculateTool("job-search-subsidy-planner", { paidMonths: "5" });
+  assert.equal(result[1].value, 9500);
+  assert.equal(result[2].value, 1500);
+  assert.equal(result[3].value, 10);
+  assert.equal(result[4].value, 10750);
+
+  const completed = calculateTool("job-search-subsidy-planner", { paidMonths: "15" });
+  assert.equal(completed[2].value, 0);
+  assert.equal(completed[3].value, 0);
+  assert.equal(completed[4].value, 0);
+});
+
+test("حاسبة معاش النظام الجديد تطبق معادلة 2.25% وسقف 100%", () => {
+  const result = calculateTool("new-retirement-pension-calculator", {
+    averageWage: "10000", months: "360"
+  });
+  assert.equal(result[2].value, 67.5);
+  assert.equal(result[3].value, 6750);
+
+  const capped = calculateTool("new-retirement-pension-calculator", {
+    averageWage: "10000", months: "600"
+  });
+  assert.equal(capped[3].value, 10000);
+  assert.equal(capped[2].value, 100);
+});
+
+test("حاسبة منفعة الأمومة تضرب متوسط الأجر في ثلاثة أو أربعة أشهر", () => {
+  const normal = calculateTool("maternity-benefit-calculator", {
+    averageWage: "8500", extraMonth: "no"
+  });
+  assert.equal(normal[1].value, 3);
+  assert.equal(normal[2].value, 25500);
+
+  const extended = calculateTool("maternity-benefit-calculator", {
+    averageWage: "8500", extraMonth: "yes"
+  });
+  assert.equal(extended[1].value, 4);
+  assert.equal(extended[2].value, 34000);
+});
+
+test("حاسبة تخطيط حساب المواطن لا تستنتج الدعم وتستخدم مبلغ الحاسبة الرسمية", () => {
+  const result = calculateTool("citizen-account-budget-calculator", {
+    monthlySupport: "1000", monthlyExpenses: "5000"
+  });
+  assert.equal(result[1].value, 12000);
+  assert.equal(result[2].value, 20);
+  assert.equal(result[3].value, 4000);
+});
+
+test("ترفض حاسبات الدعم والتقاعد والأمومة المدخلات خارج النطاق", () => {
+  assert.throws(() => calculateTool("social-security-income-calculator", {
+    earned: "1000", unearned: "0", basicThreshold: "1320",
+    dependents: "1.5", dependentIncrease: "660"
+  }));
+  assert.throws(() => calculateTool("saned-compensation-calculator", {
+    averageWage: "50000", month: "1", minimumFloor: "0"
+  }));
+  assert.throws(() => calculateTool("job-search-subsidy-planner", { paidMonths: "16" }));
+  assert.throws(() => calculateTool("new-retirement-pension-calculator", {
+    averageWage: "10000", months: "0"
+  }));
+  assert.throws(() => calculateTool("maternity-benefit-calculator", {
+    averageWage: "0", extraMonth: "no"
+  }));
+  assert.throws(() => calculateTool("citizen-account-budget-calculator", {
+    monthlySupport: "-1", monthlyExpenses: "5000"
+  }));
 });
