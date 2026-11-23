@@ -50,7 +50,7 @@
         c = a * b / 100;
         return row("الوقود المطلوب", number.format(c) + " لتر") + row("تكلفة الرحلة التقديرية", money.format(c * rate));
       case "age-calculator":
-        a = dateValue(val(form, "birth")); b = dateValue(val(form, "target") || new Date().toISOString().slice(0, 10));
+        a = dateValue(val(form, "birth")); b = dateValue(val(form, "target") || localToday());
         if (!a || !b || b < a) throw new Error("تحقق من تاريخ الميلاد وتاريخ الحساب.");
         var years = b.getUTCFullYear() - a.getUTCFullYear();
         var monthsAge = b.getUTCMonth() - a.getUTCMonth();
