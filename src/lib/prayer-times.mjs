@@ -136,25 +136,40 @@ export function formatSaudiPrayerTime(date) {
   }).format(date);
 }
 
-export function prayerTimesPage(city, now = new Date()) {
+export function prayerTimesPage(city, now = new Date(), { includeSchedule = false, scheduleDays = 1096 } = {}) {
   const result = calculateCityPrayerTimes(city, now);
   const next = nextPrayerForCity(city, now);
   const rows = PRAYER_NAMES.map(([key, label]) => `<tr>
     <th scope="row">${label}</th>
-    <td><time datetime="${result.prayers[key].toISOString()}">${escapeHtml(formatSaudiPrayerTime(result.prayers[key]))}</time></td>
+    <td><time data-prayer-key="${key}" datetime="${result.prayers[key].toISOString()}">${escapeHtml(formatSaudiPrayerTime(result.prayers[key]))}</time></td>
   </tr>`).join("");
   const target = next.time.toISOString();
+  let scheduleScript = "";
+  if (includeSchedule) {
+    const days = Number.isInteger(scheduleDays) ? Math.max(1, Math.min(scheduleDays, 1460)) : 1096;
+    const parts = riyadhDateParts(now);
+    const schedule = Array.from({ length: days }, (_, index) => {
+      const date = new Date(Date.UTC(parts.year, parts.month - 1, parts.day + index, 12));
+      const daily = calculateCityPrayerTimes(city, date);
+      return {
+        dateIso: daily.dateIso,
+        prayers: Object.fromEntries(PRAYER_NAMES.map(([key]) => [key, daily.prayers[key].toISOString()])),
+      };
+    });
+    scheduleScript = `<script type="application/json" id="prayer-times-schedule">${JSON.stringify(schedule).replaceAll("<", "\\\\u003c")}</script>
+    <script src="/prayer-times.js" defer></script>`;
+  }
 
   const body = `
   <section class="hero">
     <p class="eyebrow">مواقيت اليوم · ${escapeHtml(city.regionAr || "المملكة العربية السعودية")}</p>
     <h1>مواقيت الصلاة في ${escapeHtml(city.nameAr)}</h1>
     <p>مواقيت الفجر والشروق والظهر والعصر والمغرب والغروب والعشاء لهذا اليوم، محسوبة لإحداثيات ${escapeHtml(city.nameAr)} على توقيت المملكة العربية السعودية.</p>
-    <p class="event-date">تاريخ اليوم: <strong>${escapeHtml(formatSaudiDate(result.dateIso))}</strong></p>
+    <p class="event-date">تاريخ اليوم: <strong data-prayer-date>${escapeHtml(formatSaudiDate(result.dateIso))}</strong></p>
   </section>
   <section class="section calendar-feature">
-    <h2>الصلاة القادمة: ${escapeHtml(next.nameAr)}</h2>
-    <p class="event-date"><strong>${escapeHtml(formatSaudiPrayerTime(next.time))}</strong></p>
+    <h2 data-next-prayer-name>الصلاة القادمة: ${escapeHtml(next.nameAr)}</h2>
+    <p class="event-date"><strong data-next-prayer-time>${escapeHtml(formatSaudiPrayerTime(next.time))}</strong></p>
     <div class="countdown" data-countdown-target="${escapeHtml(target)}">
       <span class="countdown-label">الوقت المتبقي حتى أذان ${escapeHtml(next.nameAr)}</span>
       <strong class="countdown-value" aria-live="off">جارٍ حساب الوقت المتبقي…</strong>
@@ -173,7 +188,8 @@ export function prayerTimesPage(city, now = new Date()) {
     <p>هذه نتيجة حسابية وليست جدولًا صادرًا من جهة حكومية أو مسجد محلي. قد تختلف الدقائق بسبب إعدادات الجهة المحلية أو التقويم المعتمد؛ يُرجى التحقق من المسجد القريب عند الحاجة.</p>
     <p>المرجع التعريفي: <a href="https://www.ummulqura.org.sa/prayer-times" rel="noopener noreferrer nofollow" target="_blank">تقويم أم القرى — مواقيت الصلاة حسب المدينة</a>. ومنهج الحساب البرمجي: <a href="https://github.com/batoulapps/adhan-js" rel="noopener noreferrer nofollow" target="_blank">Adhan JS (MIT)</a>.</p>
   </section>
-  <p class="source-note">الإحداثيات المستخدمة: <span dir="ltr">${Number(city.latitude).toFixed(4)}, ${Number(city.longitude).toFixed(4)}</span>. إذا وجدت اختلافًا يرجى مقارنة الموعد مع المسجد المحلي.</p>`;
+  <p class="source-note">الإحداثيات المستخدمة: <span dir="ltr">${Number(city.latitude).toFixed(4)}, ${Number(city.longitude).toFixed(4)}</span>. إذا وجدت اختلافًا يرجى مقارنة الموعد مع المسجد المحلي.</p>
+  ${scheduleScript}`;
 
   return renderPage({
     title: `مواقيت الصلاة اليوم في ${city.nameAr} — الفجر والشروق والمغرب | ${SITE.name}`,
