@@ -4,7 +4,6 @@ on:
   push:
     branches: [main]
     paths:
-      - ".github/workflows/refresh-neighbourhood-boundaries.yml"
       - "scripts/fetch-neighbourhood-boundaries.mjs"
       - "scripts/validate-neighbourhood-boundaries.mjs"
       - "src/lib/neighbourhood-boundaries.mjs"
@@ -29,6 +28,7 @@ on:
         options:
           - bootstrap
           - refresh-batch
+          - retry-riyadh
 
 permissions:
   contents: write
@@ -56,7 +56,12 @@ jobs:
           NEIGHBOURHOOD_BOUNDARY_BATCH_SIZE: "5"
           NEIGHBOURHOOD_BOUNDARY_BOOTSTRAP_ONLY: ${{ github.event_name != 'schedule' && inputs.mode != 'refresh-batch' }}
           NEIGHBOURHOOD_BOUNDARY_REFRESH_BATCH_ONLY: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh-batch') }}
-        run: npm run neighbourhoods:data
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.mode }}" == "retry-riyadh" ]]; then
+            npm run neighbourhoods:data -- --city=riyadh
+          else
+            npm run neighbourhoods:data
+          fi
       - name: Validate neighbourhood polygons and metadata
         run: npm run validate:neighbourhoods
       - name: Run unit tests
@@ -69,7 +74,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: automation/refresh-neighbourhood-boundaries
+          branch: ${{ inputs.mode == 'retry-riyadh' && 'automation/retry-riyadh-boundaries' || 'automation/refresh-neighbourhood-boundaries' }}
           delete-branch: true
           commit-message: "Refresh OSM neighbourhood boundaries"
           title: "Refresh Saudi Guide neighbourhood boundary data"
