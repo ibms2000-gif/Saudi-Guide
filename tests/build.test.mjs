@@ -285,6 +285,21 @@ async function makeFixtureRoot() {
     }),
   );
 
+  await fs.writeFile(
+    path.join(root, "data/official-mental-health-hospitals.json"),
+    JSON.stringify({
+      sourceNameAr: "وزارة الصحة",
+      sourceTitleAr: "مواقع مجمعات ومستشفيات الصحة النفسية",
+      sourceUrl: "https://www.moh.gov.sa/test-mental-health.pdf",
+      verifiedAt: "2026-11-24",
+      disclaimerAr: "تحقق من المصدر الرسمي.",
+      facilities: [
+        { id: "test-mental-1", nameAr: "مجمع إرادة تجريبي", areaAr: "الرياض" },
+        { id: "test-mental-2", nameAr: "مستشفى صحة نفسية تجريبي", areaAr: "جدة" }
+      ]
+    }),
+  );
+
   await fs.cp(path.join(REPO_ROOT, "public"), path.join(root, "public"), { recursive: true });
   await fs.cp(path.join(REPO_ROOT, "src/styles/site.css"), path.join(root, "src/styles/site.css"));
   await fs.cp(path.join(REPO_ROOT, "src/client/app.js"), path.join(root, "src/client/app.js"));
@@ -493,6 +508,15 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(onDutyRegion, /مركز صحي تجريبي ثانٍ/);
   assert.match(onDutyRegion, /فتح جدول وزارة الصحة الأصلي/);
 
+  const mentalHealth = await fs.readFile(
+    path.join(dist, "health/mental-health-hospitals/index.html"),
+    "utf8",
+  );
+  assert.match(mentalHealth, /مواقع مجمعات ومستشفيات الصحة النفسية في السعودية/);
+  assert.match(mentalHealth, /مجمع إرادة تجريبي/);
+  assert.match(mentalHealth, /مستشفى صحة نفسية تجريبي/);
+  assert.match(mentalHealth, /test-mental-health.pdf/);
+
   // صفحة مدينة بها بيانات كافية تحتوي قسم المطاعم وإسناد المصدر
   const cityCategory = await fs.readFile(
     path.join(dist, "city/city-with-data/restaurants/index.html"),
@@ -529,6 +553,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   const sitemap = await fs.readFile(path.join(dist, "sitemap.xml"), "utf8");
   assert.ok(sitemap.includes("/health/on-duty/"));
   assert.ok(sitemap.includes("/health/on-duty/test-region/"));
+  assert.ok(sitemap.includes("/health/mental-health-hospitals/"));
   assert.ok(sitemap.includes("/benefits/housing-support/"));
   assert.ok(sitemap.includes("/benefits/saned-unemployment/"));
   assert.ok(sitemap.includes("/benefits/job-search-subsidy/"));
