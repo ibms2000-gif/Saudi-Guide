@@ -28,6 +28,7 @@ import { benefitsIndexPage, benefitDetailPage } from "../src/lib/benefits.mjs";
 import { statisticsIndexPage, statisticDetailPage } from "../src/lib/statistics.mjs";
 import { newsIndexPage, newsRegionPage, newsDetailPage } from "../src/lib/news.mjs";
 import { toolsIndexPage, toolPages } from "../src/lib/tools.mjs";
+import { officialDirectoriesPage } from "../src/lib/official-directories.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(__dirname, "..");
@@ -55,6 +56,7 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   add("/regions/", regionsIndexPage(model));
   add("/categories/", categoriesIndexPage(model));
   add("/about/data-sources/", dataSourcesPage(model));
+  add("/official-directories/", officialDirectoriesPage());
   add("/legal/weather-notice/", weatherNoticePage());
 
   // تقويم المناسبات والمواعيد الرسمية الموثقة.

@@ -69,6 +69,7 @@ function renderHeader() {
       <a href="/benefits/">الدعم والمنافع</a>
       <a href="/statistics/">الإحصاءات</a>
       <a href="/news/">أخبار المناطق</a>
+      <a href="/official-directories/">الأدلة الرسمية</a>
       <a href="/about/data-sources/">مصدر البيانات</a>
     </nav>
   </div>
