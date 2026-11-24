@@ -266,6 +266,25 @@ async function makeFixtureRoot() {
     ]),
   );
 
+  await fs.writeFile(
+    path.join(root, "data/official-health-centers.json"),
+    JSON.stringify({
+      sourceNameAr: "وزارة الصحة",
+      sourceLastUpdatedHijri: "08 ذو الحجة 1447 هـ",
+      disclaimerAr: "تحقق من المصدر الرسمي قبل الزيارة.",
+      pages: [{
+        slug: "test-region",
+        titleAr: "مراكز صحية مناوبة للاختبار",
+        scopeAr: "نطاق تجريبي",
+        sourceUrl: "https://www.moh.gov.sa/test",
+        centers: [
+          { id: "center-one", nameAr: "مركز صحي تجريبي أول", clusterAr: "تجمع تجريبي" },
+          { id: "center-two", nameAr: "مركز صحي تجريبي ثانٍ", clusterAr: "تجمع تجريبي" }
+        ]
+      }]
+    }),
+  );
+
   await fs.cp(path.join(REPO_ROOT, "public"), path.join(root, "public"), { recursive: true });
   await fs.cp(path.join(REPO_ROOT, "src/styles/site.css"), path.join(root, "src/styles/site.css"));
   await fs.cp(path.join(REPO_ROOT, "src/client/app.js"), path.join(root, "src/client/app.js"));
@@ -466,6 +485,14 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   const regionalNews = await fs.readFile(path.join(dist, "news/region/test-region/index.html"), "utf8");
   assert.match(regionalNews, /أخبار منطقة تجريبية/);
 
+  const onDutyIndex = await fs.readFile(path.join(dist, "health/on-duty/index.html"), "utf8");
+  assert.match(onDutyIndex, /المراكز الصحية المناوبة/);
+  assert.match(onDutyIndex, /مراكز صحية مناوبة للاختبار/);
+  const onDutyRegion = await fs.readFile(path.join(dist, "health/on-duty/test-region/index.html"), "utf8");
+  assert.match(onDutyRegion, /مركز صحي تجريبي أول/);
+  assert.match(onDutyRegion, /مركز صحي تجريبي ثانٍ/);
+  assert.match(onDutyRegion, /فتح جدول وزارة الصحة الأصلي/);
+
   // صفحة مدينة بها بيانات كافية تحتوي قسم المطاعم وإسناد المصدر
   const cityCategory = await fs.readFile(
     path.join(dist, "city/city-with-data/restaurants/index.html"),
@@ -500,6 +527,8 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
 
   // خريطة الموقع لا تحتوي مسار فئة المدينة التي لم تبلغ العتبة
   const sitemap = await fs.readFile(path.join(dist, "sitemap.xml"), "utf8");
+  assert.ok(sitemap.includes("/health/on-duty/"));
+  assert.ok(sitemap.includes("/health/on-duty/test-region/"));
   assert.ok(sitemap.includes("/benefits/housing-support/"));
   assert.ok(sitemap.includes("/benefits/saned-unemployment/"));
   assert.ok(sitemap.includes("/benefits/job-search-subsidy/"));

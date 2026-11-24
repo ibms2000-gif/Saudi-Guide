@@ -28,6 +28,7 @@ import { benefitsIndexPage, benefitDetailPage } from "../src/lib/benefits.mjs";
 import { statisticsIndexPage, statisticDetailPage } from "../src/lib/statistics.mjs";
 import { newsIndexPage, newsRegionPage, newsDetailPage } from "../src/lib/news.mjs";
 import { toolsIndexPage, toolPages } from "../src/lib/tools.mjs";
+import { loadOfficialHealthCenters, officialHealthCentersIndexPage, officialHealthCentersRegionPage } from "../src/lib/official-health-centers.mjs";
 import { officialDirectoriesPage } from "../src/lib/official-directories.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -39,6 +40,7 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   const model = await loadModel(dataRoot);
   const citiesWithData = model.cities.filter((city) => city.totalPlaces > 0).length;
   const totalPlaces = model.cities.reduce((sum, city) => sum + city.totalPlaces, 0);
+  const officialHealthCenters = await loadOfficialHealthCenters(dataRoot);
   if (!allowEmptyData && (citiesWithData < 5 || totalPlaces < 50)) {
     throw new Error(
       `رفض بناء نسخة الإنتاج: بيانات الأماكن غير كافية (${totalPlaces} مكانًا في ${citiesWithData} مدن). ` +
@@ -58,6 +60,12 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   add("/about/data-sources/", dataSourcesPage(model));
   add("/official-directories/", officialDirectoriesPage());
   add("/legal/weather-notice/", weatherNoticePage());
+  if (officialHealthCenters?.pages.length) {
+    add("/health/on-duty/", officialHealthCentersIndexPage(officialHealthCenters));
+    for (const page of officialHealthCenters.pages) {
+      add(`/health/on-duty/${encodeURIComponent(page.slug)}/`, officialHealthCentersRegionPage(officialHealthCenters, page));
+    }
+  }
 
   // تقويم المناسبات والمواعيد الرسمية الموثقة.
   add("/calendar/", calendarHomePage({
@@ -225,6 +233,8 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     dynamicPrayerPages: prayerPaths.length,
     neighbourhoodPages: model.cities.reduce((sum, city) => sum + (city.totalNeighbourhoods || 0), 0),
     neighbourhoodsByCity: Object.fromEntries(model.cities.map((city) => [city.slug, city.totalNeighbourhoods || 0]).filter(([, count]) => count > 0)),
+    officialHealthCenterPages: officialHealthCenters?.pages.length || 0,
+    officialHealthCenterRecords: officialHealthCenters?.pages.reduce((sum, page) => sum + page.centers.length, 0) || 0,
     statisticsPages: 1 + qualifiedStatistics.length,
     newsPages: 1 + qualifiedNews.length + model.regions.filter((region) => qualifiedNews.filter((item) => item.regionSlug === region.slug).length >= 2).length,
     totalIndexableUrls: indexablePaths.length,

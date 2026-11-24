@@ -70,6 +70,7 @@ function renderHeader() {
       <a href="/statistics/">الإحصاءات</a>
       <a href="/news/">أخبار المناطق</a>
       <a href="/official-directories/">الأدلة الرسمية</a>
+      <a href="/health/on-duty/">المراكز المناوبة</a>
       <a href="/about/data-sources/">مصدر البيانات</a>
     </nav>
   </div>
