@@ -160,8 +160,33 @@
       "fetchedAt": "2026-11-24T04:19:37.717Z",
       "total": 46,
       "stale": false
+    },
+    "bisha": {
+      "fetchedAt": "2026-11-24T04:23:05.615Z",
+      "total": 22,
+      "stale": false
+    },
+    "muhayil-asir": {
+      "fetchedAt": "2026-11-24T04:24:01.133Z",
+      "total": 15,
+      "stale": false
+    },
+    "al-qunfudhah": {
+      "fetchedAt": "2026-11-24T04:24:56.330Z",
+      "total": 65,
+      "stale": false
+    },
+    "duba": {
+      "fetchedAt": "2026-11-24T04:25:45.391Z",
+      "total": 10,
+      "stale": false
+    },
+    "haql": {
+      "lastAttemptAt": "2026-11-24T04:27:26.240Z",
+      "lastError": "Overpass HTTP 502",
+      "stale": true
     }
   },
-  "fetchedAt": "2026-11-24T04:19:37.717Z",
-  "lastAttemptAt": "2026-11-24T04:14:09.139Z"
+  "fetchedAt": "2026-11-24T04:25:45.391Z",
+  "lastAttemptAt": "2026-11-24T04:22:21.626Z"
 }
