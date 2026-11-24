@@ -122,9 +122,9 @@
       "stale": false
     },
     "alula": {
-      "lastAttemptAt": "2026-11-24T04:05:29.893Z",
-      "lastError": "Overpass HTTP 502",
-      "stale": true
+      "fetchedAt": "2026-11-24T04:14:55.013Z",
+      "total": 44,
+      "stale": false
     },
     "jubail": {
       "fetchedAt": "2026-11-24T04:06:17.584Z",
@@ -140,8 +140,28 @@
       "fetchedAt": "2026-11-24T04:09:39.676Z",
       "total": 150,
       "stale": false
+    },
+    "dhahran": {
+      "fetchedAt": "2026-11-24T04:15:43.273Z",
+      "total": 30,
+      "stale": false
+    },
+    "unaizah": {
+      "fetchedAt": "2026-11-24T04:16:34.296Z",
+      "total": 189,
+      "stale": false
+    },
+    "alrass": {
+      "fetchedAt": "2026-11-24T04:17:18.102Z",
+      "total": 482,
+      "stale": false
+    },
+    "sabya": {
+      "fetchedAt": "2026-11-24T04:19:37.717Z",
+      "total": 46,
+      "stale": false
     }
   },
-  "fetchedAt": "2026-11-24T04:09:39.676Z",
-  "lastAttemptAt": "2026-11-24T04:03:01.068Z"
+  "fetchedAt": "2026-11-24T04:19:37.717Z",
+  "lastAttemptAt": "2026-11-24T04:14:09.139Z"
 }
