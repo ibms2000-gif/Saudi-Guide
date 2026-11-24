@@ -40,7 +40,7 @@ test("دليل الفهرس وصفحات النطاق تعرض المصدر وا
   assert.match(region, /مركز صحي الواحة في شرق جدة/);
   assert.match(region, /تجمع جدة الأول/);
   assert.match(region, /فتح جدول وزارة الصحة الأصلي/);
-  assert.match(region, /تحقق من صفحة الوزارة الرسمية قبل التوجه/);
+  assert.match(region, /يرجى التحقق قبل التوجه/);
   assert.match(region, /لم ننقل مؤشرات ساعات العمل/);
   assert.ok(region.includes(jeddah.sourceUrl));
 });
