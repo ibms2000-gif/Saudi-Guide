@@ -75,6 +75,38 @@ if (process.argv.includes("--json")) {
     );
   }
 
+  console.log("\nجميع أسماء الأحياء المكتشفة (بما فيها غير المؤهلة):");
+  const discovered = report.cities.flatMap((city) =>
+    city.neighbourhoods.map((neighbourhood) => ({
+      city: city.nameAr,
+      ...neighbourhood,
+    })),
+  );
+  if (discovered.length === 0) {
+    console.log("لم يُسجل أي اسم حي صريح في اللقطة الحالية.");
+  }
+  for (const neighbourhood of discovered) {
+    const sources = Object.entries(neighbourhood.sourceTagCounts)
+      .map(([tag, count]) => tag + "=" + count)
+      .join("، ") || "غير محدد";
+    const reasons = [];
+    if (neighbourhood.totalPlaces < thresholds.minimumPlaces) {
+      reasons.push("الأماكن " + neighbourhood.totalPlaces + "/" + thresholds.minimumPlaces);
+    }
+    if (neighbourhood.categoryCount < thresholds.minimumCategories) {
+      reasons.push("التصنيفات " + neighbourhood.categoryCount + "/" + thresholds.minimumCategories);
+    }
+    const eligibility = neighbourhood.indexable
+      ? "مؤهل"
+      : "غير مؤهل: " + reasons.join("؛ ");
+    console.log(
+      "- " + neighbourhood.nameAr + " — " + neighbourhood.city +
+      ": " + neighbourhood.totalPlaces + " مكانًا، " +
+      neighbourhood.categoryCount + " تصنيفًا، " + eligibility +
+      ". الوسوم: " + sources,
+    );
+  }
+
   const missing = report.cities
     .filter((city) => city.taggedPlaces === 0)
     .map((city) => city.nameAr);
