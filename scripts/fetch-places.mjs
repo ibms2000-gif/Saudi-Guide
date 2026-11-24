@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { buildQuery, fetchOverpass, elementToRecord } from "../src/lib/overpass.mjs";
 import { classifyElement, placeName, extractNeighbourhood } from "../src/lib/classify.mjs";
 import { slugify, sleep } from "../src/lib/util.mjs";
-import { selectBootstrapBatch } from "../src/lib/data-refresh.mjs";
+import { selectBootstrapBatch, selectRefreshBatch } from "../src/lib/data-refresh.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -25,6 +25,12 @@ const configuredBatchSize = Number(process.env.BOOTSTRAP_BATCH_SIZE ?? 5);
 const bootstrapBatchSize = Number.isInteger(configuredBatchSize) &&
   configuredBatchSize >= 1 && configuredBatchSize <= 10
   ? configuredBatchSize
+  : 5;
+const refreshBatchOnly = process.env.REFRESH_BATCH_ONLY === "true";
+const configuredRefreshBatchSize = Number(process.env.REFRESH_BATCH_SIZE ?? 5);
+const refreshBatchSize = Number.isInteger(configuredRefreshBatchSize) &&
+  configuredRefreshBatchSize >= 1 && configuredRefreshBatchSize <= 10
+  ? configuredRefreshBatchSize
   : 5;
 
 await fs.mkdir(path.join(ROOT, "data/places"), { recursive: true });
@@ -46,6 +52,7 @@ let successfulCities = 0;
 let attemptedCities = 0;
 let skippedExistingCities = 0;
 let remainingBootstrapCities = 0;
+let remainingRefreshCities = 0;
 let rateLimited = false;
 
 let citiesToProcess = targets;
@@ -73,6 +80,14 @@ if (bootstrapOnly) {
   remainingBootstrapCities = batch.remaining;
   console.log(
     `دفعة التهيئة: ${citiesToProcess.length} مدن، تخطي ${skippedExistingCities} مكتملة، والمتبقي بعد هذه الدفعة ${remainingBootstrapCities} مدينة.`,
+  );
+} else if (refreshBatchOnly) {
+  const batch = selectRefreshBatch(targets, meta.cities, refreshBatchSize);
+  citiesToProcess = batch.cities;
+  remainingRefreshCities = batch.remaining;
+  console.log(
+    "دفعة التحديث: " + citiesToProcess.map((city) => city.nameAr).join("، ") +
+    "؛ المتبقي للدورات القادمة: " + remainingRefreshCities + " مدينة.",
   );
 }
 
