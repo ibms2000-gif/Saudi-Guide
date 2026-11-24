@@ -62,7 +62,7 @@ jobs:
           retry_riyadh=false
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.mode }}" == "retry-riyadh" ]]; then
             retry_riyadh=true
-          elif [[ "${{ github.event_name }}" == "push" ]] && git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" | grep -Fxq ".github/triggers/retry-riyadh"; then
+          elif [[ "${{ github.event_name }}" == "push" ]] && jq -e '((.head_commit.added // []) + (.head_commit.modified // [])) | index(".github/triggers/retry-riyadh") != null' "$GITHUB_EVENT_PATH" >/dev/null; then
             retry_riyadh=true
           fi
 
