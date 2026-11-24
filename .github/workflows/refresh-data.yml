@@ -9,6 +9,8 @@ on:
       - "scripts/fetch-places.mjs"
       - "scripts/validate-data.mjs"
       - "src/lib/overpass.mjs"
+      - "src/lib/data-refresh.mjs"
+      - "src/lib/classify.mjs"
       - "data/cities.json"
       - "data/categories.json"
       - "data/places/**"
@@ -17,12 +19,13 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Bootstrap missing city data, or refresh every city"
+        description: "Bootstrap missing cities, refresh the oldest five, or refresh every city"
         required: true
         type: choice
         default: bootstrap
         options:
           - bootstrap
+          - refresh-batch
           - refresh
 
 permissions:
@@ -49,17 +52,19 @@ jobs:
       - name: Fetch current place data
         env:
           BOOTSTRAP_BATCH_SIZE: "5"
-          BOOTSTRAP_ONLY: ${{ !(github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh')) }}
+          REFRESH_BATCH_SIZE: "5"
+          BOOTSTRAP_ONLY: ${{ !(github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode != 'bootstrap')) }}
+          REFRESH_BATCH_ONLY: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh-batch') }}
         run: npm run data
       - name: Validate fetched data
         env:
-          ALLOW_PARTIAL_DATA: ${{ !(github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh')) }}
+          ALLOW_PARTIAL_DATA: ${{ !(github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode != 'bootstrap')) }}
         run: npm run validate:data
       - name: Run tests
         run: npm test
       - name: Verify static build
         env:
-          ALLOW_EMPTY_DATA: ${{ !(github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh')) }}
+          ALLOW_EMPTY_DATA: ${{ !(github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode != 'bootstrap')) }}
         run: npm run build
       - name: Open data refresh pull request
         uses: peter-evans/create-pull-request@v7
