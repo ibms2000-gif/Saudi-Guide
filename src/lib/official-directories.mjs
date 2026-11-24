@@ -104,6 +104,7 @@ export function officialDirectoriesPage() {
     <ul class="grid-list">${healthResources}</ul>
     <p><a href="/health/mental-health-hospitals/">استعراض قائمة مستشفيات ومجمعات الصحة النفسية داخل دليل السعودية (19 منشأة)</a></p>
     <p><a href="/health/rehabilitation/">دليل البحث عن خدمات التأهيل الطبي والتحقق من المستشفيات</a></p>
+    <p><a href="/health/working-hours/">دليل أوقات عمل المستشفيات والمراكز الصحية والمناوبة</a></p>
   </section>
 
   <section class="section">
