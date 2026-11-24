@@ -233,6 +233,8 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     dynamicPrayerPages: prayerPaths.length,
     neighbourhoodPages: model.cities.reduce((sum, city) => sum + (city.totalNeighbourhoods || 0), 0),
     neighbourhoodsByCity: Object.fromEntries(model.cities.map((city) => [city.slug, city.totalNeighbourhoods || 0]).filter(([, count]) => count > 0)),
+    officialHealthCenterPages: officialHealthCenters?.pages.length || 0,
+    officialHealthCenterRecords: officialHealthCenters?.pages.reduce((sum, page) => sum + page.centers.length, 0) || 0,
     statisticsPages: 1 + qualifiedStatistics.length,
     newsPages: 1 + qualifiedNews.length + model.regions.filter((region) => qualifiedNews.filter((item) => item.regionSlug === region.slug).length >= 2).length,
     totalIndexableUrls: indexablePaths.length,
