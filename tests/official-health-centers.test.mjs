@@ -12,17 +12,32 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 
-test("بيانات وزارة الصحة تحتوي قائمتي جدة ومكة وتطابق الأعداد المنشورة", async () => {
+test("بيانات وزارة الصحة تحتوي عشر قوائم إقليمية وتطابق أعداد المراكز المنشورة", async () => {
   const data = await loadOfficialHealthCenters(ROOT);
   assert.ok(data);
-  assert.equal(data.pages.length, 2);
-  assert.equal(data.pages.find((page) => page.slug === "jeddah").centers.length, 35);
-  assert.equal(data.pages.find((page) => page.slug === "makkah").centers.length, 27);
-  assert.equal(data.pages.reduce((sum, page) => sum + page.centers.length, 0), 62);
+  const expectedCounts = {
+    jeddah: 35,
+    makkah: 27,
+    riyadh: 44,
+    madinah: 23,
+    tabuk: 12,
+    hail: 9,
+    najran: 14,
+    "al-jouf": 9,
+    jazan: 18,
+    "al-baha": 13,
+  };
+  assert.equal(data.pages.length, 10);
+  for (const [slug, count] of Object.entries(expectedCounts)) {
+    assert.equal(data.pages.find((page) => page.slug === slug)?.centers.length, count, slug);
+  }
+  assert.equal(data.pages.reduce((sum, page) => sum + page.centers.length, 0), 204);
   assert.equal(data.sourceLastUpdatedHijri, "08 ذو الحجة 1447 هـ");
+  assert.equal(data.verifiedAt, "2026-11-24");
 
   for (const page of data.pages) {
     assert.match(page.sourceUrl, /^https:\/\/www\.moh\.gov\.sa\//);
+    assert.ok(page.sourceLastUpdatedHijri || data.sourceLastUpdatedHijri);
     assert.ok(page.centers.every((center) => center.nameAr && center.clusterAr && center.id));
   }
 });
@@ -36,11 +51,26 @@ test("دليل الفهرس وصفحات النطاق تعرض المصدر وا
   assert.match(index, /المراكز الصحية المناوبة/);
   assert.match(index, /نطاق جدة/);
   assert.match(index, /مكة المكرمة والضواحي/);
-  assert.match(index, /08 ذو الحجة 1447 هـ/);
+  assert.match(index, /24\/11\/2026/);
+  assert.match(index, /يظهر تاريخ آخر تعديل لدى الوزارة داخل صفحة كل منطقة/);
+  assert.match(region, /08 ذو الحجة 1447 هـ/);
   assert.match(region, /مركز صحي الواحة في شرق جدة/);
   assert.match(region, /تجمع جدة الأول/);
   assert.match(region, /فتح جدول وزارة الصحة الأصلي/);
   assert.match(region, /يرجى التحقق قبل التوجه/);
   assert.match(region, /لم ننقل مؤشرات ساعات العمل/);
   assert.ok(region.includes(jeddah.sourceUrl));
+
+  const riyadh = data.pages.find((page) => page.slug === "riyadh");
+  const riyadhHtml = officialHealthCentersRegionPage(data, riyadh);
+  assert.match(riyadhHtml, /المراكز الصحية المناوبة في منطقة الرياض/);
+  assert.match(riyadhHtml, /مراكز المحافظات — التجمع الثالث/);
+  assert.match(riyadhHtml, /مركز صحي الرفايع بالجمش - الدوادمي/);
+  assert.match(riyadhHtml, /08 ذو الحجة 1447 هـ/);
+
+  const madinah = data.pages.find((page) => page.slug === "madinah");
+  const madinahHtml = officialHealthCentersRegionPage(data, madinah);
+  assert.match(madinahHtml, /مركز صحي الصويدرة/);
+  assert.match(madinahHtml, /مركز صحي باقدو/);
+  assert.match(madinahHtml, /22 ذو القعدة 1447 هـ/);
 });
