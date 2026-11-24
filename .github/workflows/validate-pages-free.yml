@@ -1,0 +1,57 @@
+name: Validate Cloudflare Pages Free static build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/**"
+      - "public/**"
+      - "src/**"
+      - "scripts/build.mjs"
+      - "scripts/validate-pages-static-build.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/validate-pages-free.yml"
+  pull_request:
+    paths:
+      - "data/**"
+      - "public/**"
+      - "src/**"
+      - "scripts/build.mjs"
+      - "scripts/validate-pages-static-build.mjs"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-free-static-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Build static HTML within Pages Free limits
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install project dependencies
+        run: npm install --no-audit --no-fund
+      - name: Validate source data
+        run: npm run validate:data
+      - name: Run unit tests
+        run: npm test
+      - name: Build pre-rendered Pages site
+        env:
+          STATIC_PAGES_BUILD: "true"
+          SITE_URL: "https://saudi-guide.pages.dev"
+        run: npm run build
+      - name: Enforce static-only output and Pages Free file limit
+        run: node scripts/validate-pages-static-build.mjs
