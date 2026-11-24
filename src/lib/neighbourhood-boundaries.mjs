@@ -31,13 +31,10 @@ function cleanGeometry(geometry) {
 }
 
 function closeRing(ring) {
-  if (ring.length < 3) return null;
+  if (!Array.isArray(ring) || ring.length < 4) return null;
   const closed = ring.map((point) => [...point]);
-  if (samePoint(closed[0], closed[closed.length - 1])) {
-    closed[closed.length - 1] = [...closed[0]];
-  } else {
-    closed.push([...closed[0]]);
-  }
+  if (!samePoint(closed[0], closed[closed.length - 1])) return null;
+  closed[closed.length - 1] = [...closed[0]];
   return isClosedRing(closed) ? closed : null;
 }
 
