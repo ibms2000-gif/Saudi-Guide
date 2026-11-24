@@ -29,6 +29,7 @@ import { statisticsIndexPage, statisticDetailPage } from "../src/lib/statistics.
 import { newsIndexPage, newsRegionPage, newsDetailPage } from "../src/lib/news.mjs";
 import { toolsIndexPage, toolPages } from "../src/lib/tools.mjs";
 import { loadOfficialHealthCenters, officialHealthCentersIndexPage, officialHealthCentersRegionPage } from "../src/lib/official-health-centers.mjs";
+import { loadOfficialMentalHealthHospitals, officialMentalHealthHospitalsPage } from "../src/lib/official-mental-health-hospitals.mjs";
 import { officialDirectoriesPage } from "../src/lib/official-directories.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -41,6 +42,7 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   const citiesWithData = model.cities.filter((city) => city.totalPlaces > 0).length;
   const totalPlaces = model.cities.reduce((sum, city) => sum + city.totalPlaces, 0);
   const officialHealthCenters = await loadOfficialHealthCenters(dataRoot);
+  const officialMentalHealthHospitals = await loadOfficialMentalHealthHospitals(dataRoot);
   if (!allowEmptyData && (citiesWithData < 5 || totalPlaces < 50)) {
     throw new Error(
       `رفض بناء نسخة الإنتاج: بيانات الأماكن غير كافية (${totalPlaces} مكانًا في ${citiesWithData} مدن). ` +
@@ -65,6 +67,9 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     for (const page of officialHealthCenters.pages) {
       add(`/health/on-duty/${encodeURIComponent(page.slug)}/`, officialHealthCentersRegionPage(officialHealthCenters, page));
     }
+  }
+  if (officialMentalHealthHospitals?.facilities.length) {
+    add("/health/mental-health-hospitals/", officialMentalHealthHospitalsPage(officialMentalHealthHospitals));
   }
 
   // تقويم المناسبات والمواعيد الرسمية الموثقة.
@@ -235,6 +240,8 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     neighbourhoodsByCity: Object.fromEntries(model.cities.map((city) => [city.slug, city.totalNeighbourhoods || 0]).filter(([, count]) => count > 0)),
     officialHealthCenterPages: officialHealthCenters?.pages.length || 0,
     officialHealthCenterRecords: officialHealthCenters?.pages.reduce((sum, page) => sum + page.centers.length, 0) || 0,
+    officialMentalHealthHospitalPages: officialMentalHealthHospitals?.facilities.length ? 1 : 0,
+    officialMentalHealthHospitalRecords: officialMentalHealthHospitals?.facilities.length || 0,
     statisticsPages: 1 + qualifiedStatistics.length,
     newsPages: 1 + qualifiedNews.length + model.regions.filter((region) => qualifiedNews.filter((item) => item.regionSlug === region.slug).length >= 2).length,
     totalIndexableUrls: indexablePaths.length,

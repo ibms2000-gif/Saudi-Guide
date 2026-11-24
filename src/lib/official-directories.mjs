@@ -95,6 +95,7 @@ export function officialDirectoriesPage() {
     <h2>أولاً: المنشآت الصحية</h2>
     <p>ابدأ بخريطة وزارة الصحة عند البحث عن منشأة صحية بعينها أو التحقق من موقعها ونوعها وساعات العمل المنشورة. أما ملفات القوائم فتفيد في أنواع محددة من المستشفيات والخدمات.</p>
     <ul class="grid-list">${healthResources}</ul>
+    <p><a href="/health/mental-health-hospitals/">استعراض قائمة مستشفيات ومجمعات الصحة النفسية داخل دليل السعودية (19 منشأة)</a></p>
   </section>
 
   <section class="section">
