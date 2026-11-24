@@ -35,7 +35,7 @@ test("دليل الفهرس وصفحات النطاق تعرض المصدر وا
 
   assert.match(index, /المراكز الصحية المناوبة/);
   assert.match(index, /نطاق جدة/);
-  assert.match(index, /نطاق مكة المكرمة/);
+  assert.match(index, /مكة المكرمة والضواحي/);
   assert.match(index, /08 ذو الحجة 1447 هـ/);
   assert.match(region, /مركز صحي الواحة في شرق جدة/);
   assert.match(region, /تجمع جدة الأول/);
