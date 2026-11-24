@@ -119,3 +119,39 @@ test("يستبعد اسم المدينة من تجميع الأحياء", () => 
   });
   assert.equal(model.citiesBySlug["test-city"].neighbourhoods.length, 0);
 });
+
+test("يعين الأماكن الواقعة داخل مضلع OSM إلى الحي وينشئ الصفحة عند اجتياز بوابة الجودة", () => {
+  const boundary = {
+    id: "relation/700",
+    placeType: "neighbourhood",
+    nameAr: "حي الحدود",
+    sourceTag: "boundary=place",
+    area: 4,
+    polygons: [{
+      outer: [[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]],
+      inners: [],
+    }],
+  };
+  const items = [
+    ...Array.from({ length: 4 }, (_, index) =>
+      place(index + 1, { categorySlug: "restaurants", lat: 1, lon: 1 }),
+    ),
+    ...Array.from({ length: 4 }, (_, index) =>
+      place(index + 5, { categorySlug: "health", lat: 1.2, lon: 1.2 }),
+    ),
+    place(9, { categorySlug: "health", lat: 3, lon: 3 }),
+  ];
+  const model = buildModel({
+    regions, cities, categories,
+    placesByCity: { "test-city": items, "empty-city": [] },
+    neighbourhoodBoundariesByCity: { "test-city": [boundary] },
+    meta: null,
+  });
+  const city = model.citiesBySlug["test-city"];
+  const indexed = city.neighbourhoods.find((item) => item.nameAr === "حي الحدود");
+  assert.ok(indexed);
+  assert.equal(indexed.totalPlaces, 8);
+  assert.equal(indexed.categoryCount, 2);
+  assert.equal(indexed.indexable, true);
+  assert.equal(city.places.find((item) => item.id === "p9").neighbourhood, undefined);
+});

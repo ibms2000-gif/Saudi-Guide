@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { slugify } from "./util.mjs";
+import { assignNeighbourhoodsToPlaces } from "./neighbourhood-boundaries.mjs";
 
 export async function loadModel(root) {
   const regions = JSON.parse(await fs.readFile(path.join(root, "data/regions.json"), "utf8"));
@@ -15,6 +16,7 @@ export async function loadModel(root) {
   }
 
   const placesByCity = {};
+  const neighbourhoodBoundariesByCity = {};
   for (const city of cities) {
     try {
       placesByCity[city.slug] = JSON.parse(
@@ -23,14 +25,22 @@ export async function loadModel(root) {
     } catch {
       placesByCity[city.slug] = [];
     }
+    neighbourhoodBoundariesByCity[city.slug] = await readOptionalJSON(
+      path.join(root, "data/neighbourhood-boundaries", `${city.slug}.json`),
+      [],
+    );
   }
+  const neighbourhoodBoundaryMeta = await readOptionalJSON(
+    path.join(root, "data/neighbourhood-boundaries/_meta.json"),
+    null,
+  );
 
   const events = await readOptionalJSON(path.join(root, "data/events.json"), []);
   const salarySchedules = await loadSalarySchedules(path.join(root, "data/paydays"));
   const benefits = await readOptionalJSON(path.join(root, "data/benefits.json"), []);
   const statistics = await readOptionalJSON(path.join(root, "data/statistics.json"), []);
   const news = await readOptionalJSON(path.join(root, "data/news.json"), []);
-  return buildModel({ regions, cities, categories, placesByCity, meta, events, salarySchedules, benefits, statistics, news });
+  return buildModel({ regions, cities, categories, placesByCity, neighbourhoodBoundariesByCity, neighbourhoodBoundaryMeta, meta, events, salarySchedules, benefits, statistics, news });
 }
 
 async function readOptionalJSON(filePath, fallback) {
@@ -99,12 +109,15 @@ function buildNeighbourhoods(places, city) {
     .sort((a, b) => b.totalPlaces - a.totalPlaces || a.nameAr.localeCompare(b.nameAr, "ar"));
 }
 
-export function buildModel({ regions, cities, categories, placesByCity, meta, events = [], salarySchedules = [], benefits = [], statistics = [], news = [] }) {
+export function buildModel({ regions, cities, categories, placesByCity, neighbourhoodBoundariesByCity = {}, neighbourhoodBoundaryMeta = null, meta, events = [], salarySchedules = [], benefits = [], statistics = [], news = [] }) {
   const categoryBySlug = Object.fromEntries(categories.map((c) => [c.slug, c]));
   const regionBySlug = Object.fromEntries(regions.map((r) => [r.slug, r]));
 
   const citiesEnriched = cities.map((city) => {
-    const places = placesByCity[city.slug] || [];
+    const places = assignNeighbourhoodsToPlaces(
+      placesByCity[city.slug] || [],
+      neighbourhoodBoundariesByCity[city.slug] || [],
+    );
     const byCategory = {};
     for (const cat of categories) {
       const catPlaces = places.filter((p) => p.categorySlug === cat.slug);
@@ -159,6 +172,7 @@ export function buildModel({ regions, cities, categories, placesByCity, meta, ev
     citiesByRegion,
     nationalByCategory,
     meta,
+    neighbourhoodBoundaryMeta,
     events,
     salarySchedules,
     benefits,
