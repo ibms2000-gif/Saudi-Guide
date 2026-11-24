@@ -16,6 +16,7 @@ on:
       - "package.json"
       - "data/cities.json"
       - "data/neighbourhood-boundaries/**"
+      - ".github/triggers/retry-riyadh"
   schedule:
     - cron: "47 3 * * 0"
   workflow_dispatch:
@@ -56,8 +57,18 @@ jobs:
           NEIGHBOURHOOD_BOUNDARY_BATCH_SIZE: "5"
           NEIGHBOURHOOD_BOUNDARY_BOOTSTRAP_ONLY: ${{ github.event_name != 'schedule' && inputs.mode != 'refresh-batch' }}
           NEIGHBOURHOOD_BOUNDARY_REFRESH_BATCH_ONLY: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh-batch') }}
+        id: fetch_boundaries
         run: |
+          retry_riyadh=false
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.mode }}" == "retry-riyadh" ]]; then
+            retry_riyadh=true
+          elif [[ "${{ github.event_name }}" == "push" ]] && git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" | grep -Fxq ".github/triggers/retry-riyadh"; then
+            retry_riyadh=true
+          fi
+
+          echo "retry_riyadh=$retry_riyadh" >> "$GITHUB_OUTPUT"
+
+          if [[ "$retry_riyadh" == "true" ]]; then
             npm run neighbourhoods:data -- --city=riyadh
           else
             npm run neighbourhoods:data
@@ -74,7 +85,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ inputs.mode == 'retry-riyadh' && 'automation/retry-riyadh-boundaries' || 'automation/refresh-neighbourhood-boundaries' }}
+          branch: ${{ steps.fetch_boundaries.outputs.retry_riyadh == 'true' && 'automation/retry-riyadh-boundaries' || 'automation/refresh-neighbourhood-boundaries' }}
           delete-branch: true
           commit-message: "Refresh OSM neighbourhood boundaries"
           title: "Refresh Saudi Guide neighbourhood boundary data"
