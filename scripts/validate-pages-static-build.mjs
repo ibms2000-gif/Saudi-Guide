@@ -20,6 +20,10 @@ assert(report.dynamicPrayerPages === 0, "رفض النشر: ما زالت موا
 assert(report.preRenderedPlacePages > 0, "لم تُنشأ صفحات الأماكن مسبقًا.");
 assert(report.preRenderedPrayerPages > 0, "لم تُنشأ صفحات مواقيت الصلاة مسبقًا.");
 
+const homeHtml = await fs.readFile(path.join(DIST, "index.html"), "utf8");
+assert(homeHtml.includes('<link rel="canonical" href="https://saudi-guide.pages.dev/">'), "Canonical URL does not point to the Pages free domain.");
+assert(!homeHtml.includes("saudi-guide.ibms2000.workers.dev"), "The build still references the legacy Workers domain.");
+
 const prayerPage = path.join(DIST, "prayer-times", "riyadh", "index.html");
 const prayerHtml = await fs.readFile(prayerPage, "utf8");
 assert(prayerHtml.includes('id="prayer-times-schedule"'), "جدول مواقيت الرياض المسبق غير موجود.");
