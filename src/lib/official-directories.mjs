@@ -5,7 +5,7 @@ const ON_DUTY_CENTRES = "https://www.moh.gov.sa/healthawareness/on-duty-healthca
 const REHABILITATION_HOSPITALS = "https://www.moh.gov.sa/awarenessplateform/VariousTopics/Documents/PTHospitals.pdf";
 const MENTAL_HEALTH_HOSPITALS = "https://www.moh.gov.sa/Ministry/Information-and-services/Documents/Psychological-health.pdf";
 const MOH_OPEN_DATA = "https://www.moh.gov.sa/ministry/opendata/pages/open-data-library.aspx";
-const MOE_SCHOOL_MAP = "https://www.moe.gov.sa/ar/education/educationinksa/gis/pages/default.aspx";
+const MOE_SCHOOL_MAP = "https://moe.gov.sa/ar/education/education-in-ksa/gis";
 const MOE_OPEN_DATA = "https://moe.gov.sa/ar/services/data-and-statistics-center/opendata";
 const MOE_LIVE_DATA = "https://www.moe.gov.sa/ar/services/data-and-statistics-center/reatltimedata";
 
@@ -111,6 +111,7 @@ export function officialDirectoriesPage() {
     <h2>ثانياً: المدارس والتعليم</h2>
     <p>توفر وزارة التعليم خارطة تفاعلية للبحث عن المدارس وفق عدة فلاتر، إلى جانب مجموعات بيانات وتقارير تعليمية وصفحة بيانات لحظية مع خيارات تنزيل. الخريطة أداة بحث رسمية، لكننا لم نتحقق من ملف عام شامل للمدارس قابل لإعادة النشر؛ لذلك لا نحوّل سجلاتها إلى صفحات فردية قبل توفر بيانات قابلة للاستخدام والترخيص والتحقق.</p>
     <ul class="grid-list">${educationResources}</ul>
+    <p><a href="/education/">عرض إحصاءات المدارس الحكومية والأهلية ومقارنة المدن داخل دليل السعودية</a></p>
   </section>
 
   <section class="section">
