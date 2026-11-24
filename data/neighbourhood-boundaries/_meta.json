@@ -1,0 +1,41 @@
+{
+  "source": "openstreetmap-overpass",
+  "license": "ODbL-1.0",
+  "cities": {
+    "riyadh": {
+      "fetchedAt": "2026-11-24T20:23:09.743Z",
+      "total": 15,
+      "ways": 15,
+      "relations": 0,
+      "stale": false
+    },
+    "jeddah": {
+      "fetchedAt": "2026-11-24T20:24:08.523Z",
+      "total": 0,
+      "ways": 0,
+      "relations": 0,
+      "stale": false
+    },
+    "makkah": {
+      "lastAttemptAt": "2026-11-24T20:25:49.496Z",
+      "lastError": "Overpass HTTP 502",
+      "stale": true
+    },
+    "dammam": {
+      "fetchedAt": "2026-11-24T20:26:42.780Z",
+      "total": 1,
+      "ways": 1,
+      "relations": 0,
+      "stale": false
+    },
+    "khobar": {
+      "fetchedAt": "2026-11-24T20:27:34.289Z",
+      "total": 0,
+      "ways": 0,
+      "relations": 0,
+      "stale": false
+    }
+  },
+  "fetchedAt": "2026-11-24T20:27:34.289Z",
+  "lastAttemptAt": "2026-11-24T20:27:34.289Z"
+}
