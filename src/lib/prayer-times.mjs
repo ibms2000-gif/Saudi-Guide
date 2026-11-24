@@ -156,7 +156,7 @@ export function prayerTimesPage(city, now = new Date(), { includeSchedule = fals
         prayers: Object.fromEntries(PRAYER_NAMES.map(([key]) => [key, daily.prayers[key].toISOString()])),
       };
     });
-    scheduleScript = `<script type="application/json" id="prayer-times-schedule">${JSON.stringify(schedule).replaceAll("<", "\\\\u003c")}</script>
+    scheduleScript = `<script type="application/json" id="prayer-times-schedule">${JSON.stringify(schedule).replaceAll("<", "\\u003c")}</script>
     <script src="/prayer-times.js" defer></script>`;
   }
 
