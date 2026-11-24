@@ -60,3 +60,20 @@ test("renders the index of Saudi cities with internal links", () => {
   assert.match(html, /مواقيت الصلاة في مدن المملكة/);
   assert.match(html, /href="\/prayer-times\/riyadh\//);
 });
+
+test("pre-renders a local schedule snapshot for static Pages without a Worker", () => {
+  const html = prayerTimesPage(riyadh, new Date("2026-10-31T12:00:00.000Z"), {
+    includeSchedule: true,
+    scheduleDays: 2,
+  });
+  assert.match(html, /id="prayer-times-schedule"/);
+  assert.match(html, /src="\/prayer-times\.js"/);
+  assert.match(html, /data-prayer-key="fajr"/);
+  const match = html.match(/<script type="application\/json" id="prayer-times-schedule">([\s\S]*?)<\/script>/);
+  assert.ok(match);
+  const schedule = JSON.parse(match[1]);
+  assert.equal(schedule.length, 2);
+  assert.equal(schedule[0].dateIso, "2026-10-31");
+  assert.equal(schedule[1].dateIso, "2026-11-01");
+  assert.ok(schedule[0].prayers.fajr);
+});
