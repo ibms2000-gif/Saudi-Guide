@@ -110,6 +110,6 @@ if (process.argv.includes("--json")) {
   const missing = report.cities
     .filter((city) => city.taggedPlaces === 0)
     .map((city) => city.nameAr);
-  console.log("\nمدن لا تحتوي حاليًا على أي مكان يحمل وسم حي صريح:");
+  console.log("\nمدن لا تحتوي حاليًا على أي مكان مرتبط بحي من عنوان أو مضلع:");
   console.log(missing.length ? missing.join("، ") : "لا توجد");
 }
