@@ -531,6 +531,19 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(officialDirectories, /دليل استخدام خريطة المستشفيات والمراكز/);
   assert.ok(officialDirectories.includes("/health/rehabilitation/"));
 
+  const healthHours = await fs.readFile(
+    path.join(dist, "health/working-hours/index.html"),
+    "utf8",
+  );
+  assert.match(healthHours, /أوقات عمل المستشفيات والمراكز الصحية في السعودية/);
+  assert.match(healthHours, /7:30 صباحًا/);
+  assert.match(healthHours, /12:00 منتصف الليل/);
+  assert.ok(healthHours.includes("https://www.moh.gov.sa/eservices/interactive-maps/pages/default.aspx"));
+  assert.ok(healthHours.includes("https://www.moh.gov.sa/eservices/cards/pages/interactive-maps.aspx"));
+  assert.ok(healthHours.includes("/health/on-duty/"));
+
+  assert.ok(officialDirectories.includes("/health/working-hours/"));
+
   // صفحة مدينة بها بيانات كافية تحتوي قسم المطاعم وإسناد المصدر
   const cityCategory = await fs.readFile(
     path.join(dist, "city/city-with-data/restaurants/index.html"),
@@ -569,6 +582,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.ok(sitemap.includes("/health/on-duty/test-region/"));
   assert.ok(sitemap.includes("/health/mental-health-hospitals/"));
   assert.ok(sitemap.includes("/health/rehabilitation/"));
+  assert.ok(sitemap.includes("/health/working-hours/"));
   assert.ok(sitemap.includes("/benefits/housing-support/"));
   assert.ok(sitemap.includes("/benefits/saned-unemployment/"));
   assert.ok(sitemap.includes("/benefits/job-search-subsidy/"));
