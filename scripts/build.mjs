@@ -31,6 +31,7 @@ import { toolsIndexPage, toolPages } from "../src/lib/tools.mjs";
 import { loadOfficialHealthCenters, officialHealthCentersIndexPage, officialHealthCentersRegionPage } from "../src/lib/official-health-centers.mjs";
 import { loadOfficialMentalHealthHospitals, officialMentalHealthHospitalsPage } from "../src/lib/official-mental-health-hospitals.mjs";
 import { officialDirectoriesPage } from "../src/lib/official-directories.mjs";
+import { officialRehabilitationPage } from "../src/lib/official-rehabilitation.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(__dirname, "..");
@@ -61,6 +62,7 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   add("/categories/", categoriesIndexPage(model));
   add("/about/data-sources/", dataSourcesPage(model));
   add("/official-directories/", officialDirectoriesPage());
+  add("/health/rehabilitation/", officialRehabilitationPage());
   add("/legal/weather-notice/", weatherNoticePage());
   if (officialHealthCenters?.pages.length) {
     add("/health/on-duty/", officialHealthCentersIndexPage(officialHealthCenters));
