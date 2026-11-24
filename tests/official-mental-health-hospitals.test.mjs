@@ -24,7 +24,7 @@ test("صفحة الصحة النفسية تعرض المصدر والأسماء 
   const data = await loadOfficialMentalHealthHospitals(ROOT);
   const html = officialMentalHealthHospitalsPage(data);
   assert.match(html, /مواقع مجمعات ومستشفيات الصحة النفسية في السعودية/);
-  assert.match(html, /19 منشأة/);
+  assert.match(html, /(?:19|١٩) منشأة/);
   assert.match(html, /مجمع إرادة والصحة النفسية بالرياض/);
   assert.match(html, /مستشفى الصحة النفسية بحفر الباطن/);
   assert.match(html, /مستشفى إرادة والصحة النفسية بنجران/);
