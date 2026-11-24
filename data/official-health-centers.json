@@ -1111,6 +1111,503 @@
           "clusterAr": "منطقة الباحة"
         }
       ]
+    },
+    {
+      "slug": "al-qassim",
+      "titleAr": "المراكز الصحية المناوبة في منطقة القصيم",
+      "scopeAr": "منطقة القصيم وضواحيها كما وردت في القائمة المنشورة لدى وزارة الصحة.",
+      "sourceUrl": "https://www.moh.gov.sa/healthawareness/on-duty-healthcare-centers/pages/al-qassim.aspx",
+      "sourceLastUpdatedHijri": "22 ذو القعدة 1447 هـ",
+      "centers": [
+        {
+          "id": "al-qassim-1",
+          "nameAr": "مركز صحي ضليع رشيد",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-2",
+          "nameAr": "مركز صحي الفويلق",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-3",
+          "nameAr": "مركز صحي الأشرفية",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-4",
+          "nameAr": "مركز صحي الإسكان في بريدة",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-5",
+          "nameAr": "مركز صحي السادة",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-6",
+          "nameAr": "مركز صحي الروضة بالرس",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-7",
+          "nameAr": "مركز صحي دخنة",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-8",
+          "nameAr": "مركز صحي العمار",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-9",
+          "nameAr": "مركز صحي شري",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-10",
+          "nameAr": "مركز صحي الدليمية",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-11",
+          "nameAr": "مركز صحي الشماسية",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-12",
+          "nameAr": "مركز صحي الفوارة",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-13",
+          "nameAr": "مركز صحي العاقر",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-14",
+          "nameAr": "مركز صحي عطي",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-15",
+          "nameAr": "مركز صحي الشقة",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-16",
+          "nameAr": "مركز صحي الضاحي",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-17",
+          "nameAr": "مركز صحي خصيبة",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-18",
+          "nameAr": "مركز صحي البدائع الوسطى",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-19",
+          "nameAr": "مركز صحي الزهرة بالبكيرية",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-20",
+          "nameAr": "مركز صحي الملك خالد عنيزة",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-21",
+          "nameAr": "مركز صحي الصفراء بالمذنب",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-22",
+          "nameAr": "مركز صحي عيون الجوا",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-23",
+          "nameAr": "مركز صحي شرق الفايزية",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-24",
+          "nameAr": "مركز صحي الخزان",
+          "clusterAr": "منطقة القصيم"
+        },
+        {
+          "id": "al-qassim-25",
+          "nameAr": "مركز صحي البسيتين",
+          "clusterAr": "منطقة القصيم"
+        }
+      ]
+    },
+    {
+      "slug": "eastern-region",
+      "titleAr": "المراكز الصحية المناوبة في المنطقة الشرقية",
+      "scopeAr": "المنطقة الشرقية وضواحيها كما وردت في القائمة المنشورة لدى وزارة الصحة.",
+      "sourceUrl": "https://www.moh.gov.sa/healthawareness/on-duty-healthcare-centers/pages/eastern-region.aspx",
+      "sourceLastUpdatedHijri": "08 ذو الحجة 1447 هـ",
+      "centers": [
+        {
+          "id": "eastern-region-1",
+          "nameAr": "مركز صحي غرناطة في الدمام",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-2",
+          "nameAr": "مركز صحي غرب الخفجي في الخفجي",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-3",
+          "nameAr": "مركز صحي الدخل المحدود في القطيف",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-4",
+          "nameAr": "مركز صحي بدر في الدمام",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-5",
+          "nameAr": "مركز صحي الصرار في النعيرية",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-6",
+          "nameAr": "مركز صحي العقربية في الخبر",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-7",
+          "nameAr": "مركز صحي سيهات الثاني في القطيف",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-8",
+          "nameAr": "مركز صحي حي المطار في بقيق",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-9",
+          "nameAr": "مركز صحي النعيرية في النعيرية",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-10",
+          "nameAr": "مركز صحي حزم الصفوى في الطرفية",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-11",
+          "nameAr": "مركز صحي الدوحة في الخبر",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-12",
+          "nameAr": "مركز صحي عتيق في مليجة",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-13",
+          "nameAr": "مركز صحي السفانية في الخفجي",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-14",
+          "nameAr": "مركز صحي ابن الهيثم في رأس تنورة",
+          "clusterAr": "المنطقة الشرقية"
+        },
+        {
+          "id": "eastern-region-15",
+          "nameAr": "مركز صحي الجسر في الخبر",
+          "clusterAr": "المنطقة الشرقية"
+        }
+      ]
+    },
+    {
+      "slug": "asir",
+      "titleAr": "المراكز الصحية المناوبة في منطقة عسير",
+      "scopeAr": "منطقة عسير ومحافظاتها وضواحيها كما وردت في القائمة المنشورة لدى وزارة الصحة.",
+      "sourceUrl": "https://www.moh.gov.sa/healthawareness/on-duty-healthcare-centers/pages/assir.aspx",
+      "sourceLastUpdatedHijri": "22 ذو القعدة 1447 هـ",
+      "centers": [
+        {
+          "id": "asir-1",
+          "nameAr": "مركز صحي وادي بن هشبل في خميس مشيط",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-2",
+          "nameAr": "مركز صحي البشائر في بلقرن",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-3",
+          "nameAr": "مركز صحي المنسك في أبها",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-4",
+          "nameAr": "مركز صحي المنهل في أبها",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-5",
+          "nameAr": "مركز صحي الرصراص في خميس مشيط",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-6",
+          "nameAr": "مركز صحي حي الموظفين في أبها",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-7",
+          "nameAr": "مركز صحي الصناعية في خميس مشيط",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-8",
+          "nameAr": "مركز صحي الجعبة في بيشة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-9",
+          "nameAr": "مركز صحي الروشن المناوب في بيشة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-10",
+          "nameAr": "مركز صحي خيبر الجنوب في خميس مشيط",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-11",
+          "nameAr": "مركز صحي الجرف في رجال ألمع",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-12",
+          "nameAr": "مركز صحي قنا في محايل",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-13",
+          "nameAr": "مركز صحي محايل في محايل عسير",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-14",
+          "nameAr": "مركز صحي الحبيل في رجال ألمع",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-15",
+          "nameAr": "مركز صحي مربه السفلى في أبها",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-16",
+          "nameAr": "مركز صحي المسقى في أبها",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-17",
+          "nameAr": "مركز صحي السودة في أبها",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-18",
+          "nameAr": "مركز صحي الواديين في أحد رفيدة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-19",
+          "nameAr": "مركز صحي وادي الفيض في الحرجة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-20",
+          "nameAr": "مركز صحي ظهران الجنوب في ظهران الجنوب",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-21",
+          "nameAr": "مركز صحي طريب في طريب",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-22",
+          "nameAr": "مركز صحي حلباء في النماص",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-23",
+          "nameAr": "مركز صحي عرين قحطان في المضة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-24",
+          "nameAr": "مركز صحي ثلوث المنظر في بارق",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-25",
+          "nameAr": "مركز صحي أحد ثربان في المجاردة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-26",
+          "nameAr": "مركز صحي بحر أبوسكينة في محايل عسير",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-27",
+          "nameAr": "مركز صحي جمعة ربيعة بالمقاطرة في بارق",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-28",
+          "nameAr": "مركز أحد رفيدة في أحد رفيدة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-29",
+          "nameAr": "مركز صحي حميد العلايا في محايل عسير",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-30",
+          "nameAr": "مركز صحي وادي الحياة في الفرشة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-31",
+          "nameAr": "مركز صحي المجاردة في المجاردة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-32",
+          "nameAr": "مركز صحي الربوعة في ظهران الجنوب",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-33",
+          "nameAr": "مركز صحي مجمع العقل في رجال ألمع",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-34",
+          "nameAr": "مركز صحي تندحة الزلال في خميس مشيط",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-35",
+          "nameAr": "مركز صحي الحريضة في القحمة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-36",
+          "nameAr": "مركز صحي عبس في المجاردة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-37",
+          "nameAr": "مركز صحي بارق في بارق",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-38",
+          "nameAr": "مركز صحي صلحلح وحكبان في بلحمر",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-39",
+          "nameAr": "مركز صحي أم سرار في خميس مشيط",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-40",
+          "nameAr": "مركز صحي آل مفتاح - الغايل في ظهران الجنوب",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-41",
+          "nameAr": "مركز صحي الحازمي في بيشة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-42",
+          "nameAr": "مركز صحي جنوب المدينة في بيشة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-43",
+          "nameAr": "مركز صحي النقيع في بيشة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-44",
+          "nameAr": "مركز صحي صمخ في بيشة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-45",
+          "nameAr": "مركز صحي بني عمرو في بلقرن",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-46",
+          "nameAr": "مركز صحي المواه في الأمواه",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-47",
+          "nameAr": "مركز صحي الصبيخة في تثليث",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-48",
+          "nameAr": "مركز صحي العيفيرية في بيشة",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-49",
+          "nameAr": "مركز صحي تثليث في تثليث",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-50",
+          "nameAr": "مركز صحي شواص في بلقرن",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-51",
+          "nameAr": "مركز صحي الحمضة في تثليث",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-52",
+          "nameAr": "مركز صحي عفراء في بلقرن",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-53",
+          "nameAr": "مركز صحي سبت العلاية في بلقرن",
+          "clusterAr": "منطقة عسير"
+        },
+        {
+          "id": "asir-54",
+          "nameAr": "مركز صحي الغول في الحرجة",
+          "clusterAr": "منطقة عسير"
+        }
+      ]
     }
   ]
 }
