@@ -12,6 +12,8 @@ test("صفحة الأدلة الحكومية تعرض المصادر الرسم�
   const html = officialDirectoriesPage();
   assert.match(html, /الأدلة الحكومية الرسمية للمنشآت والخدمات/);
   assert.match(html, /الخريطة التفاعلية للمنشآت الصحية/);
+  assert.match(html, /الخارطة التعليمية للمدارس/);
+  assert.match(html, /خريطة بحث رسمية لا كبيانات منسوخة/);
   assert.match(html, /البيانات المفتوحة لوزارة التعليم/);
   assert.match(html, /البيانات اللحظية لوزارة التعليم/);
   assert.match(html, /لا تمثل سجلاً حكومياً/);
@@ -24,6 +26,7 @@ test("صفحة الأدلة الحكومية تعرض المصادر الرسم�
     "https://www.moh.gov.sa/awarenessplateform/VariousTopics/Documents/PTHospitals.pdf",
     "https://www.moh.gov.sa/Ministry/Information-and-services/Documents/Psychological-health.pdf",
     "https://www.moh.gov.sa/ministry/opendata/pages/open-data-library.aspx",
+    "https://www.moe.gov.sa/ar/education/educationinksa/gis/pages/default.aspx",
     "https://moe.gov.sa/ar/services/data-and-statistics-center/opendata",
     "https://www.moe.gov.sa/ar/services/data-and-statistics-center/reatltimedata",
   ]) {
