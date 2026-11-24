@@ -146,6 +146,7 @@ export function officialEducationPage(data) {
     '<p>' + escapeHtml(data.sourceNameAr) + '، ' + escapeHtml(data.sourceTitleAr) + ' — <a href="' + escapeHtml(data.sourceUrl) + '" target="_blank" rel="noopener noreferrer">فتح النشرة العربية لعام 2024</a>.</p>',
     '<p>' + escapeHtml(data.sourceNameAr) + '، ' + escapeHtml(data.citySourceTitleAr) + ' — <a href="' + escapeHtml(data.citySourceUrl) + '" target="_blank" rel="noopener noreferrer">فتح تقرير جودة الحياة في المدن (PDF)</a>.</p>',
     '<p>تختلف حدود النطاقات الإحصائية عن حدود بعض المدن البلدية؛ لذلك أُبقيت تسمية «حاضرة الدمام» كما وردت في تقرير الهيئة.</p>',
+    '<p>' + escapeHtml(data.caveatAr || "") + '</p>',
     '<p><a href="/official-directories/">العودة إلى الأدلة الحكومية الرسمية</a> · <a href="/category/education/">الأماكن التعليمية في OpenStreetMap</a></p>',
     '</aside>',
   ].join("\n");
