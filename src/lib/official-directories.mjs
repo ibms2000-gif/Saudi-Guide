@@ -5,6 +5,7 @@ const ON_DUTY_CENTRES = "https://www.moh.gov.sa/healthawareness/on-duty-healthca
 const REHABILITATION_HOSPITALS = "https://www.moh.gov.sa/awarenessplateform/VariousTopics/Documents/PTHospitals.pdf";
 const MENTAL_HEALTH_HOSPITALS = "https://www.moh.gov.sa/Ministry/Information-and-services/Documents/Psychological-health.pdf";
 const MOH_OPEN_DATA = "https://www.moh.gov.sa/ministry/opendata/pages/open-data-library.aspx";
+const MOE_SCHOOL_MAP = "https://www.moe.gov.sa/ar/education/educationinksa/gis/pages/default.aspx";
 const MOE_OPEN_DATA = "https://moe.gov.sa/ar/services/data-and-statistics-center/opendata";
 const MOE_LIVE_DATA = "https://www.moe.gov.sa/ar/services/data-and-statistics-center/reatltimedata";
 
@@ -60,6 +61,13 @@ export function officialDirectoriesPage() {
 
   const educationResources = [
     resourceCard({
+      title: "الخارطة التعليمية للمدارس",
+      summary: "خريطة تفاعلية رسمية للبحث عن المدارس حسب المنطقة والمرحلة ونوع المدرسة ونوع التعليم والجنس أو اسم المدرسة.",
+      detail: "توضح وزارة التعليم أن نظام الخرائط يهدف إلى حصر المدارس وبناء قاعدة بيانات لإحداثياتها وبياناتها الوصفية. الصفحة المتاحة للمستخدم تعرض أدوات استعلام تفاعلية؛ لم نتحقق من وجود ملف عام قابل للتنزيل يتيح إعادة نشر سجل شامل للمدارس، لذلك ندرجها كخريطة بحث رسمية لا كبيانات منسوخة.",
+      url: MOE_SCHOOL_MAP,
+      kind: "خريطة تعليمية تفاعلية رسمية",
+    }),
+    resourceCard({
       title: "البيانات المفتوحة لوزارة التعليم",
       summary: "مكتبة الوزارة للبيانات التعليمية والتقارير والإحصاءات.",
       detail: "تتضمن مجموعات مثل أعداد الطلبة ومؤشرات التعليم العام، وتُتاح بعض الملفات بصيغ CSV وJSON وExcel. افحص وصف كل مجموعة وسنة بياناتها قبل استخدامها.",
@@ -91,7 +99,7 @@ export function officialDirectoriesPage() {
 
   <section class="section">
     <h2>ثانياً: المدارس والتعليم</h2>
-    <p>تنشر وزارة التعليم مجموعات بيانات وتقارير تعليمية، كما توفر صفحة بيانات لحظية مع خيارات تنزيل. اقرأ وصف مجموعة البيانات وسنتها وحقولها؛ فالإحصاءات التعليمية لا تعني بالضرورة وجود دليل عام شامل لكل مدرسة مع عنوانها.</p>
+    <p>توفر وزارة التعليم خارطة تفاعلية للبحث عن المدارس وفق عدة فلاتر، إلى جانب مجموعات بيانات وتقارير تعليمية وصفحة بيانات لحظية مع خيارات تنزيل. الخريطة أداة بحث رسمية، لكننا لم نتحقق من ملف عام شامل للمدارس قابل لإعادة النشر؛ لذلك لا نحوّل سجلاتها إلى صفحات فردية قبل توفر بيانات قابلة للاستخدام والترخيص والتحقق.</p>
     <ul class="grid-list">${educationResources}</ul>
   </section>
 
