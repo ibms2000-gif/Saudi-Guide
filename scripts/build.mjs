@@ -258,7 +258,9 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   await fs.mkdir(path.join(DIST, "styles"), { recursive: true });
   await fs.copyFile(path.join(ROOT, "src/styles/site.css"), path.join(DIST, "styles/site.css"));
   await fs.copyFile(path.join(ROOT, "src/client/app.js"), path.join(DIST, "app.js"));
-  await fs.copyFile(path.join(ROOT, "src/client/prayer-times.js"), path.join(DIST, "prayer-times.js"));
+  if (STATIC_PAGES_BUILD) {
+    await fs.copyFile(path.join(ROOT, "src/client/prayer-times.js"), path.join(DIST, "prayer-times.js"));
+  }
   await fs.copyFile(path.join(ROOT, "src/client/tools.js"), path.join(DIST, "tools.js"));
   await fs.copyFile(path.join(ROOT, "src/lib/tool-calculations.mjs"), path.join(DIST, "tool-calculations.mjs"));
 
