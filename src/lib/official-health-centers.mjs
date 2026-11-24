@@ -50,12 +50,16 @@ export function officialHealthCentersIndexPage(data) {
       <p><a href="${escapeHtml(page.sourceUrl)}" target="_blank" rel="noopener noreferrer">فتح جدول وزارة الصحة وخريطة المواقع لكل مركز</a></p>
     </li>`).join("");
 
+  const verifiedAtLabel = data.verifiedAt
+    ? data.verifiedAt.split("-").reverse().join("/")
+    : "غير محدد";
   const body = `
   <section class="hero">
     <p class="eyebrow">دليل صحي من مصدر حكومي</p>
     <h1>المراكز الصحية المناوبة</h1>
     <p>قوائم أسماء المراكز التي تنشرها وزارة الصحة ضمن صفحاتها الإقليمية، مع الاحتفاظ بالتجمعات كما وردت في المصدر الأصلي.</p>
-    <p><strong>مصدر البيانات:</strong> وزارة الصحة — <strong>تاريخ التحديث الظاهر في الصفحات:</strong> ${escapeHtml(data.sourceLastUpdatedHijri || "غير محدد")}.</p>
+    <p><strong>مصدر البيانات:</strong> وزارة الصحة — <strong>تاريخ مراجعة القوائم:</strong> ${escapeHtml(verifiedAtLabel)}.</p>
+    <p>يظهر تاريخ آخر تعديل لدى الوزارة داخل صفحة كل منطقة؛ وقد يختلف من قائمة إلى أخرى.</p>
   </section>
   <section class="section">
     <h2>القوائم المتاحة</h2>
@@ -106,7 +110,7 @@ export function officialHealthCentersRegionPage(data, page) {
     <h1>${escapeHtml(page.titleAr)}</h1>
     <p>${escapeHtml(page.scopeAr || "")}</p>
     <p><strong>${page.centers.length.toLocaleString("ar-SA")} مركزًا</strong> مدرجًا في الصفحة الإقليمية التي تمت مراجعتها.</p>
-    <p><strong>تاريخ التحديث الظاهر في صفحة الوزارة:</strong> ${escapeHtml(data.sourceLastUpdatedHijri || "غير محدد")}.</p>
+    <p><strong>تاريخ التحديث الظاهر في صفحة الوزارة:</strong> ${escapeHtml(page.sourceLastUpdatedHijri || data.sourceLastUpdatedHijri || "غير محدد")}.</p>
     <p><a href="${escapeHtml(page.sourceUrl)}" target="_blank" rel="noopener noreferrer">فتح جدول وزارة الصحة الأصلي وساعات المناوبة وروابط مواقع المراكز</a></p>
   </section>
   ${sections}
