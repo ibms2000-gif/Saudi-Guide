@@ -42,6 +42,7 @@ npm run data     # يجلب بيانات حقيقية من Overpass API (يست�
 npm run build    # يبني dist/ من data/*.json المتوفرة لديك
 npm run dev      # يبني ثم يشغّل خادم تطوير محلي على :8788
 npm test         # اختبارات الوحدة والبناء
+npm run audit:neighbourhoods # تقرير تغطية الأحياء ومرشحات صفحاتها
 ```
 
 لا يسمح `npm run build` ببناء نسخة إنتاجية إذا كان عدد الأماكن أقل من 50

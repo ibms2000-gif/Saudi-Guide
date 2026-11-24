@@ -31,6 +31,8 @@ jobs:
         run: npm test
       - name: Validate export of the current D1 data snapshot (export only; no remote writes)
         run: npm run d1:export
+      - name: Audit explicit neighbourhood coverage
+        run: npm run audit:neighbourhoods
       - name: Build static HTML for regression tests (empty data allowed in test job only)
         env:
           ALLOW_EMPTY_DATA: "true"
