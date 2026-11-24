@@ -1,8 +1,8 @@
 # دليل السعودية (Saudi Guide)
 
 دليل تصفح لمدن ومحافظات المملكة العربية السعودية: مطاعم ومقاهي، تسوق،
-خدمات عامة، صحة، تعليم، سياحة وفنادق. يُبنى كموقع ثابت بالكامل من بيانات
-حقيقية مجلوبة من OpenStreetMap، وينشر على Cloudflare Workers.
+خدمات عامة، صحة، تعليم، سياحة وفنادق. يُبنى من بيانات حقيقية مجلوبة من
+OpenStreetMap، ويُنشر كملفات HTML وأصول ثابتة على Cloudflare Pages Free.
 
 **لا يعرض الموقع أي بيانات أرصاد جوية أو توقعات طقس أو درجات حرارة.**
 راجع [`/legal/weather-notice/`](#) على الموقع المنشور لسبب ذلك
@@ -23,8 +23,8 @@
   الموقع.
 - `src/styles/site.css`, `src/client/app.js` — تنسيق الموقع وتحسين بسيط
   تدريجي (فلترة داخل القوائم الطويلة) بدون أي اعتماديات خارجية.
-- `worker/index.js` — عامل Cloudflare لا يجلب أي بيانات حيّة؛ وظيفته فقط
-  إعادة توجيه الروابط القديمة وتقديم ملفات `dist/` الثابتة.
+- `worker/index.js` — مسار Worker قديم للتوافق مع رابط `workers.dev` السابق؛ لا يُستخدم في نشر Pages الثابت.
+- `scripts/validate-pages-static-build.mjs` — يمنع نشر ملفات ديناميكية أو تجاوز سقف Pages Free البالغ 20,000 ملف.
 - `tests/` — اختبارات وحدة (`node --test`) للتصنيف، النماذج، والبناء
   الكامل مقابل بيانات تجريبية (fixtures)، بما يشمل التحقق من:
   - ظهور إسناد مصدر البيانات في كل صفحة تعرض أماكن.
@@ -47,6 +47,8 @@ npm run neighbourhoods:data # يجلب مضلعات الأحياء في دفعة
 npm run validate:neighbourhoods # يتحقق من سلامة ملفات المضلعات
 npm run audit:neighbourhoods # تقرير تغطية الأحياء ومرشحات صفحاتها
 ```
+
+لبناء نسخة Pages المجانية الثابتة استخدم `STATIC_PAGES_BUILD=true SITE_URL=https://saudi-guide.pages.dev npm run build`؛ هذا يولّد صفحات الأماكن ومواقيت الصلاة مسبقًا كملفات HTML ولا يحتاج Worker أو Functions. ثم شغّل `node scripts/validate-pages-static-build.mjs` لفحص عدم وجود وظائف ديناميكية وحدّ الملفات.
 
 لا يسمح `npm run build` ببناء نسخة إنتاجية إذا كان عدد الأماكن أقل من 50
 أو كانت البيانات موجودة في أقل من 5 مدن؛ وهذا يمنع نشر دليل فارغ أو شبه فارغ.
@@ -97,9 +99,9 @@ npm run audit:neighbourhoods # تقرير تغطية الأحياء ومرشحا
 - `refresh-data.yml` — مجدول أسبوعيًا (وقابل للتشغيل يدويًا)، يجلب بيانات
   جديدة من Overpass ويفتح طلب سحب (Pull Request) بالتغييرات بدل أن يدفعها
   مباشرة، لمراجعتها قبل الدمج.
-- `deploy.yml` — يُشغَّل عند كل push، يُنفّذ الاختبارات، يبني الموقع من
-  البيانات المُلتَزَمة (committed)، ثم ينشر على Cloudflare Workers إن
-  كانت أسرار `CLOUDFLARE_API_TOKEN` و`CLOUDFLARE_ACCOUNT_ID` مضبوطة.
+- `validate-pages-free.yml` — يتحقق عند تغيّر المحتوى من بناء Pages الثابت، ويمنع تجاوز حد 20,000 ملف أو إدخال Worker/Functions إلى المخرجات.
+- مشروع Cloudflare Pages `saudi-guide` مرتبط بمستودع GitHub، ويبني `dist/` بالأمر الثابت أعلاه. النشر الإنتاجي على `https://saudi-guide.pages.dev`، دون معاينات أو Pages Functions أو قواعد بيانات.
+- `deploy.yml` — يشغّل الاختبارات؛ نشر Worker القديم لا يعمل عند الدفع العادي، ولا يُتاح إلا بتشغيل يدوي مع موافقة صريحة. لا تستخدمه لنشر Pages.
 
 اضبط المتغير `SITE_URL` (GitHub Actions variable) على رابط النطاق
 النهائي قبل أول نشر إن اختلف عن الرابط الافتراضي في `src/lib/config.mjs`.
