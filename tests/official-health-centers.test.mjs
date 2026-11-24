@@ -12,7 +12,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 
-test("بيانات وزارة الصحة تحتوي عشر قوائم إقليمية وتطابق أعداد المراكز المنشورة", async () => {
+test("بيانات وزارة الصحة تحتوي 13 قائمة إقليمية وتطابق أعداد المراكز المنشورة", async () => {
   const data = await loadOfficialHealthCenters(ROOT);
   assert.ok(data);
   const expectedCounts = {
@@ -26,12 +26,15 @@ test("بيانات وزارة الصحة تحتوي عشر قوائم إقليم
     "al-jouf": 9,
     jazan: 18,
     "al-baha": 13,
+    "al-qassim": 25,
+    "eastern-region": 15,
+    asir: 54,
   };
-  assert.equal(data.pages.length, 10);
+  assert.equal(data.pages.length, 13);
   for (const [slug, count] of Object.entries(expectedCounts)) {
     assert.equal(data.pages.find((page) => page.slug === slug)?.centers.length, count, slug);
   }
-  assert.equal(data.pages.reduce((sum, page) => sum + page.centers.length, 0), 204);
+  assert.equal(data.pages.reduce((sum, page) => sum + page.centers.length, 0), 298);
   assert.equal(data.sourceLastUpdatedHijri, "08 ذو الحجة 1447 هـ");
   assert.equal(data.verifiedAt, "2026-11-24");
 
@@ -73,4 +76,25 @@ test("دليل الفهرس وصفحات النطاق تعرض المصدر وا
   assert.match(madinahHtml, /مركز صحي الصويدرة/);
   assert.match(madinahHtml, /مركز صحي باقدو/);
   assert.match(madinahHtml, /22 ذو القعدة 1447 هـ/);
+
+  const qassim = data.pages.find((page) => page.slug === "al-qassim");
+  const qassimHtml = officialHealthCentersRegionPage(data, qassim);
+  assert.match(qassimHtml, /المراكز الصحية المناوبة في منطقة القصيم/);
+  assert.match(qassimHtml, /مركز صحي ضليع رشيد/);
+  assert.match(qassimHtml, /مركز صحي البسيتين/);
+  assert.match(qassimHtml, /22 ذو القعدة 1447 هـ/);
+
+  const east = data.pages.find((page) => page.slug === "eastern-region");
+  const eastHtml = officialHealthCentersRegionPage(data, east);
+  assert.match(eastHtml, /المراكز الصحية المناوبة في المنطقة الشرقية/);
+  assert.match(eastHtml, /مركز صحي الدخل المحدود في القطيف/);
+  assert.match(eastHtml, /مركز صحي الجسر في الخبر/);
+  assert.match(eastHtml, /08 ذو الحجة 1447 هـ/);
+
+  const asir = data.pages.find((page) => page.slug === "asir");
+  const asirHtml = officialHealthCentersRegionPage(data, asir);
+  assert.match(asirHtml, /المراكز الصحية المناوبة في منطقة عسير/);
+  assert.match(asirHtml, /مركز صحي وادي بن هشبل في خميس مشيط/);
+  assert.match(asirHtml, /مركز صحي الغول في الحرجة/);
+  assert.match(asirHtml, /22 ذو القعدة 1447 هـ/);
 });
