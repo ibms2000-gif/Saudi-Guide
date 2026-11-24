@@ -39,7 +39,8 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   const DIST = distDir || path.join(ROOT, "dist");
   const model = await loadModel(dataRoot);
   const citiesWithData = model.cities.filter((city) => city.totalPlaces > 0).length;
-  const totalPlaces = model.cities.reduce((sum, city) => sum + city.totalPlaces, 0);\n  const officialHealthCenters = await loadOfficialHealthCenters(dataRoot);
+  const totalPlaces = model.cities.reduce((sum, city) => sum + city.totalPlaces, 0);
+  const officialHealthCenters = await loadOfficialHealthCenters(dataRoot);
   if (!allowEmptyData && (citiesWithData < 5 || totalPlaces < 50)) {
     throw new Error(
       `رفض بناء نسخة الإنتاج: بيانات الأماكن غير كافية (${totalPlaces} مكانًا في ${citiesWithData} مدن). ` +
@@ -59,7 +60,12 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   add("/about/data-sources/", dataSourcesPage(model));
   add("/official-directories/", officialDirectoriesPage());
   add("/legal/weather-notice/", weatherNoticePage());
-  if (officialHealthCenters?.pages.length) {\n    add("/health/on-duty/", officialHealthCentersIndexPage(officialHealthCenters));\n    for (const page of officialHealthCenters.pages) {\n      add(`/health/on-duty/${encodeURIComponent(page.slug)}/`, officialHealthCentersRegionPage(officialHealthCenters, page));\n    }\n  }
+  if (officialHealthCenters?.pages.length) {
+    add("/health/on-duty/", officialHealthCentersIndexPage(officialHealthCenters));
+    for (const page of officialHealthCenters.pages) {
+      add(`/health/on-duty/${encodeURIComponent(page.slug)}/`, officialHealthCentersRegionPage(officialHealthCenters, page));
+    }
+  }
 
   // تقويم المناسبات والمواعيد الرسمية الموثقة.
   add("/calendar/", calendarHomePage({
