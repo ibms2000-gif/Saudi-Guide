@@ -517,6 +517,20 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.match(mentalHealth, /مستشفى صحة نفسية تجريبي/);
   assert.match(mentalHealth, /test-mental-health.pdf/);
 
+  const rehabilitationGuide = await fs.readFile(
+    path.join(dist, "health/rehabilitation/index.html"),
+    "utf8",
+  );
+  assert.match(rehabilitationGuide, /دليل البحث عن خدمات التأهيل الطبي في السعودية/);
+  assert.match(rehabilitationGuide, /6 يناير 2021/);
+  assert.ok(rehabilitationGuide.includes("https://www.moh.gov.sa/eservices/interactive-maps/pages/default.aspx"));
+  assert.ok(rehabilitationGuide.includes("https://www.moh.gov.sa/eServices/Documents/interactive-maps-User-Manual.pdf"));
+  assert.ok(rehabilitationGuide.includes("PTHospitals.pdf"));
+
+  const officialDirectories = await fs.readFile(path.join(dist, "official-directories/index.html"), "utf8");
+  assert.match(officialDirectories, /دليل استخدام خريطة المستشفيات والمراكز/);
+  assert.ok(officialDirectories.includes("/health/rehabilitation/"));
+
   // صفحة مدينة بها بيانات كافية تحتوي قسم المطاعم وإسناد المصدر
   const cityCategory = await fs.readFile(
     path.join(dist, "city/city-with-data/restaurants/index.html"),
@@ -554,6 +568,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.ok(sitemap.includes("/health/on-duty/"));
   assert.ok(sitemap.includes("/health/on-duty/test-region/"));
   assert.ok(sitemap.includes("/health/mental-health-hospitals/"));
+  assert.ok(sitemap.includes("/health/rehabilitation/"));
   assert.ok(sitemap.includes("/benefits/housing-support/"));
   assert.ok(sitemap.includes("/benefits/saned-unemployment/"));
   assert.ok(sitemap.includes("/benefits/job-search-subsidy/"));
