@@ -1,0 +1,42 @@
+{
+  "sourceNameAr": "الهيئة العامة للإحصاء",
+  "sourceTitleAr": "نشرة إحصاءات الخدمات 2024",
+  "sourceUrl": "https://www.stats.gov.sa/documents/20117/2435281/__Services%2BStatistics%2B2024%2BAr.pdf/9bd08ed7-c687-6b10-6f2e-e9536825e11f",
+  "citySourceTitleAr": "جودة الحياة في المدن السعودية 2025",
+  "citySourceUrl": "https://www.stats.gov.sa/documents/20117/2435245/GASTAT_LISC%2Breport_2025_EN.pdf/80b46893-12e0-2b26-2a54-70a1553169c1",
+  "referenceYear": 2024,
+  "previousYear": 2023,
+  "totalSchools": 31412,
+  "previousTotalSchools": 31231,
+  "publicSchools": 24075,
+  "privateSchools": 7337,
+  "publicSharePercent": 76.6,
+  "privateSharePercent": 23.4,
+  "publicSchoolsBoys": 9263,
+  "publicSchoolsGirls": 14812,
+  "privateSchoolsBoys": 2644,
+  "privateSchoolsGirls": 4693,
+  "cityStatistics": [
+    {
+      "areaAr": "الرياض",
+      "publicSchools": 2026,
+      "privateNonInternationalSchools": 1247,
+      "internationalSchools": 1206
+    },
+    {
+      "areaAr": "جدة",
+      "publicSchools": 995,
+      "privateNonInternationalSchools": 505,
+      "internationalSchools": 664
+    },
+    {
+      "areaAr": "حاضرة الدمام",
+      "publicSchools": 544,
+      "privateNonInternationalSchools": 335,
+      "internationalSchools": 408,
+      "scopeNoteAr": "يشمل نطاق حاضرة الدمام مدينة الدمام ومحافظة الخبر (مدينتي الخبر والظهران) ومحافظة البيضاء."
+    }
+  ],
+  "verifiedAt": "2026-11-24",
+  "caveatAr": "الأرقام تعود إلى عام 2024 وفق نشرات الهيئة العامة للإحصاء. الأعداد على مستوى المدن في تقرير جودة الحياة تخص الرياض وجدة وحاضرة الدمام فقط؛ ولا يجوز تفسير رقم حاضرة الدمام على أنه عدد مدارس مدينة الدمام وحدها."
+}

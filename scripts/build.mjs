@@ -33,6 +33,7 @@ import { loadOfficialMentalHealthHospitals, officialMentalHealthHospitalsPage } 
 import { officialDirectoriesPage } from "../src/lib/official-directories.mjs";
 import { officialRehabilitationPage } from "../src/lib/official-rehabilitation.mjs";
 import { officialHealthWorkingHoursPage } from "../src/lib/official-health-working-hours.mjs";
+import { loadOfficialEducationStatistics, officialEducationPage } from "../src/lib/official-education.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(__dirname, "..");
@@ -45,6 +46,7 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   const totalPlaces = model.cities.reduce((sum, city) => sum + city.totalPlaces, 0);
   const officialHealthCenters = await loadOfficialHealthCenters(dataRoot);
   const officialMentalHealthHospitals = await loadOfficialMentalHealthHospitals(dataRoot);
+  const officialEducationStatistics = await loadOfficialEducationStatistics(dataRoot);
   if (!allowEmptyData && (citiesWithData < 5 || totalPlaces < 50)) {
     throw new Error(
       `رفض بناء نسخة الإنتاج: بيانات الأماكن غير كافية (${totalPlaces} مكانًا في ${citiesWithData} مدن). ` +
@@ -65,6 +67,7 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   add("/official-directories/", officialDirectoriesPage());
   add("/health/rehabilitation/", officialRehabilitationPage());
   add("/health/working-hours/", officialHealthWorkingHoursPage());
+  if (officialEducationStatistics) add("/education/", officialEducationPage(officialEducationStatistics));
   add("/legal/weather-notice/", weatherNoticePage());
   if (officialHealthCenters?.pages.length) {
     add("/health/on-duty/", officialHealthCentersIndexPage(officialHealthCenters));

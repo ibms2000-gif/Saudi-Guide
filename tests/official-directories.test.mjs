@@ -27,7 +27,7 @@ test("صفحة الأدلة الحكومية تعرض المصادر الرسم�
     "https://www.moh.gov.sa/awarenessplateform/VariousTopics/Documents/PTHospitals.pdf",
     "https://www.moh.gov.sa/Ministry/Information-and-services/Documents/Psychological-health.pdf",
     "https://www.moh.gov.sa/ministry/opendata/pages/open-data-library.aspx",
-    "https://www.moe.gov.sa/ar/education/educationinksa/gis/pages/default.aspx",
+    "https://moe.gov.sa/ar/education/education-in-ksa/gis",
     "https://moe.gov.sa/ar/services/data-and-statistics-center/opendata",
     "https://www.moe.gov.sa/ar/services/data-and-statistics-center/reatltimedata",
   ]) {
