@@ -23,7 +23,8 @@ import {
   notFoundPage,
 } from "../src/lib/pages.mjs";
 import { calendarHomePage, annualEventPage, salarySchedulePage } from "../src/lib/calendar.mjs";
-import { prayerTimesIndexPage } from "../src/lib/prayer-times.mjs";
+import { prayerTimesIndexPage, prayerTimesPage } from "../src/lib/prayer-times.mjs";
+import { isPlacePageIndexable, placePath, renderPlacePage } from "../src/lib/place-page.mjs";
 import { benefitsIndexPage, benefitDetailPage } from "../src/lib/benefits.mjs";
 import { statisticsIndexPage, statisticDetailPage } from "../src/lib/statistics.mjs";
 import { newsIndexPage, newsRegionPage, newsDetailPage } from "../src/lib/news.mjs";
@@ -37,6 +38,8 @@ import { loadOfficialEducationStatistics, officialEducationPage } from "../src/l
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(__dirname, "..");
+const STATIC_PAGES_BUILD = process.env.STATIC_PAGES_BUILD === "true";
+const PAGES_FREE_FILE_LIMIT = 20_000;
 
 export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, allowEmptyData = process.env.ALLOW_EMPTY_DATA === "true" } = {}) {
   const ROOT = root;
@@ -204,11 +207,34 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     )
     .map((city) => `/prayer-times/${city.slug}/`);
 
-  // خريطة الموقع: الصفحات الثابتة وصفحات الأماكن والمواقيت المؤهلة فقط.
+  // في وضع Pages الثابت نولّد صفحات الأماكن والمواقيت كملفات HTML فعلية؛ لا نحتاج Worker أو Functions.
+  if (STATIC_PAGES_BUILD) {
+    const categoryBySlug = new Map(model.categories.map((category) => [category.slug, category]));
+    for (const city of model.cities) {
+      const fetchedAt = model.meta?.cities?.[city.slug]?.fetchedAt || null;
+      for (const place of city.places) {
+        const urlPath = placePath(city.slug, place);
+        if (!urlPath) continue;
+        const html = renderPlacePage({
+          place,
+          city,
+          category: categoryBySlug.get(place.categorySlug) || null,
+          siteUrl: SITE.url,
+          fetchedAt,
+        });
+        add(urlPath, html, isPlacePageIndexable(place));
+      }
+      if (Number.isFinite(Number(city.latitude)) && Number.isFinite(Number(city.longitude))) {
+        add(`/prayer-times/${city.slug}/`, prayerTimesPage(city, new Date(), { includeSchedule: true }));
+      }
+    }
+  }
+
+  // خريطة الموقع لا تكرر روابط صفحات الأماكن/المواقيت المولدة مسبقًا.
   const indexablePaths = [
     ...pages.filter((p) => p.indexable).map((p) => p.urlPath),
-    ...placePaths,
-    ...prayerPaths,
+    ...(STATIC_PAGES_BUILD ? [] : placePaths),
+    ...(STATIC_PAGES_BUILD ? [] : prayerPaths),
   ];
   const sitemapBundle = buildSitemapBundle(indexablePaths);
   await fs.writeFile(path.join(DIST, "sitemap.xml"), sitemapBundle.index);
@@ -224,25 +250,37 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     `User-agent: *\nAllow: /\nSitemap: ${SITE.url}/sitemap.xml\n`,
   );
 
-  // نسخ الملفات الثابتة ولقطات بيانات الأماكن التي يقرأها Worker عند طلب صفحة مكان.
+  // نسخ الأصول العامة. ملفات JSON للأماكن مطلوبة فقط لوضع Worker الديناميكي؛ Pages يستخدم HTML المسبق فقط.
   await copyDir(path.join(ROOT, "public"), DIST);
-  await copyDir(path.join(dataRoot, "data", "places"), path.join(DIST, "data", "places"));
+  if (!STATIC_PAGES_BUILD) {
+    await copyDir(path.join(dataRoot, "data", "places"), path.join(DIST, "data", "places"));
+  }
   await fs.mkdir(path.join(DIST, "styles"), { recursive: true });
   await fs.copyFile(path.join(ROOT, "src/styles/site.css"), path.join(DIST, "styles/site.css"));
   await fs.copyFile(path.join(ROOT, "src/client/app.js"), path.join(DIST, "app.js"));
+  await fs.copyFile(path.join(ROOT, "src/client/prayer-times.js"), path.join(DIST, "prayer-times.js"));
   await fs.copyFile(path.join(ROOT, "src/client/tools.js"), path.join(DIST, "tools.js"));
   await fs.copyFile(path.join(ROOT, "src/lib/tool-calculations.mjs"), path.join(DIST, "tool-calculations.mjs"));
 
+  const siteFileCount = STATIC_PAGES_BUILD ? (await countFiles(DIST)) + 1 : null;
+  if (STATIC_PAGES_BUILD && siteFileCount > PAGES_FREE_FILE_LIMIT) {
+    throw new Error(`رفض نشر Pages المجاني: ${siteFileCount} ملفًا يتجاوز حد ${PAGES_FREE_FILE_LIMIT} ملف.`);
+  }
+
   const report = {
     generatedAt: new Date().toISOString(),
+    staticPagesMode: STATIC_PAGES_BUILD,
+    siteFileCount,
     totalPages: pages.length,
     indexablePages: indexablePaths.length,
     cities: model.cities.length,
     citiesWithData: model.cities.filter((c) => c.totalPlaces > 0).length,
     totalPlaceRecords: model.cities.reduce((sum, city) => sum + city.totalPlaces, 0),
-    dynamicPlacePages: model.cities.reduce((sum, city) => sum + city.places.filter((place) => placePath(city.slug, place)).length, 0),
+    dynamicPlacePages: STATIC_PAGES_BUILD ? 0 : model.cities.reduce((sum, city) => sum + city.places.filter((place) => placePath(city.slug, place)).length, 0),
+    preRenderedPlacePages: STATIC_PAGES_BUILD ? model.cities.reduce((sum, city) => sum + city.places.filter((place) => placePath(city.slug, place)).length, 0) : 0,
     indexablePlacePages: placePaths.length,
-    dynamicPrayerPages: prayerPaths.length,
+    dynamicPrayerPages: STATIC_PAGES_BUILD ? 0 : prayerPaths.length,
+    preRenderedPrayerPages: STATIC_PAGES_BUILD ? model.cities.filter((city) => Number.isFinite(Number(city.latitude)) && Number.isFinite(Number(city.longitude))).length : 0,
     neighbourhoodPages: model.cities.reduce((sum, city) => sum + (city.totalNeighbourhoods || 0), 0),
     neighbourhoodsByCity: Object.fromEntries(model.cities.map((city) => [city.slug, city.totalNeighbourhoods || 0]).filter(([, count]) => count > 0)),
     officialHealthCenterPages: officialHealthCenters?.pages.length || 0,
@@ -263,6 +301,17 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   };
   await fs.writeFile(path.join(DIST, "_build-report.json"), JSON.stringify(report, null, 2));
   return report;
+}
+
+async function countFiles(directory) {
+  let count = 0;
+  const entries = await fs.readdir(directory, { withFileTypes: true });
+  for (const entry of entries) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) count += await countFiles(entryPath);
+    else count += 1;
+  }
+  return count;
 }
 
 async function copyDir(src, dest) {
