@@ -24,7 +24,7 @@ import {
 } from "../src/lib/pages.mjs";
 import { calendarHomePage, annualEventPage, salarySchedulePage } from "../src/lib/calendar.mjs";
 import { prayerTimesIndexPage, prayerTimesPage } from "../src/lib/prayer-times.mjs";
-import { isPlacePageIndexable, placePath, renderPlacePage } from "../src/lib/place-page.mjs";
+import { renderPlacePage } from "../src/lib/place-page.mjs";
 import { benefitsIndexPage, benefitDetailPage } from "../src/lib/benefits.mjs";
 import { statisticsIndexPage, statisticDetailPage } from "../src/lib/statistics.mjs";
 import { newsIndexPage, newsRegionPage, newsDetailPage } from "../src/lib/news.mjs";
