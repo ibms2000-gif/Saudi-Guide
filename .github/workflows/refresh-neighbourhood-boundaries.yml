@@ -1,0 +1,82 @@
+name: Refresh OSM neighbourhood boundaries
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/refresh-neighbourhood-boundaries.yml"
+      - "scripts/fetch-neighbourhood-boundaries.mjs"
+      - "scripts/validate-neighbourhood-boundaries.mjs"
+      - "src/lib/neighbourhood-boundaries.mjs"
+      - "src/lib/overpass.mjs"
+      - "src/lib/data-refresh.mjs"
+      - "src/lib/data.mjs"
+      - "scripts/audit-neighbourhoods.mjs"
+      - "tests/neighbourhood-boundaries.test.mjs"
+      - "tests/data-model.test.mjs"
+      - "package.json"
+      - "data/cities.json"
+      - "data/neighbourhood-boundaries/**"
+  schedule:
+    - cron: "47 3 * * 0"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Bootstrap missing city snapshots or refresh the oldest five"
+        required: true
+        type: choice
+        default: bootstrap
+        options:
+          - bootstrap
+          - refresh-batch
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: refresh-osm-neighbourhood-boundaries
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install project dependencies
+        run: npm install --no-audit --no-fund
+      - name: Fetch a bounded batch of OSM neighbourhood polygons
+        env:
+          NEIGHBOURHOOD_BOUNDARY_BATCH_SIZE: "5"
+          NEIGHBOURHOOD_BOUNDARY_BOOTSTRAP_ONLY: ${{ github.event_name != 'schedule' && inputs.mode != 'refresh-batch' }}
+          NEIGHBOURHOOD_BOUNDARY_REFRESH_BATCH_ONLY: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh-batch') }}
+        run: npm run neighbourhoods:data
+      - name: Validate neighbourhood polygons and metadata
+        run: npm run validate:neighbourhoods
+      - name: Run unit tests
+        run: npm test
+      - name: Build static site
+        run: npm run build
+      - name: Audit neighbourhood coverage
+        run: npm run audit:neighbourhoods
+      - name: Open boundary-data pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: automation/refresh-neighbourhood-boundaries
+          delete-branch: true
+          commit-message: "Refresh OSM neighbourhood boundaries"
+          title: "Refresh Saudi Guide neighbourhood boundary data"
+          body: |
+            Automated bounded refresh of community-mapped neighbourhood polygons from OpenStreetMap.
+            Only closed place areas and boundary=place relations are retained.
+            Centre nodes are not treated as polygons and are never used to infer a neighbourhood.
+            The pull request is created after polygon validation, tests, build, and the coverage audit pass.
+          add-paths: |
+            data/neighbourhood-boundaries/*.json
