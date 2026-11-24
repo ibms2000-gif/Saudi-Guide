@@ -16,6 +16,7 @@ test("صفحة الأدلة الحكومية تعرض المصادر الرسم�
   assert.match(html, /خريطة بحث رسمية لا كبيانات منسوخة/);
   assert.match(html, /البيانات المفتوحة لوزارة التعليم/);
   assert.match(html, /البيانات اللحظية لوزارة التعليم/);
+  assert.match(html, /استعراض قائمة مستشفيات ومجمعات الصحة النفسية داخل دليل السعودية/);
   assert.match(html, /لا تمثل سجلاً حكومياً/);
   assert.match(html, /OpenStreetMap/);
   assert.match(html, /rel="canonical" href="[^"]+\/official-directories\//);
