@@ -300,6 +300,11 @@ async function makeFixtureRoot() {
     }),
   );
 
+  await fs.writeFile(
+    path.join(root, "data/official-education-statistics.json"),
+    JSON.stringify({"sourceNameAr":"الهيئة العامة للإحصاء","sourceTitleAr":"نشرة إحصاءات الخدمات الاختبارية","sourceUrl":"https://example.com/national.pdf","citySourceTitleAr":"تقرير المدن الاختباري","citySourceUrl":"https://example.com/cities.pdf","referenceYear":2024,"previousYear":2023,"totalSchools":100,"previousTotalSchools":95,"publicSchools":80,"privateSchools":20,"publicSharePercent":80,"privateSharePercent":20,"publicSchoolsBoys":20,"publicSchoolsGirls":60,"privateSchoolsBoys":8,"privateSchoolsGirls":12,"cityStatistics":[{"areaAr":"الرياض","publicSchools":20,"privateNonInternationalSchools":10,"internationalSchools":5},{"areaAr":"جدة","publicSchools":10,"privateNonInternationalSchools":5,"internationalSchools":3},{"areaAr":"حاضرة الدمام","publicSchools":4,"privateNonInternationalSchools":2,"internationalSchools":1,"scopeNoteAr":"نطاق حضري تجريبي."}],"verifiedAt":"2026-11-24"}),
+  );
+
   await fs.cp(path.join(REPO_ROOT, "public"), path.join(root, "public"), { recursive: true });
   await fs.cp(path.join(REPO_ROOT, "src/styles/site.css"), path.join(root, "src/styles/site.css"));
   await fs.cp(path.join(REPO_ROOT, "src/client/app.js"), path.join(root, "src/client/app.js"));
@@ -530,6 +535,19 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   const officialDirectories = await fs.readFile(path.join(dist, "official-directories/index.html"), "utf8");
   assert.match(officialDirectories, /دليل استخدام خريطة المستشفيات والمراكز/);
   assert.ok(officialDirectories.includes("/health/rehabilitation/"));
+  assert.ok(officialDirectories.includes("/education/"));
+
+  const educationPage = await fs.readFile(path.join(dist, "education/index.html"), "utf8");
+  assert.match(educationPage, /المدارس والتعليم في السعودية/);
+  assert.match(educationPage, /إحصاءات وطنية ومقارنة للمدارس/);
+  assert.match(educationPage, /المدارس الحكومية/);
+  assert.match(educationPage, /المدارس الأهلية غير الدولية/);
+  assert.match(educationPage, /حاضرة الدمام/);
+  assert.match(educationPage, /آخر تحديث ظاهر في الصفحة/);
+  assert.ok(educationPage.includes("https://example.com/national.pdf"));
+  assert.ok(educationPage.includes("https://example.com/cities.pdf"));
+  assert.ok(educationPage.includes("https://moe.gov.sa/ar/education/education-in-ksa/gis"));
+
 
   const healthHours = await fs.readFile(
     path.join(dist, "health/working-hours/index.html"),
@@ -583,6 +601,7 @@ test("البناء ينتج صفحات ويحترم عتبة الفهرسة وإ
   assert.ok(sitemap.includes("/health/mental-health-hospitals/"));
   assert.ok(sitemap.includes("/health/rehabilitation/"));
   assert.ok(sitemap.includes("/health/working-hours/"));
+  assert.ok(sitemap.includes("/education/"));
   assert.ok(sitemap.includes("/benefits/housing-support/"));
   assert.ok(sitemap.includes("/benefits/saned-unemployment/"));
   assert.ok(sitemap.includes("/benefits/job-search-subsidy/"));
