@@ -78,7 +78,6 @@ test("يجمع أجزاء relation المتصلة لتكوين حلقة مغلق
     members: [
       { type: "way", role: "outer", geometry: square.slice(0, 3) },
       { type: "way", role: "outer", geometry: square.slice(2, 5) },
-      { type: "way", role: "outer", geometry: [square[4], square[0]] },
     ],
   };
   const result = elementToNeighbourhoodBoundary(relation);
