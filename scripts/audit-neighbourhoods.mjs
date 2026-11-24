@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// تقرير تغطية الأحياء المسجلة صراحة في سجلات OpenStreetMap، دون تخمين أو إثراء خارجي.
+// تقرير تغطية الأحياء من وسوم العناوين ومضلعات OSM المغلقة فقط.
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -21,7 +21,7 @@ if (process.argv.includes("--json")) {
 } else {
   const summary = report.summary;
   const thresholds = report.thresholds;
-  console.log("تقرير تغطية الأحياء — وسوم OSM الصريحة فقط");
+  console.log("تقرير تغطية الأحياء — عناوين OSM والمضلعات المساحية");
   console.log(
     "المدن: " + summary.cityCount +
     " | مدن بها وسوم أحياء: " + summary.citiesWithTaggedPlaces +
