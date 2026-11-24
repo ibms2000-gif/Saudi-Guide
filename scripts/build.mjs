@@ -177,6 +177,30 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
     }
   }
 
+  // في وضع Pages الثابت نولّد صفحات الأماكن والمواقيت كملفات HTML فعلية؛ لا نحتاج Worker أو Functions.
+  if (STATIC_PAGES_BUILD) {
+    const categoryBySlug = new Map(model.categories.map((category) => [category.slug, category]));
+    for (const city of model.cities) {
+      const fetchedAt = model.meta?.cities?.[city.slug]?.fetchedAt || null;
+      for (const place of city.places) {
+        const urlPath = placePath(city.slug, place);
+        if (!urlPath) continue;
+        const html = renderPlacePage({
+          place,
+          city,
+          category: categoryBySlug.get(place.categorySlug) || null,
+          siteUrl: SITE.url,
+          fetchedAt,
+        });
+        add(urlPath, html, isPlacePageIndexable(place));
+      }
+      if (Number.isFinite(Number(city.latitude)) && Number.isFinite(Number(city.longitude))) {
+        add(`/prayer-times/${city.slug}/`, prayerTimesPage(city, new Date(), { includeSchedule: true }));
+      }
+    }
+  }
+
+
   for (const { urlPath, html, indexable } of pages) {
     const filePath = path.join(DIST, urlPath.replace(/^\//, ""), "index.html");
     await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -206,29 +230,6 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
       Number.isFinite(Number(city.longitude)),
     )
     .map((city) => `/prayer-times/${city.slug}/`);
-
-  // في وضع Pages الثابت نولّد صفحات الأماكن والمواقيت كملفات HTML فعلية؛ لا نحتاج Worker أو Functions.
-  if (STATIC_PAGES_BUILD) {
-    const categoryBySlug = new Map(model.categories.map((category) => [category.slug, category]));
-    for (const city of model.cities) {
-      const fetchedAt = model.meta?.cities?.[city.slug]?.fetchedAt || null;
-      for (const place of city.places) {
-        const urlPath = placePath(city.slug, place);
-        if (!urlPath) continue;
-        const html = renderPlacePage({
-          place,
-          city,
-          category: categoryBySlug.get(place.categorySlug) || null,
-          siteUrl: SITE.url,
-          fetchedAt,
-        });
-        add(urlPath, html, isPlacePageIndexable(place));
-      }
-      if (Number.isFinite(Number(city.latitude)) && Number.isFinite(Number(city.longitude))) {
-        add(`/prayer-times/${city.slug}/`, prayerTimesPage(city, new Date(), { includeSchedule: true }));
-      }
-    }
-  }
 
   // خريطة الموقع لا تكرر روابط صفحات الأماكن/المواقيت المولدة مسبقًا.
   const indexablePaths = [
