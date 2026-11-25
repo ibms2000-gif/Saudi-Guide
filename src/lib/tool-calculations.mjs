@@ -874,11 +874,11 @@ export function calculateTool(slug, values, options = {}) {
 
     case "word-counter": {
       const text = String(data.text || "");
-      const words = text.match(/[\\p{L}\\p{N}]+(?:[’'\\-][\\p{L}\\p{N}]+)*/gu) || [];
+      const words = text.match(/[\p{L}\p{N}]+(?:[’'\\-][\p{L}\p{N}]+)*/gu) || [];
       const characters = [...text].length;
-      const charactersWithoutWhitespace = [...text.replace(/\\s/gu, "")].length;
+      const charactersWithoutWhitespace = [...text.replace(/\s/gu, "")].length;
       const sentences = text.match(/[.!؟?]+/gu) || [];
-      const lines = text.length ? text.split(/\\r\\n|\\r|\\n/).length : 0;
+      const lines = text.length ? text.split(/\r\n|\r|\n/).length : 0;
       return [
         row("عدد الكلمات", words.length, "number", " كلمة"),
         row("عدد الحروف والرموز مع المسافات", characters, "number", " حرفًا"),
@@ -889,8 +889,8 @@ export function calculateTool(slug, values, options = {}) {
     }
 
     case "time-duration-calculator": {
-      const start = /^(\\d{2}):(\\d{2})$/.exec(String(data.startTime || ""));
-      const end = /^(\\d{2}):(\\d{2})$/.exec(String(data.endTime || ""));
+      const start = /^(\d{2}):(\d{2})$/.exec(String(data.startTime || ""));
+      const end = /^(\d{2}):(\d{2})$/.exec(String(data.endTime || ""));
       const breakMinutes = readNumber(data, "breakMinutes", "مدة الاستراحة");
       if (!start || !end || breakMinutes < 0 || !Number.isInteger(breakMinutes) || breakMinutes > 1440) {
         throw new Error("أدخل وقت بداية ونهاية صحيحين واستراحة بالدقائق من صفر إلى 1440.");
