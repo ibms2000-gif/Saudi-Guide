@@ -57,7 +57,7 @@ function countdownCard(item, now, recurring = false) {
   const recurringAttrs = recurring
     ? ` data-countdown-recurring-day="${item.day}" data-countdown-rule="${escapeHtml(item.rule || "none")}"`
     : "";
-  return `<li class="event-card countdown-card">
+  return `<li class="event-card countdown-card" data-countdown-group="${escapeHtml(item.group || "")}">
     <h3>${escapeHtml(item.nameAr)}</h3>
     <p>${escapeHtml(item.descriptionAr)}</p>
     <p class="event-date">الموعد القادم: <strong data-countdown-date>${escapeHtml(formatSaudiDate(next.isoDate))}</strong></p>
