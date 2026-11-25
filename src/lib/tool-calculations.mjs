@@ -874,7 +874,7 @@ export function calculateTool(slug, values, options = {}) {
 
     case "word-counter": {
       const text = String(data.text || "");
-      const words = text.match(/[\p{L}\p{N}]+(?:[’'\\-][\p{L}\p{N}]+)*/gu) || [];
+      const words = text.match(/[\p{L}\p{N}]+(?:[-’'][\p{L}\p{N}]+)*/gu) || [];
       const characters = [...text].length;
       const charactersWithoutWhitespace = [...text.replace(/\s/gu, "")].length;
       const sentences = text.match(/[.!؟?]+/gu) || [];
