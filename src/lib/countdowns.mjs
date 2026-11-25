@@ -3,8 +3,6 @@ import { renderPage } from "./layout.mjs";
 import { SITE } from "./config.mjs";
 import { formatSaudiDate, nextAnnualOccurrence, riyadhDateIso } from "./calendar.mjs";
 
-const NUMBER = new Intl.NumberFormat("ar-SA", { maximumFractionDigits: 0 });
-
 function isoFromUtcDate(date) {
   return date.toISOString().slice(0, 10);
 }
@@ -77,7 +75,7 @@ function privateSalaryCard() {
     <p>تختلف مواعيد الرواتب بين المنشآت بحسب العقد أو لائحة تنظيم العمل. أدخل يوم الراتب الذي حددته جهة عملك لعرض عدّاد شخصي داخل متصفحك.</p>
     <form data-private-salary-form class="private-salary-form">
       <label for="private-salary-day">يوم نزول الراتب كل شهر (1–31)</label>
-      <input id="private-salary-day" name="day" type="number" min="1" max="31" value="27" required>
+      <input id="private-salary-day" name="day" type="number" min="1" max="31" placeholder="مثلاً 27" required>
       <button type="submit">اعرض العد التنازلي</button>
     </form>
     <div class="private-salary-result" data-private-salary-card hidden>
@@ -126,6 +124,10 @@ export function countdownsToolPage({ countdowns = { fixedEvents: [], monthlyEven
     .filter((item) => item && /^\d{4}-\d{2}-\d{2}$/.test(String(item.date || "")) && item.date >= today)
     .map((item) => countdownCard(item, now))
     .join("");
+  const fixedFinancialCards = fixedCards.split("</li>")
+    .filter((card) => card.includes('data-countdown-group="الرواتب والدعم"'))
+    .map((card) => card + "</li>")
+    .join("");
 
   const annualCards = events
     .filter((event) => event.kind === "fixed-annual" && event.status === "official")
@@ -153,7 +155,7 @@ export function countdownsToolPage({ countdowns = { fixedEvents: [], monthlyEven
     <p>تابع مواعيد الرواتب والدعم الحكومي ورمضان والعيد والحج والفصول الدراسية والإجازات. العدادات تعمل وفق توقيت المملكة العربية السعودية، ونوضح بجانب كل موعد ما إذا كان رسميًا أو تقديريًا.</p>
   </section>
   ${privateSalaryCard()}
-  ${groupSection("الرواتب والدعم الحكومي", salaryCard + monthlyCards)}
+  ${groupSection("الرواتب والدعم الحكومي", salaryCard + monthlyCards + fixedFinancialCards)}
   ${groupSection("المناسبات الإسلامية والحج", fixedCards.split("</li>").filter((card) => card.includes("المناسبات الإسلامية")).map((card) => card + "</li>").join(""))}
   ${groupSection("الدراسة والإجازات", fixedCards.split("</li>").filter((card) => card.includes("الدراسة والإجازات")).map((card) => card + "</li>").join(""))}
   ${groupSection("الفصول والمواسم", fixedCards.split("</li>").filter((card) => card.includes("الفصول")).map((card) => card + "</li>").join(""))}
