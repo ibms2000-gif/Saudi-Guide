@@ -82,12 +82,13 @@ function calendarAge(start, end) {
 }
 
 
+const UMMALQURA_NUMERIC_FORMATTER = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", {
+  day: "numeric", month: "numeric", year: "numeric", timeZone: "UTC"
+});
+
 function ummalquraParts(date) {
-  const formatter = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", {
-    day: "numeric", month: "numeric", year: "numeric", timeZone: "UTC"
-  });
   const parts = Object.fromEntries(
-    formatter.formatToParts(date).filter((part) => ["day", "month", "year"].includes(part.type))
+    UMMALQURA_NUMERIC_FORMATTER.formatToParts(date).filter((part) => ["day", "month", "year"].includes(part.type))
       .map((part) => [part.type, Number(part.value)])
   );
   if (!parts.day || !parts.month || !parts.year) {
