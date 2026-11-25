@@ -37,10 +37,11 @@ export async function loadModel(root) {
 
   const events = await readOptionalJSON(path.join(root, "data/events.json"), []);
   const salarySchedules = await loadSalarySchedules(path.join(root, "data/paydays"));
+  const countdowns = await readOptionalJSON(path.join(root, "data/countdowns.json"), { fixedEvents: [], monthlyEvents: [] });
   const benefits = await readOptionalJSON(path.join(root, "data/benefits.json"), []);
   const statistics = await readOptionalJSON(path.join(root, "data/statistics.json"), []);
   const news = await readOptionalJSON(path.join(root, "data/news.json"), []);
-  return buildModel({ regions, cities, categories, placesByCity, neighbourhoodBoundariesByCity, neighbourhoodBoundaryMeta, meta, events, salarySchedules, benefits, statistics, news });
+  return buildModel({ regions, cities, categories, placesByCity, neighbourhoodBoundariesByCity, neighbourhoodBoundaryMeta, meta, events, salarySchedules, countdowns, benefits, statistics, news });
 }
 
 async function readOptionalJSON(filePath, fallback) {
@@ -109,7 +110,7 @@ function buildNeighbourhoods(places, city) {
     .sort((a, b) => b.totalPlaces - a.totalPlaces || a.nameAr.localeCompare(b.nameAr, "ar"));
 }
 
-export function buildModel({ regions, cities, categories, placesByCity, neighbourhoodBoundariesByCity = {}, neighbourhoodBoundaryMeta = null, meta, events = [], salarySchedules = [], benefits = [], statistics = [], news = [] }) {
+export function buildModel({ regions, cities, categories, placesByCity, neighbourhoodBoundariesByCity = {}, neighbourhoodBoundaryMeta = null, meta, events = [], salarySchedules = [], countdowns = { fixedEvents: [], monthlyEvents: [] }, benefits = [], statistics = [], news = [] }) {
   const categoryBySlug = Object.fromEntries(categories.map((c) => [c.slug, c]));
   const regionBySlug = Object.fromEntries(regions.map((r) => [r.slug, r]));
 
@@ -175,6 +176,7 @@ export function buildModel({ regions, cities, categories, placesByCity, neighbou
     neighbourhoodBoundaryMeta,
     events,
     salarySchedules,
+    countdowns,
     benefits,
     statistics,
     news,
