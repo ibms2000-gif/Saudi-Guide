@@ -474,3 +474,111 @@ test("ترفض حاسبات الدعم والتقاعد والأمومة الم�
     monthlySupport: "-1", monthlyExpenses: "5000"
   }));
 });
+
+
+test("محول الميلادي إلى الهجري يستخدم تقويم أم القرى", () => {
+  const result = calculateTool("gregorian-to-hijri", { date: "2026-11-25" });
+  assert.equal(result[1].value, 1448);
+  assert.equal(result[2].value, 6);
+  assert.equal(result[3].value, 15);
+});
+
+test("محول الهجري إلى الميلادي يعيد التاريخ المطابق في أم القرى", () => {
+  const result = calculateTool("hijri-to-gregorian", {
+    hijriDay: "15", hijriMonth: "6", hijriYear: "1448"
+  });
+  assert.equal(result[0].value, "2026-11-25");
+});
+
+test("محول الطول يحول الكيلومتر إلى متر", () => {
+  const result = calculateTool("length-converter", { value: "2", from: "km", to: "m" });
+  assert.equal(result[0].value, 2000);
+});
+
+test("محول الوزن يحول الكيلوجرام إلى جرام", () => {
+  const result = calculateTool("weight-converter", { value: "1.5", from: "kg", to: "g" });
+  assert.equal(result[0].value, 1500);
+});
+
+test("المعدل التراكمي يجمع نقاط الساعات السابقة والفصل الجديد", () => {
+  const result = calculateTool("cumulative-gpa-calculator", {
+    currentGpa: "3.2", completedHours: "60", semesterGpa: "3.8",
+    semesterHours: "15", scale: "4"
+  });
+  assert.equal(result[0].value, 3.32);
+  assert.equal(result[1].value, 75);
+});
+
+test("النسبة الموزونة تستخدم الأوزان التي أدخلها المستخدم", () => {
+  const result = calculateTool("weighted-admission-calculator", {
+    secondary: "90", secondaryWeight: "30",
+    aptitude: "85", aptitudeWeight: "40",
+    achievement: "80", achievementWeight: "30"
+  });
+  assert.equal(result[0].value, 85);
+});
+
+test("عداد الكلمات يحسب الكلمات والأسطر والحروف", () => {
+  const result = calculateTool("word-counter", { text: "مرحبا بالعالم\nهذا اختبار!" });
+  assert.equal(result[0].value, 4);
+  assert.equal(result[3].value, 1);
+  assert.equal(result[4].value, 2);
+});
+
+test("مدة الوقت تخصم الاستراحة وتدعم نهاية الدوام بعد منتصف الليل", () => {
+  const day = calculateTool("time-duration-calculator", {
+    startTime: "08:00", endTime: "16:30", breakMinutes: "30"
+  });
+  assert.equal(day[1].value, "8 ساعة و0 دقيقة");
+  assert.equal(day[2].value, 8);
+
+  const overnight = calculateTool("time-duration-calculator", {
+    startTime: "22:00", endTime: "06:00", breakMinutes: "0"
+  });
+  assert.equal(overnight[2].value, 8);
+});
+
+test("حاسبة البناء تجمع المسطحات والتكلفة والاحتياطي", () => {
+  const result = calculateTool("construction-cost-estimator", {
+    floorArea: "200", floors: "2", costPerMeter: "1500", contingency: "10"
+  });
+  assert.deepEqual(values(result), [400, 600000, 60000, 660000]);
+});
+
+test("حاسبة مؤشر كتلة الجسم تصنف البالغين", () => {
+  const result = calculateTool("adult-bmi-calculator", { weight: "70", height: "175" });
+  assert.ok(Math.abs(result[0].value - 22.8571428571) < 1e-8);
+  assert.equal(result[1].value, "ضمن النطاق المرجعي للبالغين");
+});
+
+test("حاسبة السعرات تستخدم معادلة ميفلين ومعامل النشاط", () => {
+  const result = calculateTool("daily-calorie-estimator", {
+    sex: "male", age: "30", weight: "70", height: "170", activity: "1.2"
+  });
+  assert.equal(result[0].value, 1617.5);
+  assert.equal(result[1].value, 1941);
+});
+
+test("ترفض الأدوات الجديدة مدخلات غير منطقية أو أوزانًا لا تساوي 100%", () => {
+  assert.throws(() => calculateTool("hijri-to-gregorian", {
+    hijriDay: "31", hijriMonth: "6", hijriYear: "1448"
+  }));
+  assert.throws(() => calculateTool("length-converter", { value: "-2", from: "km", to: "m" }));
+  assert.throws(() => calculateTool("cumulative-gpa-calculator", {
+    currentGpa: "5.5", completedHours: "60", semesterGpa: "4", semesterHours: "15", scale: "5"
+  }));
+  assert.throws(() => calculateTool("weighted-admission-calculator", {
+    secondary: "90", secondaryWeight: "30",
+    aptitude: "85", aptitudeWeight: "30",
+    achievement: "80", achievementWeight: "30"
+  }));
+  assert.throws(() => calculateTool("time-duration-calculator", {
+    startTime: "08:00", endTime: "16:00", breakMinutes: "600"
+  }));
+  assert.throws(() => calculateTool("construction-cost-estimator", {
+    floorArea: "200", floors: "0", costPerMeter: "1500", contingency: "10"
+  }));
+  assert.throws(() => calculateTool("daily-calorie-estimator", {
+    sex: "male", age: "10", weight: "70", height: "170", activity: "1.2"
+  }));
+});
