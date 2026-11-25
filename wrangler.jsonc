@@ -2,7 +2,8 @@
   "name": "saudi-guide",
   "main": "worker/index.js",
   "compatibility_date": "2026-10-24",
-  "preview_urls": false,\n  "previews": {},
+  "preview_urls": false,
+  "previews": {},
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
