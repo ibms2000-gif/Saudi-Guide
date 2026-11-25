@@ -83,7 +83,7 @@ test("renders additional verified OSM attributes when present", () => {
   assert.match(html, /العلامة التجارية/);
   assert.match(html, /مشغل محلي/);
   assert.match(html, /mailto:info@example.com/);
-  assert.match(html, /متاح/);
+  assert.match(html, /نعم/);
 });
 
 test("keeps sparse place detail pages available but noindex", () => {
