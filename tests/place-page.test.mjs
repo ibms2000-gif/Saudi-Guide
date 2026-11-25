@@ -27,6 +27,19 @@ test("counts optional details without treating empty strings as data", () => {
   assert.equal(countPlaceDetails({ address: " ", phone: null, website: undefined }), 0);
 });
 
+test("counts descriptive source fields and neighbourhood data as supporting detail", () => {
+  assert.equal(countPlaceDetails({ neighbourhood: "حي النرجس", cuisine: "indian", brand: "Brand" }), 3);
+  assert.equal(isPlacePageIndexable({
+    ...completePlace,
+    address: null,
+    phone: null,
+    website: null,
+    openingHours: null,
+    neighbourhood: "حي النرجس",
+    cuisine: "indian",
+  }), true);
+});
+
 test("requires a valid identity, coordinates and at least two supporting details for indexing", () => {
   assert.equal(isPlacePageIndexable(completePlace), true);
   assert.equal(isPlacePageIndexable({ ...completePlace, phone: null, website: null, openingHours: null }), false);
@@ -56,6 +69,21 @@ test("renders a crawlable internal detail page with map, contact details and sou
   assert.match(html, /openstreetmap\.org\/export\/embed\.html/);
   assert.match(html, /OpenStreetMap/);
   assert.match(html, /application\/ld\+json/);
+});
+
+test("renders additional verified OSM attributes when present", () => {
+  const html = renderPlacePage({
+    place: { ...completePlace, cuisine: "indian;grill", brand: "علامة تجارية", operator: "مشغل محلي", email: "info@example.com", wheelchair: "yes" },
+    city,
+    category,
+    siteUrl: "https://saudi-guide.example",
+  });
+  assert.match(html, /نوع الطعام أو النشاط/);
+  assert.match(html, /indian، grill/);
+  assert.match(html, /العلامة التجارية/);
+  assert.match(html, /مشغل محلي/);
+  assert.match(html, /mailto:info@example.com/);
+  assert.match(html, /نعم/);
 });
 
 test("keeps sparse place detail pages available but noindex", () => {

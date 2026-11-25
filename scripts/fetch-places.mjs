@@ -12,6 +12,28 @@ import { selectBootstrapBatch, selectRefreshBatch } from "../src/lib/data-refres
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 
+function readTag(tags, keys, maxLength = 300) {
+  for (const key of keys) {
+    const raw = tags?.[key];
+    if (raw === null || raw === undefined) continue;
+    const value = String(raw).replace(/[\u0000-\u001F\u007F]/g, " ").replace(/\s+/g, " ").trim();
+    if (value) return value.slice(0, maxLength);
+  }
+  return null;
+}
+
+function addressFromTags(tags) {
+  const full = readTag(tags, ["addr:full"], 300);
+  if (full) return full;
+  const number = readTag(tags, ["addr:housenumber"], 40);
+  const street = readTag(tags, ["addr:street", "addr:place"], 160);
+  const city = readTag(tags, ["addr:city", "addr:town", "addr:village"], 100);
+  const postcode = readTag(tags, ["addr:postcode"], 20);
+  const streetLine = [number, street].filter(Boolean).join(" ");
+  const parts = [streetLine || null, city, postcode ? `الرمز البريدي ${postcode}` : null].filter(Boolean);
+  return parts.length ? parts.join("، ") : null;
+}
+
 const cities = JSON.parse(await fs.readFile(path.join(ROOT, "data/cities.json"), "utf8"));
 const categories = JSON.parse(await fs.readFile(path.join(ROOT, "data/categories.json"), "utf8"));
 
@@ -149,10 +171,20 @@ for (const city of citiesToProcess) {
       subcategorySlug: cls.subcategorySlug,
       lat: rec.lat,
       lon: rec.lon,
-      address: rec.tags["addr:street"] || rec.tags["addr:full"] || null,
-      phone: rec.tags.phone || rec.tags["contact:phone"] || null,
-      website: rec.tags.website || rec.tags["contact:website"] || null,
-      openingHours: rec.tags.opening_hours || null,
+      address: addressFromTags(rec.tags),
+      postcode: readTag(rec.tags, ["addr:postcode"], 20),
+      phone: readTag(rec.tags, ["contact:phone", "phone", "contact:mobile", "mobile"], 80),
+      email: readTag(rec.tags, ["contact:email", "email"], 160),
+      website: readTag(rec.tags, ["contact:website", "website"], 300),
+      openingHours: readTag(rec.tags, ["opening_hours"], 200),
+      cuisine: readTag(rec.tags, ["cuisine"], 160),
+      brand: readTag(rec.tags, ["brand:ar", "brand"], 160),
+      operator: readTag(rec.tags, ["operator:ar", "operator"], 160),
+      description: readTag(rec.tags, ["description:ar", "description"], 500),
+      wheelchair: readTag(rec.tags, ["wheelchair"], 40),
+      delivery: readTag(rec.tags, ["delivery"], 40),
+      takeaway: readTag(rec.tags, ["takeaway"], 40),
+      capacity: readTag(rec.tags, ["capacity"], 40),
       neighbourhood: neighbourhood?.name || null,
       neighbourhoodSourceTag: neighbourhood?.sourceTag || null,
       osmType: rec.osmType,
