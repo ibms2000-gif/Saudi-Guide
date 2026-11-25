@@ -81,6 +81,35 @@ function calendarAge(start, end) {
   return { years, months, days };
 }
 
+
+function ummalquraParts(date) {
+  const formatter = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", {
+    day: "numeric", month: "numeric", year: "numeric", timeZone: "UTC"
+  });
+  const parts = Object.fromEntries(
+    formatter.formatToParts(date).filter((part) => ["day", "month", "year"].includes(part.type))
+      .map((part) => [part.type, Number(part.value)])
+  );
+  if (!parts.day || !parts.month || !parts.year) {
+    throw new Error("تقويم أم القرى غير مدعوم في هذا المتصفح.");
+  }
+  return parts;
+}
+
+function gregorianFromUmmAlQura(hijriYear, hijriMonth, hijriDay) {
+  const approximateGregorianYear = Math.floor(622 + (hijriYear - 1) * 354.367 / 365.2425);
+  const start = Date.UTC(approximateGregorianYear - 1, 0, 1);
+  const end = Date.UTC(approximateGregorianYear + 2, 0, 1);
+  for (let timestamp = start; timestamp < end; timestamp += DAY_MS) {
+    const candidate = new Date(timestamp);
+    const parts = ummalquraParts(candidate);
+    if (parts.year === hijriYear && parts.month === hijriMonth && parts.day === hijriDay) {
+      return candidate;
+    }
+  }
+  throw new Error("التاريخ الهجري غير موجود في تقويم أم القرى ضمن النطاق المدعوم.");
+}
+
 /** Calculate a tool result without touching the DOM. */
 export function calculateTool(slug, values, options = {}) {
   const data = values || {};
@@ -729,6 +758,221 @@ export function calculateTool(slug, values, options = {}) {
         row("مبلغ التمويل قبل الرسوم", financed, "money"),
         row("إجمالي النقد المطلوب مبدئيًا", upfront, "money"),
         row("إجمالي كلفة التملك مع الرسوم المدخلة", price + tax + brokerFee + otherFees, "money"),
+      ];
+    }
+
+
+    case "gregorian-to-hijri": {
+      const { date } = parseDate(data.date, "التاريخ الميلادي");
+      const formatted = new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura", {
+        day: "numeric", month: "long", year: "numeric", timeZone: "UTC"
+      }).format(date);
+      const parts = ummalquraParts(date);
+      return [
+        row("التاريخ الهجري – أم القرى", formatted, "text"),
+        row("السنة الهجرية", parts.year, "number"),
+        row("رقم الشهر", parts.month, "number"),
+        row("اليوم الهجري", parts.day, "number")
+      ];
+    }
+
+    case "hijri-to-gregorian": {
+      const hijriDay = readNumber(data, "hijriDay", "اليوم الهجري");
+      const hijriMonth = readNumber(data, "hijriMonth", "الشهر الهجري");
+      const hijriYear = readNumber(data, "hijriYear", "السنة الهجرية");
+      if (!Number.isInteger(hijriDay) || hijriDay < 1 || hijriDay > 30 ||
+          !Number.isInteger(hijriMonth) || hijriMonth < 1 || hijriMonth > 12 ||
+          !Number.isInteger(hijriYear) || hijriYear < 1300 || hijriYear > 1600) {
+        throw new Error("أدخل يومًا من 1 إلى 30 وشهرًا من 1 إلى 12 وسنة هجرية بين 1300 و1600.");
+      }
+      const date = gregorianFromUmmAlQura(hijriYear, hijriMonth, hijriDay);
+      const iso = date.toISOString().slice(0, 10);
+      const weekday = new Intl.DateTimeFormat("ar-SA-u-ca-gregory", {
+        weekday: "long", timeZone: "UTC"
+      }).format(date);
+      return [
+        row("التاريخ الميلادي", iso, "text"),
+        row("اليوم", weekday, "text"),
+        row("التاريخ الهجري المدخل", new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura", {
+          day: "numeric", month: "long", year: "numeric", timeZone: "UTC"
+        }).format(date), "text")
+      ];
+    }
+
+    case "length-converter": {
+      const value = readNumber(data, "value", "القيمة");
+      const factors = { mm: 0.001, cm: 0.01, m: 1, km: 1000, in: 0.0254, ft: 0.3048, yd: 0.9144, mi: 1609.344 };
+      const labels = { mm: "مليمتر", cm: "سنتيمتر", m: "متر", km: "كيلومتر", in: "بوصة", ft: "قدم", yd: "ياردة", mi: "ميل" };
+      if (value < 0 || !Object.hasOwn(factors, data.from) || !Object.hasOwn(factors, data.to)) {
+        throw new Error("أدخل قيمة غير سالبة واختر وحدتي طول صحيحتين.");
+      }
+      const meters = value * factors[data.from];
+      const converted = meters / factors[data.to];
+      return [
+        row("النتيجة", converted, "number", " " + labels[data.to]),
+        row("القيمة بالمتر", meters, "number", " متر")
+      ];
+    }
+
+    case "weight-converter": {
+      const value = readNumber(data, "value", "القيمة");
+      const factors = { mg: 0.000001, g: 0.001, kg: 1, ton: 1000, oz: 0.028349523125, lb: 0.45359237 };
+      const labels = { mg: "مليجرام", g: "جرام", kg: "كيلوجرام", ton: "طن متري", oz: "أونصة", lb: "رطل" };
+      if (value < 0 || !Object.hasOwn(factors, data.from) || !Object.hasOwn(factors, data.to)) {
+        throw new Error("أدخل قيمة غير سالبة واختر وحدتي وزن صحيحتين.");
+      }
+      const kilograms = value * factors[data.from];
+      const converted = kilograms / factors[data.to];
+      return [
+        row("النتيجة", converted, "number", " " + labels[data.to]),
+        row("القيمة بالكيلوجرام", kilograms, "number", " كجم")
+      ];
+    }
+
+    case "cumulative-gpa-calculator": {
+      const currentGpa = readNumber(data, "currentGpa", "المعدل التراكمي السابق");
+      const completedHours = readNumber(data, "completedHours", "الساعات المجتازة");
+      const semesterGpa = readNumber(data, "semesterGpa", "معدل الفصل الحالي");
+      const semesterHours = readNumber(data, "semesterHours", "ساعات الفصل الحالي");
+      const scale = readNumber(data, "scale", "مقياس المعدل");
+      if (![4, 5].includes(scale) || currentGpa < 0 || currentGpa > scale ||
+          semesterGpa < 0 || semesterGpa > scale || completedHours < 0 ||
+          completedHours > 1000 || !Number.isInteger(completedHours) ||
+          semesterHours <= 0 || semesterHours > 100 || !Number.isInteger(semesterHours)) {
+        throw new Error("تحقق من المعدلين ومقياس المعدل والساعات المدخلة.");
+      }
+      const totalHours = completedHours + semesterHours;
+      const qualityPoints = currentGpa * completedHours + semesterGpa * semesterHours;
+      const newGpa = qualityPoints / totalHours;
+      return [
+        row("المعدل التراكمي الجديد", newGpa, "number", " من " + scale),
+        row("إجمالي الساعات بعد الفصل", totalHours, "number", " ساعة"),
+        row("مجموع النقاط بعد الفصل", qualityPoints, "number", " نقطة")
+      ];
+    }
+
+    case "weighted-admission-calculator": {
+      const secondary = readNumber(data, "secondary", "درجة الثانوية");
+      const secondaryWeight = readNumber(data, "secondaryWeight", "وزن الثانوية");
+      const aptitude = readNumber(data, "aptitude", "درجة القدرات");
+      const aptitudeWeight = readNumber(data, "aptitudeWeight", "وزن القدرات");
+      const achievement = readNumber(data, "achievement", "درجة التحصيلي");
+      const achievementWeight = readNumber(data, "achievementWeight", "وزن التحصيلي");
+      const scores = [secondary, aptitude, achievement];
+      const weights = [secondaryWeight, aptitudeWeight, achievementWeight];
+      if (scores.some((score) => score < 0 || score > 100) ||
+          weights.some((weight) => weight < 0 || weight > 100) ||
+          Math.abs(weights.reduce((sum, weight) => sum + weight, 0) - 100) > 0.01) {
+        throw new Error("يجب أن تكون الدرجات بين 0 و100، وأن يكون مجموع الأوزان 100%.");
+      }
+      const weighted = scores.reduce((sum, score, index) => sum + score * weights[index], 0) / 100;
+      return [
+        row("النسبة الموزونة", weighted, "percent"),
+        row("مجموع الأوزان المدخلة", weights.reduce((sum, weight) => sum + weight, 0), "percent")
+      ];
+    }
+
+    case "word-counter": {
+      const text = String(data.text || "");
+      const words = text.match(/[\\p{L}\\p{N}]+(?:[’'\\-][\\p{L}\\p{N}]+)*/gu) || [];
+      const characters = [...text].length;
+      const charactersWithoutWhitespace = [...text.replace(/\\s/gu, "")].length;
+      const sentences = text.match(/[.!؟?]+/gu) || [];
+      const lines = text.length ? text.split(/\\r\\n|\\r|\\n/).length : 0;
+      return [
+        row("عدد الكلمات", words.length, "number", " كلمة"),
+        row("عدد الحروف والرموز مع المسافات", characters, "number", " حرفًا"),
+        row("عدد الحروف والرموز بدون المسافات", charactersWithoutWhitespace, "number", " حرفًا"),
+        row("عدد الجمل التقريبي", sentences.length, "number", " جملة"),
+        row("عدد الأسطر", lines, "number", " سطر")
+      ];
+    }
+
+    case "time-duration-calculator": {
+      const start = /^(\\d{2}):(\\d{2})$/.exec(String(data.startTime || ""));
+      const end = /^(\\d{2}):(\\d{2})$/.exec(String(data.endTime || ""));
+      const breakMinutes = readNumber(data, "breakMinutes", "مدة الاستراحة");
+      if (!start || !end || breakMinutes < 0 || !Number.isInteger(breakMinutes) || breakMinutes > 1440) {
+        throw new Error("أدخل وقت بداية ونهاية صحيحين واستراحة بالدقائق من صفر إلى 1440.");
+      }
+      const startHour = Number(start[1]), startMinute = Number(start[2]);
+      const endHour = Number(end[1]), endMinute = Number(end[2]);
+      if (startHour > 23 || endHour > 23 || startMinute > 59 || endMinute > 59) {
+        throw new Error("الوقت المدخل غير صالح.");
+      }
+      const startTotal = startHour * 60 + startMinute;
+      let endTotal = endHour * 60 + endMinute;
+      if (endTotal < startTotal) endTotal += 1440;
+      const elapsed = endTotal - startTotal;
+      if (breakMinutes > elapsed) throw new Error("مدة الاستراحة لا يمكن أن تتجاوز مدة الفترة.");
+      const netMinutes = elapsed - breakMinutes;
+      const hours = Math.floor(netMinutes / 60);
+      const minutes = netMinutes % 60;
+      return [
+        row("مدة الفترة قبل الاستراحة", Math.floor(elapsed / 60) + " ساعة و" + (elapsed % 60) + " دقيقة", "text"),
+        row("مدة العمل الفعلية", hours + " ساعة و" + minutes + " دقيقة", "text"),
+        row("ساعات العمل بصيغة عشرية", netMinutes / 60, "number", " ساعة")
+      ];
+    }
+
+    case "construction-cost-estimator": {
+      const floorArea = readNumber(data, "floorArea", "مساحة الدور");
+      const floors = readNumber(data, "floors", "عدد الأدوار");
+      const costPerMeter = readNumber(data, "costPerMeter", "تكلفة المتر المربع");
+      const contingency = readNumber(data, "contingency", "نسبة الاحتياطي");
+      if (floorArea <= 0 || floorArea > 100000 || !Number.isInteger(floors) || floors < 1 || floors > 20 ||
+          costPerMeter <= 0 || costPerMeter > 100000 || contingency < 0 || contingency > 50) {
+        throw new Error("تحقق من مساحة الدور وعدد الأدوار وتكلفة المتر ونسبة الاحتياطي.");
+      }
+      const totalArea = floorArea * floors;
+      const baseCost = totalArea * costPerMeter;
+      const reserve = baseCost * contingency / 100;
+      return [
+        row("إجمالي مسطحات البناء", totalArea, "number", " م²"),
+        row("التكلفة الأساسية التقديرية", baseCost, "money"),
+        row("الاحتياطي للمصاريف الإضافية", reserve, "money"),
+        row("الإجمالي التقديري", baseCost + reserve, "money")
+      ];
+    }
+
+    case "adult-bmi-calculator": {
+      const weight = readNumber(data, "weight", "الوزن");
+      const height = readNumber(data, "height", "الطول");
+      if (weight <= 0 || weight > 500 || height < 50 || height > 250) {
+        throw new Error("أدخل وزنًا أكبر من صفر وطولًا بين 50 و250 سم.");
+      }
+      const heightMeters = height / 100;
+      const bmi = weight / (heightMeters * heightMeters);
+      let classification;
+      if (bmi < 18.5) classification = "أقل من النطاق المرجعي للبالغين";
+      else if (bmi < 25) classification = "ضمن النطاق المرجعي للبالغين";
+      else if (bmi < 30) classification = "زيادة وزن";
+      else if (bmi < 35) classification = "سمنة – الدرجة الأولى";
+      else if (bmi < 40) classification = "سمنة – الدرجة الثانية";
+      else classification = "سمنة – الدرجة الثالثة";
+      return [
+        row("مؤشر كتلة الجسم", bmi, "number", " كجم/م²"),
+        row("التصنيف العام", classification, "text")
+      ];
+    }
+
+    case "daily-calorie-estimator": {
+      const sex = data.sex || "male";
+      const age = readNumber(data, "age", "العمر");
+      const weight = readNumber(data, "weight", "الوزن");
+      const height = readNumber(data, "height", "الطول");
+      const activity = readNumber(data, "activity", "مستوى النشاط");
+      const activityFactors = [1.2, 1.375, 1.55, 1.725, 1.9];
+      if (!["male", "female"].includes(sex) || age < 19 || age > 78 || !Number.isInteger(age) ||
+          weight < 20 || weight > 300 || height < 100 || height > 230 ||
+          !activityFactors.includes(activity)) {
+        throw new Error("تحقق من العمر (19–78 سنة) والوزن والطول والجنس ومستوى النشاط.");
+      }
+      const resting = 10 * weight + 6.25 * height - 5 * age + (sex === "male" ? 5 : -161);
+      const daily = resting * activity;
+      return [
+        row("معدل الأيض في الراحة التقديري", resting, "number", " سعرة/يوم"),
+        row("الاحتياج اليومي التقريبي للطاقة", daily, "number", " سعرة/يوم")
       ];
     }
 
