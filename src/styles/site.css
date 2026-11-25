@@ -471,3 +471,17 @@ main { display: block; max-width: var(--max); margin: 0 auto; padding: 2.4rem 1.
 .neighbourhood-list a { height: 100%; }
 .neighbourhood-hero .eyebrow { margin-top: 0; }
 .neighbourhood-hero .city-metrics { margin-bottom: .8rem; }
+
+/* أداة «كم باقي؟» والعدّادات الشهرية والشخصية */
+.countdown-card { display: flex; flex-direction: column; align-items: stretch; }
+.countdown-card h3 { margin: 0 0 .4rem; }
+.countdown-status { display: inline-flex; align-self: flex-start; margin: .25rem 0; padding: .15rem .55rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: var(--bg); font-size: .78rem; font-weight: 700; }
+.countdown-note { margin: .3rem 0 0; font-size: .82rem; }
+.countdown-card .event-source { margin: .3rem 0; font-size: .82rem; }
+.private-salary-panel { max-width: 48rem; }
+.private-salary-form { display: flex; align-items: end; gap: .75rem; flex-wrap: wrap; }
+.private-salary-form label { display: flex; flex-direction: column; gap: .3rem; font-weight: 700; }
+.private-salary-form input { width: 8rem; min-height: 2.8rem; border: 1px solid var(--line); border-radius: 9px; padding: .45rem .65rem; background: var(--bg); color: var(--ink); font: inherit; }
+.private-salary-form button { min-height: 2.8rem; border: 0; border-radius: 9px; padding: .5rem 1rem; background: var(--brand); color: var(--brand-ink); font: inherit; font-weight: 700; cursor: pointer; }
+.private-salary-result { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid var(--line); }
+.private-salary-result h3 { margin: 0 0 .5rem; }
