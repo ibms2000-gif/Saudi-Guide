@@ -53,8 +53,8 @@ jobs:
         env:
           BOOTSTRAP_BATCH_SIZE: "5"
           REFRESH_BATCH_SIZE: "5"
-          BOOTSTRAP_ONLY: ${{ !(github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode != 'bootstrap')) }}
-          REFRESH_BATCH_ONLY: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh-batch') }}
+          BOOTSTRAP_ONLY: ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'bootstrap') || (github.event_name == 'push' && !contains(github.event.head_commit.modified, 'scripts/fetch-places.mjs')) }}
+          REFRESH_BATCH_ONLY: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'refresh-batch') || (github.event_name == 'push' && contains(github.event.head_commit.modified, 'scripts/fetch-places.mjs')) }}
         run: npm run data
       - name: Validate fetched data
         env:
