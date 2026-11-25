@@ -519,7 +519,7 @@ test("النسبة الموزونة تستخدم الأوزان التي أدخ�
 });
 
 test("عداد الكلمات يحسب الكلمات والأسطر والحروف", () => {
-  const result = calculateTool("word-counter", { text: "مرحبا بالعالم\\nهذا اختبار!" });
+  const result = calculateTool("word-counter", { text: "مرحبا بالعالم\nهذا اختبار!" });
   assert.equal(result[0].value, 4);
   assert.equal(result[3].value, 1);
   assert.equal(result[4].value, 2);
