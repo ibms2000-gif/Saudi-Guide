@@ -357,8 +357,180 @@ const tools = [
     note: "تفترض الحاسبة أن التصرف خاضع للنسبة العامة للضريبة ولا ينطبق عليه استثناء، وأن المشتري سيمول الضريبة ضمن النقد المطلوب؛ وهذا افتراض للتخطيط النقدي لا يحدد المكلف بها نظامًا، إذ يجب التحقق من المسؤولية النظامية وأي اتفاق تعاقدي بشأن تحملها. أدخل عمولة الوساطة بحسب الاتفاق الفعلي، ولا تعتبر 2.5% نسبة إلزامية عامة. مبلغ التمويل الظاهر لا يشمل التكاليف؛ تحقق من الرسوم وشروط الممول والاستثناءات النظامية.",
     sources: [{ label: "هيئة الزكاة والضريبة والجمارك – نظام ضريبة التصرفات العقارية", url: "https://www.zatca.gov.sa/ar/RulesRegulations/Taxes/Pages/RETTRegulation.aspx" }]
   },
-];
 
+  {
+    slug: "gregorian-to-hijri",
+    name: "محول التاريخ الميلادي إلى الهجري",
+    short: "حوّل أي تاريخ ميلادي إلى التاريخ الهجري وفق تقويم أم القرى.",
+    description: "أدخل التاريخ الميلادي لمعرفة ما يقابله بالتقويم الهجري أم القرى المعتمد في المملكة.",
+    fields: [{ key: "date", label: "التاريخ الميلادي", type: "date", value: "today" }],
+    formula: "تستخدم الأداة تقويم أم القرى الهجري المدمج في محرك التاريخ بالمتصفح، وتحول التاريخ وفق المنطقة الزمنية UTC لتجنب اختلاف اليوم بسبب ساعة الجهاز.",
+    note: "قد تختلف رؤية الهلال الفعلية في بعض المناسبات عن الحساب التقويمي بيوم؛ لا تستخدم التحويل وحده لإثبات بداية شهر شرعي أو موعد رسمي.",
+  },
+  {
+    slug: "hijri-to-gregorian",
+    name: "محول التاريخ الهجري إلى الميلادي",
+    short: "حوّل التاريخ الهجري إلى التاريخ الميلادي وفق تقويم أم القرى.",
+    description: "أدخل اليوم والشهر والسنة الهجرية لمعرفة التاريخ الميلادي المقابل وفق تقويم أم القرى.",
+    fields: [
+      { key: "hijriDay", label: "اليوم الهجري", type: "number", min: "1", max: "30", step: "1", value: "15" },
+      { key: "hijriMonth", label: "الشهر الهجري", type: "select", value: "6", options: [
+        { value: "1", label: "محرم" }, { value: "2", label: "صفر" }, { value: "3", label: "ربيع الأول" },
+        { value: "4", label: "ربيع الآخر" }, { value: "5", label: "جمادى الأولى" }, { value: "6", label: "جمادى الآخرة" },
+        { value: "7", label: "رجب" }, { value: "8", label: "شعبان" }, { value: "9", label: "رمضان" },
+        { value: "10", label: "شوال" }, { value: "11", label: "ذو القعدة" }, { value: "12", label: "ذو الحجة" }
+      ] },
+      { key: "hijriYear", label: "السنة الهجرية", type: "number", min: "1300", max: "1600", step: "1", value: "1448" }
+    ],
+    formula: "تبحث الأداة عن التاريخ الميلادي الذي يطابق اليوم والشهر والسنة في تقويم أم القرى الهجري.",
+    note: "يعتمد التحويل على نطاق التواريخ الذي يدعمه تقويم أم القرى في المتصفح. وقد تختلف رؤية الهلال الفعلية عن الحساب التقويمي في بعض المناسبات.",
+  },
+  {
+    slug: "length-converter",
+    name: "محول وحدات الطول والمسافة",
+    short: "حوّل بين المليمتر والسنتيمتر والمتر والكيلومتر والقدم والبوصة والميل.",
+    description: "حوّل قياسات الطول والمسافة بسرعة بين الوحدات المترية والإمبراطورية الشائعة.",
+    fields: [
+      { key: "value", label: "القيمة", type: "number", min: "0", step: "any", value: "150" },
+      { key: "from", label: "من وحدة", type: "select", value: "cm", options: [
+        { value: "mm", label: "مليمتر (mm)" }, { value: "cm", label: "سنتيمتر (cm)" },
+        { value: "m", label: "متر (m)" }, { value: "km", label: "كيلومتر (km)" },
+        { value: "in", label: "بوصة (in)" }, { value: "ft", label: "قدم (ft)" },
+        { value: "yd", label: "ياردة (yd)" }, { value: "mi", label: "ميل (mi)" }
+      ] },
+      { key: "to", label: "إلى وحدة", type: "select", value: "m", options: [
+        { value: "mm", label: "مليمتر (mm)" }, { value: "cm", label: "سنتيمتر (cm)" },
+        { value: "m", label: "متر (m)" }, { value: "km", label: "كيلومتر (km)" },
+        { value: "in", label: "بوصة (in)" }, { value: "ft", label: "قدم (ft)" },
+        { value: "yd", label: "ياردة (yd)" }, { value: "mi", label: "ميل (mi)" }
+      ] }
+    ],
+    formula: "تحوّل الأداة القيمة أولًا إلى أمتار باستخدام معامل الوحدة، ثم تحولها إلى الوحدة المطلوبة.",
+    note: "النتيجة تحويل رياضي للوحدات الشائعة؛ قد تتطلب الأعمال الهندسية أو المساحية استخدام وحدات ودقة قياس محددة.",
+  },
+  {
+    slug: "weight-converter",
+    name: "محول وحدات الوزن والكتلة",
+    short: "حوّل بين الجرام والكيلوجرام والطن والرطل والأونصة.",
+    description: "حوّل الأوزان والكتل بين الوحدات المترية والوحدات الشائعة عالميًا.",
+    fields: [
+      { key: "value", label: "القيمة", type: "number", min: "0", step: "any", value: "5" },
+      { key: "from", label: "من وحدة", type: "select", value: "kg", options: [
+        { value: "mg", label: "مليجرام (mg)" }, { value: "g", label: "جرام (g)" },
+        { value: "kg", label: "كيلوجرام (kg)" }, { value: "ton", label: "طن متري (t)" },
+        { value: "oz", label: "أونصة (oz)" }, { value: "lb", label: "رطل (lb)" }
+      ] },
+      { key: "to", label: "إلى وحدة", type: "select", value: "g", options: [
+        { value: "mg", label: "مليجرام (mg)" }, { value: "g", label: "جرام (g)" },
+        { value: "kg", label: "كيلوجرام (kg)" }, { value: "ton", label: "طن متري (t)" },
+        { value: "oz", label: "أونصة (oz)" }, { value: "lb", label: "رطل (lb)" }
+      ] }
+    ],
+    formula: "تحوّل الأداة القيمة إلى كيلوجرامات ثم إلى وحدة القياس المطلوبة.",
+    note: "الطن المستخدم هنا هو الطن المتري ويساوي 1000 كيلوجرام.",
+  },
+  {
+    slug: "cumulative-gpa-calculator",
+    name: "حاسبة المعدل التراكمي الجامعي",
+    short: "احسب معدلك التراكمي الجديد بعد إضافة معدل الفصل والساعات.",
+    description: "أدخل معدلك السابق وعدد الساعات المجتازة ومعدل الفصل الحالي وساعاته لحساب المعدل التراكمي الجديد على مقياس 4 أو 5.",
+    fields: [
+      { key: "currentGpa", label: "المعدل التراكمي السابق", type: "number", min: "0", step: "0.01", value: "3.5" },
+      { key: "completedHours", label: "الساعات المجتازة قبل الفصل الحالي", type: "number", min: "0", max: "1000", step: "1", value: "60" },
+      { key: "semesterGpa", label: "معدل الفصل الحالي", type: "number", min: "0", step: "0.01", value: "4.2" },
+      { key: "semesterHours", label: "ساعات الفصل الحالي", type: "number", min: "1", max: "100", step: "1", value: "15" },
+      { key: "scale", label: "مقياس المعدل", type: "select", value: "5", options: [{ value: "5", label: "من 5" }, { value: "4", label: "من 4" }] }
+    ],
+    formula: "المعدل التراكمي الجديد = (المعدل السابق × الساعات المجتازة + معدل الفصل × ساعات الفصل) ÷ مجموع الساعات.",
+    note: "أدخل المعدلين على المقياس نفسه، واستخدم الساعات المعتمدة التي تعتمدها جامعتك. قد تختلف قواعد التقريب أو إعادة المقررات بين الجامعات.",
+  },
+  {
+    slug: "weighted-admission-calculator",
+    name: "حاسبة النسبة الموزونة للقبول الجامعي",
+    short: "احسب النسبة الموزونة من الثانوية والقدرات والتحصيلي بأوزان تحددها الجامعة.",
+    description: "أدخل درجات الثانوية والقدرات والتحصيلي، ثم أدخل أوزان كل اختبار كما أعلنتها الجامعة أو الكلية لتحصل على النسبة الموزونة.",
+    fields: [
+      { key: "secondary", label: "درجة الثانوية (%)", type: "number", min: "0", max: "100", step: "0.01", value: "98" },
+      { key: "secondaryWeight", label: "وزن الثانوية (%)", type: "number", min: "0", max: "100", step: "0.01", value: "30" },
+      { key: "aptitude", label: "درجة القدرات (%)", type: "number", min: "0", max: "100", step: "0.01", value: "85" },
+      { key: "aptitudeWeight", label: "وزن القدرات (%)", type: "number", min: "0", max: "100", step: "0.01", value: "30" },
+      { key: "achievement", label: "درجة التحصيلي (%)", type: "number", min: "0", max: "100", step: "0.01", value: "80" },
+      { key: "achievementWeight", label: "وزن التحصيلي (%)", type: "number", min: "0", max: "100", step: "0.01", value: "40" }
+    ],
+    formula: "النسبة الموزونة = مجموع (درجة كل عنصر × وزنه) ÷ 100، ويجب أن يكون مجموع الأوزان 100%.",
+    note: "الأوزان الافتراضية في هذه الحاسبة مثال قابل للتعديل وليست معيارًا موحدًا للجامعات السعودية. أدخل الأوزان المنشورة للجامعة والتخصص والدفعة التي تتقدم إليها.",
+  },
+  {
+    slug: "word-counter",
+    name: "عداد الكلمات والحروف",
+    short: "احسب الكلمات والحروف والمسافات والأسطر في النص العربي أو الإنجليزي.",
+    description: "الصق النص لمعرفة عدد الكلمات والحروف مع المسافات وبدونها، وعدد الأسطر والجمل. تتم المعالجة داخل المتصفح.",
+    fields: [{ key: "text", label: "النص المراد تحليله", type: "textarea", value: "" }],
+    formula: "تُحسب الكلمات من تسلسلات الحروف والأرقام، والحروف من رموز Unicode، والأسطر من فواصل الأسطر الموجودة في النص.",
+    note: "تتعامل الأداة مع النص العربي والإنجليزي، وتعدّ علامات الترقيم منفصلة عن الكلمات. لا يتم إرسال النص إلى الخادم.",
+  },
+  {
+    slug: "time-duration-calculator",
+    name: "حاسبة مدة الوقت وساعات الدوام",
+    short: "احسب الساعات والدقائق بين وقتي البداية والنهاية مع خصم الاستراحة.",
+    description: "أدخل وقت البداية والنهاية ومدة الاستراحة لمعرفة مدة العمل الفعلية بالساعات والدقائق والساعات العشرية، بما في ذلك الدوام الذي يتجاوز منتصف الليل.",
+    fields: [
+      { key: "startTime", label: "وقت البداية", type: "time", value: "08:00" },
+      { key: "endTime", label: "وقت النهاية", type: "time", value: "16:00" },
+      { key: "breakMinutes", label: "مدة الاستراحة بالدقائق", type: "number", min: "0", max: "1440", step: "1", value: "30" }
+    ],
+    formula: "مدة العمل = الفرق بين وقت النهاية والبداية، مع اعتبار النهاية في اليوم التالي إذا كانت قبل وقت البداية، ثم طرح دقائق الاستراحة.",
+    note: "هذه أداة لحساب المدة الزمنية فقط، ولا تحدد ما إذا كانت الساعات مستحقة كعمل إضافي وفق عقد أو نظام معين.",
+  },
+  {
+    slug: "construction-cost-estimator",
+    name: "حاسبة تكلفة بناء المنزل",
+    short: "قدّر تكلفة البناء من مساحة الدور وعدد الأدوار وتكلفة المتر.",
+    description: "قدّر مساحة البناء الإجمالية والتكلفة الأساسية والاحتياطي المالي بناءً على مساحة الدور وعدد الأدوار وتكلفة المتر التي تدخلها.",
+    fields: [
+      { key: "floorArea", label: "مساحة الدور الواحد (م²)", type: "number", min: "1", step: "0.1", value: "200" },
+      { key: "floors", label: "عدد الأدوار", type: "number", min: "1", max: "20", step: "1", value: "2" },
+      { key: "costPerMeter", label: "تكلفة المتر المربع التقديرية (ريال)", type: "number", min: "1", step: "1", value: "1800" },
+      { key: "contingency", label: "احتياطي للمصاريف الإضافية (%)", type: "number", min: "0", max: "50", step: "1", value: "10" }
+    ],
+    formula: "إجمالي المسطحات = مساحة الدور × عدد الأدوار. التكلفة الأساسية = إجمالي المسطحات × تكلفة المتر. الإجمالي التقديري = التكلفة الأساسية + نسبة الاحتياطي.",
+    note: "تكلفة المتر ليست سعرًا رسميًا؛ أدخل عرض المقاول أو تقديرك بحسب مستوى التشطيب والموقع والتربة والتصميم. لا تشمل النتيجة تلقائيًا قيمة الأرض أو التمويل أو الرسوم ما لم تُدخلها ضمن تكلفة المتر.",
+  },
+  {
+    slug: "adult-bmi-calculator",
+    name: "حاسبة مؤشر كتلة الجسم للبالغين",
+    short: "احسب مؤشر كتلة الجسم وتصنيفه للبالغين.",
+    description: "احسب مؤشر كتلة الجسم باستخدام الوزن بالكيلوجرام والطول بالسنتيمتر، مع عرض التصنيف العام للبالغين.",
+    fields: [
+      { key: "weight", label: "الوزن (كجم)", type: "number", min: "1", max: "500", step: "0.1", value: "70" },
+      { key: "height", label: "الطول (سم)", type: "number", min: "50", max: "250", step: "0.1", value: "175" }
+    ],
+    formula: "مؤشر كتلة الجسم = الوزن بالكيلوجرام ÷ (الطول بالمتر × الطول بالمتر).",
+    note: "التصنيف مخصص للبالغين، ولا يُستخدم للأطفال أو المراهقين أو الحوامل. مؤشر كتلة الجسم أداة فحص أولية ولا يشخّص الحالة الصحية بمفرده.",
+    sources: [{ label: "وزارة الصحة السعودية – نطاقات مؤشر كتلة الجسم للبالغين", url: "https://www.moh.gov.sa/eServices/Documents/know-your-numbers-en.pdf" }, { label: "منظمة الصحة العالمية – السمنة وزيادة الوزن", url: "https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight" }]
+  },
+  {
+    slug: "daily-calorie-estimator",
+    name: "حاسبة الاحتياج اليومي من السعرات",
+    short: "قدّر معدل الأيض والسعرات اليومية بحسب بيانات البالغ ومستوى نشاطه.",
+    description: "قدّر معدل الأيض في الراحة والاحتياج اليومي التقريبي للطاقة باستخدام معادلة ميفلين-سانت جيور ومعامل نشاط تختاره.",
+    fields: [
+      { key: "sex", label: "الجنس المستخدم في المعادلة", type: "select", value: "male", options: [{ value: "male", label: "ذكر" }, { value: "female", label: "أنثى" }] },
+      { key: "age", label: "العمر (سنة)", type: "number", min: "19", max: "78", step: "1", value: "30" },
+      { key: "weight", label: "الوزن (كجم)", type: "number", min: "20", max: "300", step: "0.1", value: "70" },
+      { key: "height", label: "الطول (سم)", type: "number", min: "100", max: "230", step: "0.1", value: "170" },
+      { key: "activity", label: "مستوى النشاط اليومي", type: "select", value: "1.375", options: [
+        { value: "1.2", label: "قليل الحركة (1.2)" }, { value: "1.375", label: "نشاط خفيف (1.375)" },
+        { value: "1.55", label: "نشاط متوسط (1.55)" }, { value: "1.725", label: "نشاط مرتفع (1.725)" },
+        { value: "1.9", label: "نشاط مرتفع جدًا (1.9)" }
+      ] }
+    ],
+    formula: "للذكور: معدل الأيض = 10 × الوزن + 6.25 × الطول − 5 × العمر + 5. وللإناث: المعادلة نفسها مع طرح 161 بدل إضافة 5. الاحتياج اليومي التقريبي = معدل الأيض × معامل النشاط.",
+    note: "هذه معادلة تقديرية للبالغين وليست وصفة غذائية أو تشخيصًا طبيًا. قد تختلف الاحتياجات الفعلية بحسب الحالة الصحية وتركيب الجسم والأدوية والحمل والرضاعة ومستوى النشاط الحقيقي.",
+    sources: [{ label: "PubMed – معادلة ميفلين-سانت جيور الأصلية لتقدير معدل الأيض", url: "https://pubmed.ncbi.nlm.nih.gov/2305711/" }]
+  },
+
+];
 function fieldsHtml(fields) {
   return fields.map((field) => {
     const value = field.value === "today" ? "" : field.value;
@@ -366,7 +538,9 @@ function fieldsHtml(fields) {
     const defaultToday = field.value === "today" ? " data-today=\"true\"" : "";
     const control = field.type === "select"
       ? `<select name="${field.key}" required>${field.options.map((option) => `<option value="${escapeHtml(option.value)}"${option.value === field.value ? " selected" : ""}>${escapeHtml(option.label)}</option>`).join("")}</select>`
-      : `<input type="${field.type}" name="${field.key}" value="${escapeHtml(value)}" ${attrs} required${defaultToday}>`;
+      : field.type === "textarea"
+        ? `<textarea name="${field.key}" rows="6" required>${escapeHtml(value)}</textarea>`
+        : `<input type="${field.type}" name="${field.key}" value="${escapeHtml(value)}" ${attrs} required${defaultToday}>`;
     return `<label class="tool-field"><span>${escapeHtml(field.label)}</span>${control}</label>`;
   }).join("");
 }
