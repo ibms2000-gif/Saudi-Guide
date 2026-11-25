@@ -46,7 +46,7 @@ export function renderPlacePage({ place, city, category, siteUrl, fetchedAt }) {
   const description = [...descriptionParts.join("، ")].slice(0, 155).join("").trim();
   const website = safeHttpUrl(place.website);
   const phone = safeTelephone(place.phone);
-  const email = typeof place.email === "string" && /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(place.email.trim())
+  const email = typeof place.email === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(place.email.trim())
     ? place.email.trim()
     : null;
   const readable = (value) => String(value || "").split(";").map((part) => part.trim().replaceAll("_", " ").replaceAll("-", " ")).filter(Boolean).join("، ");
