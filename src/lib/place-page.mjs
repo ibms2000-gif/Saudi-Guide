@@ -1,7 +1,7 @@
 import { escapeHtml, safeHttpUrl, safeTelephone } from "./util.mjs";
 
 const OSM_TYPES = new Set(["node", "way", "relation"]);
-const DETAIL_FIELDS = ["address", "phone", "website", "openingHours"];
+const DETAIL_FIELDS = ["address", "phone", "website", "openingHours", "neighbourhood", "email", "brand", "operator", "cuisine", "description"];
 
 export function countPlaceDetails(place) {
   return DETAIL_FIELDS.filter((field) => {
@@ -35,10 +35,28 @@ export function renderPlacePage({ place, city, category, siteUrl, fetchedAt }) {
   const name = escapeHtml(place.name);
   const cityName = escapeHtml(city.nameAr);
   const categoryName = escapeHtml(category?.nameAr || "مكان");
-  const title = `${place.name} في ${city.nameAr} — دليل السعودية`;
-  const description = `معلومات ${place.name} في ${city.nameAr}: التصنيف والموقع ووسائل التواصل المتاحة. تحقق من التفاصيل قبل الزيارة.`;
+  const title = `${place.name} في ${city.nameAr} | ${categoryName} - دليل السعودية`;
+  const descriptionParts = [
+    `تعرف على ${place.name} في ${city.nameAr}`,
+    categoryName ? `ضمن قسم ${categoryName}` : "",
+    place.neighbourhood ? `في حي ${place.neighbourhood}` : "",
+    place.cuisine ? `نوع النشاط: ${String(place.cuisine).replaceAll("_", " ")}` : "",
+    place.address ? `العنوان: ${place.address}` : "",
+  ].filter(Boolean);
+  const description = [...descriptionParts.join("، ")].slice(0, 155).join("").trim();
   const website = safeHttpUrl(place.website);
   const phone = safeTelephone(place.phone);
+  const email = typeof place.email === "string" && /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(place.email.trim())
+    ? place.email.trim()
+    : null;
+  const readable = (value) => String(value || "").split(";").map((part) => part.trim().replaceAll("_", " ").replaceAll("-", " ")).filter(Boolean).join("، ");
+  const yesNo = (value) => ({
+    yes: "نعم",
+    no: "لا",
+    limited: "متاح بشكل محدود",
+    designated: "متاح في أماكن مخصصة",
+    only: "متاح لهذا النوع فقط",
+  })[String(value || "").toLowerCase()] || readable(value);
   const lat = Number(place.lat);
   const lon = Number(place.lon);
   const mapUrl = new URL("https://www.openstreetmap.org/");
@@ -58,7 +76,17 @@ export function renderPlacePage({ place, city, category, siteUrl, fetchedAt }) {
     place.neighbourhood ? `<div class="place-fact"><dt>الحي المسجل</dt><dd>${escapeHtml(place.neighbourhood)}</dd></div>` : "",
     place.phone ? `<div class="place-fact"><dt>الهاتف</dt><dd>${phone ? `<a href="tel:${escapeHtml(phone)}">${escapeHtml(place.phone)}</a>` : escapeHtml(place.phone)}</dd></div>` : "",
     place.openingHours ? `<div class="place-fact"><dt>ساعات العمل المسجلة</dt><dd>${escapeHtml(place.openingHours)}</dd></div>` : "",
-    website ? `<div class="place-fact"><dt>الموقع الإلكتروني</dt><dd><a href="${escapeHtml(website)}" rel="noopener noreferrer nofollow" target="_blank">زيارة الموقع الرسمي أو المدرج في المصدر</a></dd></div>` : "",
+    place.cuisine ? `<div class="place-fact"><dt>نوع الطعام أو النشاط</dt><dd>${escapeHtml(readable(place.cuisine))}</dd></div>` : "",
+    place.brand ? `<div class="place-fact"><dt>العلامة التجارية</dt><dd>${escapeHtml(place.brand)}</dd></div>` : "",
+    place.operator ? `<div class="place-fact"><dt>المشغّل</dt><dd>${escapeHtml(place.operator)}</dd></div>` : "",
+    email ? `<div class="place-fact"><dt>البريد الإلكتروني</dt><dd><a href="mailto:${escapeHtml(email)}" rel="nofollow">${escapeHtml(email)}</a></dd></div>` : "",
+    place.wheelchair ? `<div class="place-fact"><dt>إمكانية الوصول بالكراسي المتحركة</dt><dd>${escapeHtml(yesNo(place.wheelchair))}</dd></div>` : "",
+    place.delivery ? `<div class="place-fact"><dt>خدمة التوصيل المسجلة</dt><dd>${escapeHtml(yesNo(place.delivery))}</dd></div>` : "",
+    place.takeaway ? `<div class="place-fact"><dt>خدمة الطلبات الخارجية</dt><dd>${escapeHtml(yesNo(place.takeaway))}</dd></div>` : "",
+    place.capacity ? `<div class="place-fact"><dt>السعة المسجلة</dt><dd>${escapeHtml(place.capacity)}</dd></div>` : "",
+    place.postcode ? `<div class="place-fact"><dt>الرمز البريدي</dt><dd>${escapeHtml(place.postcode)}</dd></div>` : "",
+    place.description ? `<div class="place-fact"><dt>الوصف المسجل في المصدر</dt><dd>${escapeHtml(place.description)}</dd></div>` : "",
+    website ? `<div class="place-fact"><dt>الموقع الإلكتروني</dt><dd><a href="${escapeHtml(website)}" rel="noopener noreferrer nofollow" target="_blank">زيارة الموقع المدرج في المصدر</a></dd></div>` : "",
   ].filter(Boolean).join("");
 
   const fetched = fetchedAt && Number.isFinite(Date.parse(fetchedAt))
@@ -72,7 +100,22 @@ export function renderPlacePage({ place, city, category, siteUrl, fetchedAt }) {
     geo: { "@type": "GeoCoordinates", latitude: lat, longitude: lon },
     ...(place.address ? { address: place.address } : {}),
     ...(phone ? { telephone: phone } : {}),
+    ...(email ? { email } : {}),
+    ...(place.description ? { description: place.description } : {}),
     ...(website ? { sameAs: website } : {}),
+    additionalProperty: [
+      ["نوع النشاط", place.cuisine],
+      ["العلامة التجارية", place.brand],
+      ["المشغّل", place.operator],
+      ["الحي المسجل", place.neighbourhood],
+      ["ساعات العمل المسجلة", place.openingHours],
+      ["إمكانية الوصول", place.wheelchair],
+    ].filter(([, value]) => value !== null && value !== undefined && String(value).trim() !== "")
+      .map(([propertyName, value]) => ({
+        "@type": "PropertyValue",
+        name: propertyName,
+        value: String(value),
+      })),
   };
   const schemaJson = JSON.stringify(schema).replaceAll("<", "\\u003c");
   const robots = indexable ? "index, follow" : "noindex, follow";
@@ -110,7 +153,7 @@ export function renderPlacePage({ place, city, category, siteUrl, fetchedAt }) {
   <section class="place-detail">
     <p class="eyebrow">${categoryName} · ${cityName}</p>
     <h1>${name}</h1>
-    <p>صفحة معلومات المكان في دليل السعودية. نعرض التفاصيل المتاحة من مصدر البيانات ونوضح ما لم يتوفر منها.</p>
+    <p>${escapeHtml(categoryName)} في ${cityName}${place.neighbourhood ? `، ضمن حي ${escapeHtml(place.neighbourhood)}` : ""}. تعرض الصفحة البيانات المسجلة للموقع والنشاط ووسائل التواصل عند توفرها.</p>
     <dl class="place-facts">
       ${detailRows || '<div class="place-fact"><dt>التفاصيل</dt><dd>لم ترد معلومات اتصال أو عنوان إضافية في مصدر البيانات الحالي.</dd></div>'}
       <div class="place-fact"><dt>الإحداثيات</dt><dd dir="ltr">${lat.toFixed(6)}, ${lon.toFixed(6)}</dd></div>
