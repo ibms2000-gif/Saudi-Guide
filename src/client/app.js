@@ -52,7 +52,7 @@
     var targetText = date + "T00:00:00+03:00";
     element.setAttribute("data-countdown-target", targetText);
     var parent = element.parentElement;
-    var dateLabel = parent ? parent.querySelector("[data-next-annual-date]") : null;
+    var dateLabel = parent ? parent.querySelector("[data-next-annual-date], [data-countdown-date]") : null;
     if (dateLabel) {
       dateLabel.textContent = new Intl.DateTimeFormat("ar-SA-u-ca-gregory", {
         timeZone: "Asia/Riyadh",
@@ -65,11 +65,64 @@
     return Date.parse(targetText);
   }
 
+  function getMonthlyTarget(element) {
+    var day = Number(element.getAttribute("data-countdown-recurring-day"));
+    var rule = element.getAttribute("data-countdown-rule") || "none";
+    if (!Number.isInteger(day) || day < 1 || day > 31) return null;
+
+    var parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Riyadh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(new Date());
+    var values = {};
+    parts.forEach(function (part) { values[part.type] = part.value; });
+    var today = values.year + "-" + values.month + "-" + values.day;
+    var currentYear = Number(values.year);
+    var currentMonth = Number(values.month);
+
+    for (var offset = 0; offset < 14; offset += 1) {
+      var monthIndex = currentMonth - 1 + offset;
+      var year = currentYear + Math.floor(monthIndex / 12);
+      var month = monthIndex % 12 + 1;
+      var lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+      var date = new Date(Date.UTC(year, month - 1, Math.min(day, lastDay)));
+
+      if (rule === "citizen-account") {
+        var weekday = date.getUTCDay();
+        if (weekday === 5) date.setUTCDate(date.getUTCDate() - 1);
+        if (weekday === 6) date.setUTCDate(date.getUTCDate() + 1);
+      }
+
+      var isoDate = date.toISOString().slice(0, 10);
+      if (isoDate < today) continue;
+
+      var targetText = isoDate + "T00:00:00+03:00";
+      element.setAttribute("data-countdown-target", targetText);
+      var parent = element.parentElement;
+      var dateLabel = parent ? parent.querySelector("[data-countdown-date]") : null;
+      if (dateLabel) {
+        dateLabel.textContent = new Intl.DateTimeFormat("ar-SA-u-ca-gregory", {
+          timeZone: "Asia/Riyadh",
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        }).format(new Date(isoDate + "T12:00:00+03:00"));
+      }
+      return Date.parse(targetText);
+    }
+    return null;
+  }
+
   function renderCountdown(element) {
     var targetText = element.getAttribute("data-countdown-target");
     var target = element.hasAttribute("data-countdown-month")
       ? getAnnualTarget(element)
-      : Date.parse(targetText || "");
+      : element.hasAttribute("data-countdown-recurring-day")
+        ? getMonthlyTarget(element)
+        : Date.parse(targetText || "");
     var output = element.querySelector(".countdown-value");
     if (!output || !Number.isFinite(target)) {
       if (output) output.textContent = "تعذر حساب الموعد";
@@ -101,14 +154,48 @@
   var countdowns = Array.prototype.slice.call(
     document.querySelectorAll("[data-countdown-target]")
   );
-  if (!countdowns.length) return;
+  var timer = null;
 
-  countdowns.forEach(renderCountdown);
-  var timer = window.setInterval(function () {
+  function tickCountdowns() {
     var active = false;
     countdowns.forEach(function (element) {
       if (renderCountdown(element)) active = true;
     });
-    if (!active) window.clearInterval(timer);
-  }, 1000);
+    if (!active && timer) {
+      window.clearInterval(timer);
+      timer = null;
+    }
+    return active;
+  }
+
+  function startCountdownTimer() {
+    if (timer) window.clearInterval(timer);
+    tickCountdowns();
+    timer = window.setInterval(tickCountdowns, 1000);
+  }
+
+  var privateSalaryForm = document.querySelector("[data-private-salary-form]");
+  var privateSalaryCard = document.querySelector("[data-private-salary-card]");
+  if (privateSalaryForm && privateSalaryCard) {
+    privateSalaryForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      var input = privateSalaryForm.querySelector('[name="day"]');
+      var day = Number(input && input.value);
+      if (!Number.isInteger(day) || day < 1 || day > 31) {
+        if (input) input.setCustomValidity("أدخل يومًا من 1 إلى 31.");
+        if (input) input.reportValidity();
+        return;
+      }
+      if (input) input.setCustomValidity("");
+      var countdown = privateSalaryCard.querySelector("[data-countdown-target]");
+      if (!countdown) return;
+      countdown.setAttribute("data-countdown-recurring-day", String(day));
+      countdown.setAttribute("data-countdown-rule", "none");
+      privateSalaryCard.hidden = false;
+      if (countdowns.indexOf(countdown) === -1) countdowns.push(countdown);
+      startCountdownTimer();
+    });
+  }
+
+  if (countdowns.length) startCountdownTimer();
 })();

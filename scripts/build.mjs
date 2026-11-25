@@ -29,6 +29,7 @@ import { benefitsIndexPage, benefitDetailPage } from "../src/lib/benefits.mjs";
 import { statisticsIndexPage, statisticDetailPage } from "../src/lib/statistics.mjs";
 import { newsIndexPage, newsRegionPage, newsDetailPage } from "../src/lib/news.mjs";
 import { toolsIndexPage, toolPages } from "../src/lib/tools.mjs";
+import { countdownsToolPage } from "../src/lib/countdowns.mjs";
 import { loadOfficialHealthCenters, officialHealthCentersIndexPage, officialHealthCentersRegionPage } from "../src/lib/official-health-centers.mjs";
 import { loadOfficialMentalHealthHospitals, officialMentalHealthHospitalsPage } from "../src/lib/official-mental-health-hospitals.mjs";
 import { officialDirectoriesPage } from "../src/lib/official-directories.mjs";
@@ -98,6 +99,11 @@ export async function build({ root = DEFAULT_ROOT, dataRoot = root, distDir, all
   add("/prayer-times/", prayerTimesIndexPage(model.cities));
   add("/tools/", toolsIndexPage());
   for (const tool of toolPages()) add(tool.path, tool.html);
+  add("/tools/countdowns/", countdownsToolPage({
+    countdowns: model.countdowns,
+    events: model.events,
+    salarySchedules: model.salarySchedules,
+  }));
   add("/benefits/", benefitsIndexPage(model.benefits));
   for (const benefit of model.benefits) {
     add(`/benefits/${benefit.slug}/`, benefitDetailPage(benefit));

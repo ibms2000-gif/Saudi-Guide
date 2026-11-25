@@ -584,7 +584,7 @@ function toolPage(tool) {
 }
 
 export function toolsIndexPage() {
-  const cards = tools.map((tool) => `<li><a href="/tools/${tool.slug}/"><strong>${escapeHtml(tool.name)}</strong><span>${escapeHtml(tool.short)}</span></a></li>`).join("");
+  const cards = tools.map((tool) => `<li><a href="/tools/${tool.slug}/"><strong>${escapeHtml(tool.name)}</strong><span>${escapeHtml(tool.short)}</span></a></li>`).join("") + `<li><a href="/tools/countdowns/"><strong>كم باقي؟ — العد التنازلي</strong><span>تابع الرواتب والدعم ورمضان والعيد والحج والدراسة والإجازات والفصول مع تمييز المواعيد الرسمية عن التقديرية.</span></a></li>`;
   const body = `
   <section class="hero">
     <h1>أدوات وحاسبات مجانية</h1>
