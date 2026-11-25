@@ -16,7 +16,7 @@ function readTag(tags, keys, maxLength = 300) {
   for (const key of keys) {
     const raw = tags?.[key];
     if (raw === null || raw === undefined) continue;
-    const value = String(raw).replace(/[\\u0000-\\u001F\\u007F]/g, " ").replace(/\\s+/g, " ").trim();
+    const value = String(raw).replace(/[\u0000-\u001F\u007F]/g, " ").replace(/\s+/g, " ").trim();
     if (value) return value.slice(0, maxLength);
   }
   return null;
